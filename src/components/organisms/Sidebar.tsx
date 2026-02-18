@@ -1,3 +1,4 @@
+import { NavLink, Link } from "react-router-dom";
 import {
   LayoutDashboard,
   Wallet,
@@ -9,37 +10,43 @@ import {
 import type { NavItem } from "../../types";
 
 const navItems: NavItem[] = [
-  { icon: LayoutDashboard, label: "Dashboard", active: true },
-  { icon: Wallet, label: "Transactions", active: false },
-  { icon: PieChart, label: "Budgets", active: false },
-  { icon: TrendingUp, label: "Analytics", active: false },
-  { icon: Settings, label: "Settings", active: false },
+  { icon: LayoutDashboard, label: "Dashboard", to: "/dashboard" },
+  { icon: Wallet, label: "Transactions", to: "/transactions" },
+  { icon: PieChart, label: "Budgets", to: "/budgets" },
+  { icon: TrendingUp, label: "Analytics", to: "/analytics" },
+  { icon: Settings, label: "Settings", to: "/settings" },
 ];
 
 export const Sidebar = () => {
   return (
     <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-slate-200">
-      <div className="flex items-center gap-sm px-lg py-lg border-b border-slate-100">
+      <Link
+        to="/"
+        className="flex items-center gap-sm px-lg py-lg border-b border-slate-100 hover:bg-slate-50 transition-colors"
+      >
         <div className="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center">
           <span className="text-white text-sm font-bold">BL</span>
         </div>
         <span className="text-lg font-semibold text-slate-900">Budget Lens</span>
-      </div>
+      </Link>
 
       <nav className="flex-1 px-sm py-md space-y-xs">
         {navItems.map((item) => (
-          <a
+          <NavLink
             key={item.label}
-            href="#"
-            className={`flex items-center gap-sm px-md py-sm rounded-md text-sm font-medium transition-colors ${
-              item.active
-                ? "bg-primary-50 text-primary-700"
-                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-            }`}
+            to={item.to}
+            end
+            className={({ isActive }) =>
+              `flex items-center gap-sm px-md py-sm rounded-md text-sm font-medium transition-colors ${
+                isActive
+                  ? "bg-primary-50 text-primary-700"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+              }`
+            }
           >
             <item.icon className="w-5 h-5" />
             {item.label}
-          </a>
+          </NavLink>
         ))}
       </nav>
 
@@ -57,4 +64,4 @@ export const Sidebar = () => {
       </div>
     </aside>
   );
-}
+};

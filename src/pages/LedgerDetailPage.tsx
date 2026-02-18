@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { LayoutDashboard } from "lucide-react";
 import { CategoriesTable } from "../components/molecules/CategoriesTable";
 import { CollaboratorsTable } from "../components/molecules/CollaboratorsTable";
 import { GroupsTable } from "../components/molecules/GroupsTable";
@@ -6,6 +8,7 @@ import { PaymentMethodsTable } from "../components/molecules/PaymentMethodsTable
 import { LedgerDetailHeader } from "../components/organisms/LedgerDetailHeader";
 import { TransactionTable } from "../components/organisms/TransactionTable";
 import { mockLedger } from "../helpers/mocks/ledger-mocks";
+import { mockUser } from "../helpers/mocks/user-mocks";
 import { cn } from "../utils/cn";
 import type { LedgerDetailTab, LedgerResponseDto } from "../types";
 
@@ -42,9 +45,61 @@ const TABS: {
 // ---------------------------------------------------------------------------
 
 export const LedgerDetailPage = () => {
-  // TODO: replace mockLedger with useQuery fetching GET /ledgers/:id
+  const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState<LedgerDetailTab>("transactions");
-  const ledger = mockLedger;
+
+  // Check if the id matches any ledger in the user's dashboard
+  const ledgerSummary = mockUser.ledgers.find((l) => String(l.id) === id);
+
+  // Full detail mock is only available for ledger id "1"
+  // TODO: replace with useQuery fetching GET /ledgers/:id
+  const ledger = String(mockLedger.id) === id ? mockLedger : null;
+
+  // Unknown ledger — not in the user's list at all
+  if (!ledgerSummary) {
+    return (
+      <main className="flex-1 overflow-y-auto p-lg">
+        <div className="flex flex-col items-center justify-center h-full gap-md text-center">
+          <p className="text-4xl">🔍</p>
+          <h2 className="text-xl font-semibold text-slate-900">Ledger not found</h2>
+          <p className="text-sm text-slate-500 max-w-xs">
+            No ledger with ID <span className="font-mono text-slate-700">{id}</span> exists in
+            your account.
+          </p>
+          <Link
+            to="/dashboard"
+            className="flex items-center gap-xs text-sm font-medium text-primary-600 hover:text-primary-700"
+          >
+            <LayoutDashboard className="w-4 h-4" />
+            Back to dashboard
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  // Ledger exists in the dashboard but has no detail mock yet
+  if (!ledger) {
+    return (
+      <main className="flex-1 overflow-y-auto p-lg">
+        <div className="flex flex-col items-center justify-center h-full gap-md text-center">
+          <p className="text-4xl">🚧</p>
+          <h2 className="text-xl font-semibold text-slate-900">{ledgerSummary.name}</h2>
+          <p className="text-sm text-slate-500 max-w-xs">
+            Detailed data for this ledger isn't available yet. Full transaction history will appear
+            here once the API is connected.
+          </p>
+          <Link
+            to="/dashboard"
+            className="flex items-center gap-xs text-sm font-medium text-primary-600 hover:text-primary-700"
+          >
+            <LayoutDashboard className="w-4 h-4" />
+            Back to dashboard
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="flex-1 overflow-y-auto">

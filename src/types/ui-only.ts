@@ -7,7 +7,7 @@ import type React from "react";
 export interface NavItem {
   icon: React.ElementType;
   label: string;
-  active: boolean;
+  to: string;
 }
 
 export interface StatCardData {
