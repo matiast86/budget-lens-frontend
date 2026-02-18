@@ -92,6 +92,199 @@ Development mocks live in `src/helpers/mocks/`. Each file exports one mock objec
 
 ---
 
+## Engineering Conventions
+
+These rules apply to every file generated or modified. They are not optional.
+
+### Naming
+
+| Thing | Convention | Example |
+|---|---|---|
+| Component files | PascalCase | `LedgerCard.tsx` |
+| Hook files | kebab-case with `use-` prefix | `use-ledger.ts` |
+| Utility files | kebab-case | `format-currency.ts` |
+| Type files | kebab-case | `prisma-enums.ts` |
+| Mock files | kebab-case with `-mocks` suffix | `ledger-mocks.ts` |
+| Schema files | kebab-case with `.schema` suffix | `ledger.schema.ts` |
+| Local constants | SCREAMING_SNAKE_CASE | `MAX_COLLABORATORS` |
+| Custom hooks | camelCase with `use` prefix | `useLedger`, `useTransactionFilter` |
+| Environment variables | `VITE_` prefix + SCREAMING_SNAKE_CASE | `VITE_API_BASE_URL` |
+
+### Exports — named only, never default
+
+All exports are named. Never use `export default` except where a framework strictly requires it (none currently do in this project).
+
+```typescript
+// ✅ correct
+export const StatCard = ({ ... }: StatCardProps) => { ... };
+
+// ❌ wrong — untraceable across refactors
+export default StatCard;
+```
+
+### No `any` — ever
+
+`any` is forbidden. Use `unknown` for truly untyped external data and narrow it explicitly.
+
+```typescript
+// ✅ correct
+const parsed: unknown = JSON.parse(raw);
+
+// ❌ wrong
+const parsed: any = JSON.parse(raw);
+```
+
+If you find yourself reaching for `any`, stop and use a proper type, `unknown`, or a discriminated union instead.
+
+### No array-index keys in lists
+
+Never use the array index as a React `key`. Always use a stable, unique ID from the data.
+
+```tsx
+// ✅ correct
+transactions.map((tx) => <TransactionRow key={tx.id} transaction={tx} />)
+
+// ❌ wrong — breaks reconciliation on reorder/filter
+transactions.map((tx, i) => <TransactionRow key={i} transaction={tx} />)
+```
+
+### No prop drilling beyond 2 levels
+
+If a prop passes through more than 2 components without being consumed, extract a custom hook, use React Context, or wire it through Zustand. Drilling through 3+ levels is a structure smell.
+
+### File size guideline
+
+A file exceeding ~250 lines is a signal to split — either extract a subcomponent to the appropriate atomic level, or extract logic into a custom hook. There is no hard line, but long files should be flagged in review.
+
+### `src/utils/` — what belongs here
+
+`src/utils/` is for pure, stateless helper functions only. No React, no hooks, no side effects.
+
+| File | Responsibility |
+|---|---|
+| `cn.ts` | Class merging (already exists) |
+| `format-currency.ts` | `formatCurrency(amount, currency)` via `Intl.NumberFormat` |
+| `format-date.ts` | `formatTransactionDate`, `formatPaymentMonth` via `date-fns` |
+| `format-percent.ts` | `formatPercent(ratio)` for budget progress display |
+
+### Number and currency formatting — raw values never in JSX
+
+Every numeric amount displayed to the user must go through a formatter in `src/utils/`. Raw numbers in JSX are forbidden.
+
+```tsx
+// ✅ correct
+<span className="financial-amount amount-negative">
+  {formatCurrency(transaction.totalAmount, transaction.currency)}
+</span>
+
+// ❌ wrong — raw number, locale-unaware, untestable
+<span>{transaction.totalAmount}</span>
+```
+
+All currency formatting uses `Intl.NumberFormat` internally — never manual string concatenation or `.toFixed()` alone.
+
+```typescript
+// src/utils/format-currency.ts
+export const formatCurrency = (
+  amount: number,
+  currency: Currency,
+): string =>
+  new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 2,
+  }).format(amount);
+```
+
+### `src/hooks/` — custom hook conventions
+
+Any non-trivial stateful logic that is used by more than one component, or that makes a component file exceed the size guideline, must be extracted to `src/hooks/`.
+
+```
+src/hooks/
+  use-ledger.ts                 # will wrap React Query for GET /ledgers/:id
+  use-user-dashboard.ts         # will wrap React Query for GET /users/me/dashboard
+  use-transaction-filter.ts     # local filter/sort state for TransactionTable
+  use-currency-formatter.ts     # locale-aware formatter bound to user's ledger currency
+```
+
+A hook file exports exactly one hook. If you need two hooks, make two files.
+
+### State — what lives where
+
+| Data kind | Location | Reason |
+|---|---|---|
+| Server data (ledgers, transactions) | React Query | Cache, refetch, stale-while-revalidate |
+| Auth / user session | Zustand `auth` slice | Persists across components, survives navigation |
+| Cross-component UI state (sidebar open, toasts) | Zustand `ui` slice | Shared but not server-derived |
+| Local ephemeral UI state (tab selection, modal open) | `useState` in component | No sharing needed |
+
+Never put server data in Zustand. Never use React Query for UI-only state.
+
+### Zustand — slice pattern
+
+When the Zustand store is introduced, it follows a slices pattern:
+
+```
+src/store/
+  auth.slice.ts     # { user, token, setToken, logout }
+  ui.slice.ts       # { sidebarOpen, toasts, addToast }
+  store.ts          # combines slices into one store
+```
+
+Each slice is defined in isolation and combined in `store.ts`. Import the store hook only from `store.ts`.
+
+### React Query — key factory pattern (for when API layer is wired)
+
+Query keys are never hardcoded inline at call sites. Each resource has a key factory in its service file.
+
+```typescript
+// src/services/ledger.service.ts
+export const ledgerKeys = {
+  all: ["ledgers"] as const,
+  detail: (id: string) => ["ledgers", id] as const,
+};
+```
+
+### Service layer structure (for when API layer is wired)
+
+API calls live in `src/services/`. Each file maps to one backend resource and exports a key factory plus fetch functions. Hooks in `src/hooks/` wrap service functions with `useQuery` / `useMutation`.
+
+```
+src/services/
+  api-client.ts          # base fetch wrapper: auth headers, base URL, error shape
+  ledger.service.ts      # ledgerKeys + getById(), getAll()
+  user.service.ts        # userKeys + getDashboard()
+```
+
+No component or hook calls `fetch` directly — always through a service function.
+
+---
+
+## Deferred Conventions
+
+The following conventions are intentionally **not yet implemented**. They are documented here so the first implementation follows a deliberate pattern rather than becoming an accidental standard.
+
+### Deferred until auth is wired
+
+- **Token storage** — JWT will be stored in memory only (Zustand `auth` slice). Never `localStorage` or `sessionStorage`.
+- **Route protection** — A `<RequireAuth>` guard component will wrap all `AppShell` child routes. It reads the token from the auth slice and redirects to `/` if absent.
+- **`VITE_API_BASE_URL`** — Must exist in `.env.local` (gitignored). A `.env.example` with empty values is committed so the shape is documented.
+
+### Deferred until the API layer exists
+
+- **Zod schema validation** — Every API response will be parsed through a Zod schema at the service layer boundary before touching any hook or component. Types in `dtos.ts` will be replaced by `z.infer<typeof schema>` derived types. Schemas live in `src/schemas/`.
+- **`AppError` type** — A typed error union (`{ kind: "unauthorized" } | { kind: "not_found" } | ...`) will be defined and thrown by `api-client.ts`. Components and hooks never receive raw `Response` objects.
+- **React Query key factories** — Introduced alongside the first real `useQuery` call.
+
+### Deferred until a second developer joins or tests are added
+
+- **Git commit convention** — Conventional Commits (`feat(ledger): ...`, `fix(auth): ...`).
+- **Pre-commit hooks** — lint-staged + Husky running `eslint --fix` and `prettier --write` on staged files.
+- **Testing strategy** — Vitest + Testing Library for components; MSW for service-layer integration tests. Every formatter util and Zod schema gets a unit test.
+
+---
+
 ## Design System
 
 ### Color Tokens
@@ -194,31 +387,42 @@ Defined in `@layer components` / `@layer utilities` in `src/index.css`:
 
 ## App Layout Pattern
 
-The app uses a **sidebar + header + scrollable content** shell defined in `App.tsx`:
+`App.tsx` uses a **layout-route pattern** with two distinct shells:
 
+**Landing shell** — full-width, no sidebar or header:
+```
+┌─────────────────────────────────────────────────────┐
+│                   LandingPage                       │
+│           (sticky nav + sections + footer)          │
+└─────────────────────────────────────────────────────┘
+```
+
+**App shell (`AppShell`)** — sidebar + header + scrollable content:
 ```
 ┌─────────────┬─────────────────────────────────────┐
 │   Sidebar   │            AppHeader                │
 │  (w-64,     ├─────────────────────────────────────┤
 │  hidden     │                                     │
-│  on mobile) │     <Routes> / Page content         │
+│  on mobile) │     <Outlet /> / Page content       │
 │             │     (overflow-y-auto, p-lg)          │
 └─────────────┴─────────────────────────────────────┘
 ```
 
 - `BrowserRouter` wraps `<App>` in `main.tsx`
-- `App.tsx` reads `location.state.title` (set on navigation) to pass the page title to `AppHeader`
+- `App.tsx` declares a top-level `<Routes>`: `/` → `LandingPage`, everything else → `AppShell` (layout route)
+- `AppShell` reads `location.state.title` and renders `<Outlet />` for child routes
 - Sidebar is `hidden lg:flex` — hidden on mobile
-- `AppHeader` receives `userName: string` and `title?: string` (defaults to `"Dashboard"`)
+- `AppHeader` receives `userName: string` and `title?: string` (defaults to `"My Ledgers"`)
 
 ### Routing
 
-| Path | Component | Notes |
-|---|---|---|
-| `/` | `DashboardPage` | Shows `LedgerGrid` from `UserDashboardViewDto` |
-| `/ledgers/:id` | `LedgerDetailPage` | Shows full `LedgerResponseDto` with tabs |
+| Path | Layout | Component | Notes |
+|---|---|---|---|
+| `/` | None | `LandingPage` | Marketing/home page — no sidebar or header |
+| `/dashboard` | `AppShell` | `DashboardPage` | Shows `LedgerGrid` from `UserDashboardViewDto` |
+| `/ledgers/:id` | `AppShell` | `LedgerDetailPage` | Shows full `LedgerResponseDto` with tabs |
 
-Navigation from `LedgerCard` uses `useNavigate` and passes `state: { title: ledger.name }` so the header updates automatically.
+Navigation from `LedgerCard` uses `useNavigate` and passes `state: { title: ledger.name }` so the header updates automatically. The landing page CTAs navigate to `/dashboard`.
 
 ---
 
@@ -252,18 +456,26 @@ budget-lens-frontend/
 │   │   └── mocks/
 │   │       ├── ledger-mocks.ts        # mockLedger: LedgerResponseDto
 │   │       └── user-mocks.ts          # mockUser: UserDashboardViewDto
+│   ├── hooks/                         # custom hooks — one hook per file
 │   ├── pages/
-│   │   ├── DashboardPage.tsx          # Route "/": LedgerGrid from mockUser
+│   │   ├── LandingPage.tsx            # Route "/": marketing page — no AppShell
+│   │   ├── DashboardPage.tsx          # Route "/dashboard": LedgerGrid from mockUser
 │   │   └── LedgerDetailPage.tsx       # Route "/ledgers/:id": tabs + LedgerDetailHeader
+│   ├── services/                      # API service functions — wired when API layer begins
 │   ├── types/
 │   │   ├── index.ts                   # Barrel — re-exports everything; always import from here
 │   │   ├── prisma-enums.ts            # Union types mirroring Prisma enums exactly
 │   │   ├── dtos.ts                    # Backend response DTOs (imports from prisma-enums)
 │   │   └── ui-only.ts                 # Frontend-only types (NavItem, StatCardData, LedgerDetailTab, etc.)
 │   ├── utils/
-│   │   └── cn.ts                      # clsx + tailwind-merge helper
-│   ├── App.tsx                        # Shell: Sidebar + AppHeader + Routes
+│   │   ├── cn.ts                      # clsx + tailwind-merge helper
+│   │   ├── format-currency.ts         # formatCurrency(amount, currency) → string
+│   │   ├── format-date.ts             # formatTransactionDate, formatPaymentMonth
+│   │   └── format-percent.ts          # formatPercent(ratio) → string
+│   ├── App.tsx                        # Top-level routes: LandingPage (/) + AppShell layout route
 │   └── main.tsx                       # createRoot + BrowserRouter
+├── .env.example                       # committed — shape only, no values
+├── .env.local                         # gitignored — real values
 ├── index.html
 ├── tailwind.config.js
 ├── vite.config.ts
@@ -421,6 +633,7 @@ npm run lint     # ESLint
 5. **Transactions page** — filter by status, entryType, period; support installment grouping
 6. **Budgets page** — category spend vs budget with `BudgetProgressItem` + real data
 7. **Analytics page** — inflation-adjusted amounts using `baseCpiIndex` and `realMonthlyAmount`
+8. **Auth flow** — protect `/dashboard` and `/ledgers/:id`; redirect unauthenticated users to `/`
 
 ---
 
@@ -430,8 +643,13 @@ npm run lint     # ESLint
 - Semantic HTML: `<nav>`, `<main>`, `<header>`, `<aside>`
 - `::selection` color matches brand palette
 - Color contrast: `slate-900` on `white` = 21:1, `income-600` on `white` ≥ 4.5:1
+- Icon-only interactive elements must have an `aria-label`
+- Color is never the sole conveyor of meaning — income/expense is always reinforced by sign (`+`/`-`) or label
+- Status messages (toasts, loading indicators) use `role="status"` or `role="alert"` with `aria-live`
+- Tables use `<thead>`, `<th scope="col">`, and a `<caption>` or `aria-label` on the `<table>` element
 
 ## Deployment
 
 - Vercel or Netlify (zero-config for Vite)
 - Configure `VITE_*` environment variables for API base URLs
+- `.env.example` must be kept up to date whenever a new `VITE_*` variable is introduced

@@ -1,73 +1,176 @@
-# React + TypeScript + Vite
+# Budget Lens — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **Clarity, focus, and insight** into your personal finances.
 
-Currently, two official plugins are available:
+Budget Lens is a personal finance management application that helps users track ledgers, transactions, categories, budgets, and collaborators — with support for inflation-adjusted reporting via CPI indexing.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Layer | Technology |
+|---|---|
+| Framework | React 19 + TypeScript |
+| Build tool | Vite |
+| Routing | React Router v7 |
+| Server state | TanStack React Query v5 |
+| Client state | Zustand v5 |
+| Forms | React Hook Form v7 + Zod v4 |
+| Styling | Tailwind CSS (custom design system) |
+| UI primitives | CVA (class-variance-authority) |
+| Icons | Lucide React |
+| Date utilities | date-fns v4 |
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Getting Started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Prerequisites
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Node.js 20+
+- npm 10+
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Install dependencies
+
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Development server
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+### Production build
+
+```bash
+npm run build
+```
+
+### Preview production build
+
+```bash
+npm run preview
+```
+
+### Lint
+
+```bash
+npm run lint
+```
+
+---
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── atoms/          # Primitive UI: Badge, Button
+│   ├── molecules/      # Composed atoms: StatCard, LedgerCard, TransactionRow, tables
+│   └── organisms/      # Full UI sections: Sidebar, AppHeader, TransactionTable, LedgerDetailHeader
+├── helpers/
+│   └── mocks/          # Development mock data matching backend DTOs
+├── pages/              # Route-level components: LandingPage, DashboardPage, LedgerDetailPage
+├── types/
+│   ├── index.ts        # Barrel — always import from here
+│   ├── prisma-enums.ts # Union types mirroring Prisma enums
+│   ├── dtos.ts         # Backend response DTOs
+│   └── ui-only.ts      # Frontend-only types
+├── utils/
+│   └── cn.ts           # clsx + tailwind-merge helper
+├── App.tsx             # Top-level routes + layout shells
+└── main.tsx            # Entry point
+```
+
+---
+
+## Routes
+
+| Path | Layout | Description |
+|---|---|---|
+| `/` | None | Landing / marketing page |
+| `/dashboard` | `AppShell` | User's ledger grid |
+| `/ledgers/:id` | `AppShell` | Ledger detail with tabs (transactions, categories, payment methods, groups, collaborators) |
+
+---
+
+## Design System
+
+The UI follows a **clean, data-focused** aesthetic — generous whitespace, tabular numbers for financial data, and a trustworthy blue primary palette.
+
+### Color tokens
+
+| Token | Value | Purpose |
+|---|---|---|
+| `primary` | `#3B82F6` | Brand, CTAs, active nav |
+| `accent` | `#6366F1` | Secondary CTAs, charts |
+| `income` | `#10B981` | Positive values, income |
+| `expense` | `#F43F5E` | Negative values, expenses |
+| `warning` | `#F59E0B` | Budget thresholds |
+| `slate-*` | Tailwind built-in | All grays: text, borders, backgrounds |
+
+### Key utility classes
+
+| Class | Purpose |
+|---|---|
+| `.card` | White card surface with border, shadow, padding |
+| `.financial-amount` | Tabular nums + semibold + tight tracking |
+| `.amount-positive` | `text-income-600` |
+| `.amount-negative` | `text-expense-600` |
+| `.section-title` | `text-lg font-semibold text-slate-900` |
+| `.label-muted` | `text-sm font-medium text-slate-500` |
+
+---
+
+## Architecture Notes
+
+### Component levels (Atomic Design)
+
+- **Atoms** — no dependencies on other components; primitive UI only
+- **Molecules** — compose atoms; single responsibility
+- **Organisms** — compose molecules/atoms; own a full UI section
+- **Pages** — compose organisms; own route-level state and data wiring
+
+### Type conventions
+
+- All type imports go through the barrel `src/types/index.ts` — never import directly from sub-files.
+- Runtime constants and config arrays live co-located with their consumer, not in `src/types/`.
+
+### CPI inflation adjustment
+
+Each ledger stores a `baseCpiIndex` (base = 100 at Jan 2024). Transactions carry a `cpiIndex` value, which is used to compute `realMonthlyAmount` — the inflation-adjusted monthly cost.
+
+---
+
+## Environment Variables
+
+| Variable | Description |
+|---|---|
+| `VITE_API_BASE_URL` | Base URL for the backend REST API |
+
+Create a `.env.local` file at the project root:
+
+```
+VITE_API_BASE_URL=http://localhost:3000
+```
+
+---
+
+## Roadmap
+
+- [ ] React Query + API service layer (replace mocks with real `useQuery` hooks)
+- [ ] Zustand auth/user session store
+- [ ] `LedgerDetailPage` — fetch `GET /ledgers/:id` via `useParams`
+- [ ] Sidebar nav — wire items to routes with active state
+- [ ] Transactions — filter by status, entry type, period; installment grouping
+- [ ] Budgets — category spend vs budget with `BudgetProgressItem`
+- [ ] Analytics — inflation-adjusted amounts chart
+- [ ] Auth flow — protect `/dashboard` and `/ledgers/:id`; redirect unauthenticated users to `/`
+
+---
+
+## Related
+
+- [Budget Lens Backend](../budget-lens-backend) — NestJS + Prisma REST API
