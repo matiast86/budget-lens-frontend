@@ -3,7 +3,11 @@
     "allow": [
       "Bash(npm install:*)",
       "Bash(npx tailwindcss init:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(del \"c:\\\\desarrollo\\\\budget-lens-project\\\\budget-lens-frontend\\\\src\\\\App.css\")",
+      "Bash(del \"c:\\\\desarrollo\\\\budget-lens-project\\\\budget-lens-frontend\\\\src\\\\assets\\\\react.svg\")",
+      "Bash(del \"c:\\\\desarrollo\\\\budget-lens-project\\\\budget-lens-frontend\\\\public\\\\vite.svg\")",
+      "Bash(npm run build:*)"
     ]
   }
 }
