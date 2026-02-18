@@ -163,8 +163,8 @@ A file exceeding ~250 lines is a signal to split — either extract a subcompone
 | File | Responsibility |
 |---|---|
 | `cn.ts` | Class merging (already exists) |
-| `format-currency.ts` | `formatCurrency(amount, currency)` via `Intl.NumberFormat` |
-| `format-date.ts` | `formatTransactionDate`, `formatPaymentMonth` via `date-fns` |
+| `format-currency.ts` | `formatCurrency(amount, currency, locale)` via `Intl.NumberFormat` |
+| `format-date.ts` | `formatTransactionDate(date, locale)`, `formatPaymentMonth(date, locale)` via `date-fns` |
 | `format-percent.ts` | `formatPercent(ratio)` for budget progress display |
 
 ### Number and currency formatting — raw values never in JSX
@@ -172,27 +172,29 @@ A file exceeding ~250 lines is a signal to split — either extract a subcompone
 Every numeric amount displayed to the user must go through a formatter in `src/utils/`. Raw numbers in JSX are forbidden.
 
 ```tsx
-// ✅ correct
+// ✅ correct — locale-aware, uses i18n.language from useTranslation
 <span className="financial-amount amount-negative">
-  {formatCurrency(transaction.totalAmount, transaction.currency)}
+  {formatCurrency(transaction.totalAmount, transaction.currency, i18n.language)}
 </span>
 
 // ❌ wrong — raw number, locale-unaware, untestable
 <span>{transaction.totalAmount}</span>
 ```
 
-All currency formatting uses `Intl.NumberFormat` internally — never manual string concatenation or `.toFixed()` alone.
+All currency formatting uses `Intl.NumberFormat` internally — never manual string concatenation or `.toFixed()` alone. Always pass `i18n.language` (from `useTranslation`) as the locale — never hardcode `"es-AR"` or any locale string.
 
 ```typescript
 // src/utils/format-currency.ts
 export const formatCurrency = (
   amount: number,
   currency: Currency,
+  locale: string,
 ): string =>
-  new Intl.NumberFormat("es-AR", {
+  new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
     minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(amount);
 ```
 
@@ -258,6 +260,66 @@ src/services/
 ```
 
 No component or hook calls `fetch` directly — always through a service function.
+
+---
+
+## Internationalization (i18n)
+
+The app uses `i18next` + `react-i18next` with browser language detection. The setup lives in `src/i18n/index.ts` and is initialized in `main.tsx` before the React root mounts.
+
+### Namespaces
+
+| Namespace | File | Contents |
+|---|---|---|
+| `common` | `src/i18n/locales/{lang}/common.json` | App name, nav labels, header, stat cards, budget overview, recent transactions, entire landing page |
+| `ledger` | `src/i18n/locales/{lang}/ledger.json` | Ledger grid/card/detail, transactions table, categories/groups/payment methods/collaborators tables |
+
+Supported languages: `"en"` (default), `"es"`. Detection order: `localStorage` → `navigator`. The active language key in localStorage is `i18nextLng`.
+
+### Usage in components
+
+```typescript
+// Single namespace
+const { t } = useTranslation("ledger");
+
+// With locale for formatters
+const { t, i18n } = useTranslation("ledger");
+formatCurrency(tx.monthlyAmount, tx.currency, i18n.language)
+formatTransactionDate(tx.transactionDate, i18n.language)
+```
+
+### Rules
+
+- **Never hardcode user-visible strings** in JSX — always use `t("key")`.
+- **Never hardcode a locale string** (e.g. `"es-AR"`) — always use `i18n.language`.
+- **Pluralization** uses the `_one` / `_other` key suffix convention: `t("grid.count", { count: n })`.
+- **Interpolation** uses double-brace variables: `t("card.created", { date: createdAt })`.
+- **Static config arrays** that contain translatable labels (FEATURES, STEPS, etc.) must store a `key` field at module level — never the translated string. Call `t(\`namespace.${item.key}.title\`)` in JSX.
+- **Helper functions** that receive `t` (non-hook context) must be typed with `TFunction` from `"i18next"`.
+
+```typescript
+// ✅ static config at module level — key only, no t() calls
+const FEATURE_CONFIG = [
+  { key: "multiLedger", icon: LayoutGrid, ... },
+];
+
+// ✅ translation in JSX
+{FEATURE_CONFIG.map((f) => (
+  <h3>{t(`landing.features.${f.key}.title`)}</h3>
+))}
+
+// ✅ helper function accepting TFunction
+import type { TFunction } from "i18next";
+const statusBadge = (status: Status, t: TFunction) => (
+  <Badge>{t(`transaction.status.${status.toLowerCase()}`)}</Badge>
+);
+```
+
+### Adding new strings
+
+1. Add the key + English string to `src/i18n/locales/en/common.json` or `en/ledger.json`.
+2. Add the Spanish translation to the corresponding `es/` file.
+3. Use `t("your.new.key")` in the component.
 
 ---
 
@@ -431,6 +493,15 @@ Navigation from `LedgerCard` uses `useNavigate` and passes `state: { title: ledg
 ```
 budget-lens-frontend/
 ├── src/
+│   ├── i18n/
+│   │   ├── index.ts                   # i18next init: LanguageDetector, two namespaces, en+es
+│   │   └── locales/
+│   │       ├── en/
+│   │       │   ├── common.json        # Nav, header, stat, landing page strings (English)
+│   │       │   └── ledger.json        # Ledger, transaction, table strings (English)
+│   │       └── es/
+│   │           ├── common.json        # Nav, header, stat, landing page strings (Spanish)
+│   │           └── ledger.json        # Ledger, transaction, table strings (Spanish)
 │   ├── components/
 │   │   ├── atoms/
 │   │   │   ├── Badge.tsx              # CVA badge variants: default, primary, income, expense, warning, current, closed, future
@@ -469,8 +540,8 @@ budget-lens-frontend/
 │   │   └── ui-only.ts                 # Frontend-only types (NavItem, StatCardData, LedgerDetailTab, etc.)
 │   ├── utils/
 │   │   ├── cn.ts                      # clsx + tailwind-merge helper
-│   │   ├── format-currency.ts         # formatCurrency(amount, currency) → string
-│   │   ├── format-date.ts             # formatTransactionDate, formatPaymentMonth
+│   │   ├── format-currency.ts         # formatCurrency(amount, currency, locale) → string
+│   │   ├── format-date.ts             # formatTransactionDate(date, locale), formatPaymentMonth(date, locale)
 │   │   └── format-percent.ts          # formatPercent(ratio) → string
 │   ├── App.tsx                        # Top-level routes: LandingPage (/) + AppShell layout route
 │   └── main.tsx                       # createRoot + BrowserRouter
@@ -602,6 +673,9 @@ cn("px-4 py-2", isActive && "bg-primary-500", className)
     "react-hook-form": "^7",
     "@hookform/resolvers": "^5",
     "zod": "^4",
+    "i18next": "^24",
+    "react-i18next": "^15",
+    "i18next-browser-languagedetector": "^8",
     "lucide-react": "^0.563",
     "date-fns": "^4",
     "class-variance-authority": "^0.7",
@@ -634,6 +708,7 @@ npm run lint     # ESLint
 6. **Budgets page** — category spend vs budget with `BudgetProgressItem` + real data
 7. **Analytics page** — inflation-adjusted amounts using `baseCpiIndex` and `realMonthlyAmount`
 8. **Auth flow** — protect `/dashboard` and `/ledgers/:id`; redirect unauthenticated users to `/`
+9. **Language switcher UI** — a `<LanguageSwitcher>` atom (or `AppHeader` dropdown) calling `i18n.changeLanguage("es" | "en")` — the locale persists automatically in localStorage
 
 ---
 

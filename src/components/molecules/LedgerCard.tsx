@@ -1,28 +1,19 @@
-import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
 import { ArrowRight, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../atoms/Button";
+import { formatTransactionDate } from "../../utils/format-date";
 import type { LedgerDashboardResponseDto } from "../../types";
-
-const CURRENCY_LABELS: Record<string, string> = {
-  ARS: "Argentine Peso",
-  USD: "US Dollar",
-  EUR: "Euro",
-  BRL: "Brazilian Real",
-  CLP: "Chilean Peso",
-  UYU: "Uruguayan Peso",
-  PYG: "Paraguayan Guaraní",
-  BOB: "Bolivian Boliviano",
-};
 
 interface LedgerCardProps {
   ledger: LedgerDashboardResponseDto;
 }
 
 export const LedgerCard = ({ ledger }: LedgerCardProps) => {
+  const { t, i18n } = useTranslation("ledger");
   const navigate = useNavigate();
-  const createdAt = format(new Date(ledger.createdAt), "MMM d, yyyy");
-  const currencyLabel = CURRENCY_LABELS[ledger.currency] ?? ledger.currency;
+  const createdAt = formatTransactionDate(ledger.createdAt, i18n.language);
+  const currencyLabel = t(`card.currency.${ledger.currency}`, { defaultValue: ledger.currency });
 
   return (
     <div className="card flex flex-col gap-md">
@@ -42,15 +33,15 @@ export const LedgerCard = ({ ledger }: LedgerCardProps) => {
           {ledger.description}
         </p>
       ) : (
-        <p className="text-sm text-slate-400 italic">No description provided.</p>
+        <p className="text-sm text-slate-400 italic">{t("card.noDescription")}</p>
       )}
 
       {/* CPI index */}
       <div className="flex items-center gap-xs text-sm text-slate-500 bg-slate-50 rounded-md px-sm py-xs">
         <TrendingUp className="w-4 h-4 text-slate-400 shrink-0" />
-        <span className="label-muted">Base CPI</span>
+        <span className="label-muted">{t("card.baseCpi")}</span>
         <span className="ml-auto tabular-nums font-medium text-slate-700">
-          {ledger.baseCpiIndex.toLocaleString(undefined, {
+          {ledger.baseCpiIndex.toLocaleString(i18n.language, {
             minimumFractionDigits: 2,
             maximumFractionDigits: 4,
           })}
@@ -61,7 +52,7 @@ export const LedgerCard = ({ ledger }: LedgerCardProps) => {
       <div className="flex items-center justify-between mt-auto pt-sm border-t border-slate-100">
         <div>
           <p className="label-muted">{currencyLabel}</p>
-          <p className="text-xs text-slate-400">Created {createdAt}</p>
+          <p className="text-xs text-slate-400">{t("card.created", { date: createdAt })}</p>
         </div>
         <Button
           variant="outline"
@@ -70,9 +61,9 @@ export const LedgerCard = ({ ledger }: LedgerCardProps) => {
             navigate(`/ledgers/${ledger.id}`, { state: { title: ledger.name } })
           }
         >
-          Open <ArrowRight className="w-3.5 h-3.5" />
+          {t("card.open")} <ArrowRight className="w-3.5 h-3.5" />
         </Button>
       </div>
     </div>
   );
-}
+};

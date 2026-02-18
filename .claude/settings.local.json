@@ -11,7 +11,8 @@
       "Bash(ls -la \"c:\\\\desarrollo\\\\budget-lens-project\\\\budget-lens-backend\\\\src\\\\modules\"\" | grep -E \"payment)",
       "Bash(collaboration)",
       "Bash(transaction)",
-      "Bash(debt \")"
+      "Bash(debt \")",
+      "Bash(npm run lint:*)"
     ]
   }
 }

@@ -1,0 +1,149 @@
+{
+  "grid": {
+    "title": "My Ledgers",
+    "count_one": "{{count}} ledger in your account",
+    "count_other": "{{count}} ledgers in your account",
+    "newLedger": "New Ledger",
+    "empty": {
+      "title": "No ledgers yet",
+      "body": "Create your first ledger to start tracking your finances.",
+      "action": "Create Ledger"
+    }
+  },
+  "card": {
+    "baseCpi": "Base CPI",
+    "noDescription": "No description provided.",
+    "created": "Created {{date}}",
+    "open": "Open",
+    "currency": {
+      "ARS": "Argentine Peso",
+      "USD": "US Dollar",
+      "EUR": "Euro",
+      "BRL": "Brazilian Real",
+      "CLP": "Chilean Peso",
+      "UYU": "Uruguayan Peso",
+      "PYG": "Paraguayan Guaraní",
+      "BOB": "Bolivian Boliviano"
+    }
+  },
+  "detail": {
+    "notFound": {
+      "title": "Ledger not found",
+      "body": "No ledger with ID {{id}} exists in your account.",
+      "back": "Back to dashboard"
+    },
+    "unavailable": {
+      "body": "Detailed data for this ledger isn't available yet. Full transaction history will appear here once the API is connected.",
+      "back": "Back to dashboard"
+    },
+    "tab": {
+      "transactions": "Transactions",
+      "categories": "Categories",
+      "paymentMethods": "Payment Methods",
+      "groups": "Groups",
+      "collaborators": "Collaborators"
+    },
+    "meta": {
+      "baseCpi": "Base CPI",
+      "created": "Created {{date}}",
+      "collaborator_one": "{{count}} collaborator",
+      "collaborator_other": "{{count}} collaborators",
+      "categories_one": "{{count}} category",
+      "categories_other": "{{count}} categories"
+    },
+    "summary": {
+      "transactions": "Transactions",
+      "income": "Income",
+      "expenses": "Expenses",
+      "paymentMethods": "Payment methods"
+    },
+    "action": {
+      "edit": "Edit",
+      "delete": "Delete"
+    }
+  },
+  "transaction": {
+    "entryType": {
+      "income": "Income",
+      "expense": "Expense"
+    },
+    "status": {
+      "current": "Current",
+      "closed": "Closed",
+      "future": "Future"
+    },
+    "table": {
+      "title": "Transactions",
+      "addIncome": "Income",
+      "addExpense": "Expense",
+      "real": "real",
+      "col": {
+        "date": "Date",
+        "category": "Category",
+        "type": "Type",
+        "status": "Status",
+        "amount": "Amount",
+        "quota": "Quota",
+        "method": "Method",
+        "paid": "Paid",
+        "cashflow": "CF",
+        "cashflowFull": "Impacts Cashflow"
+      },
+      "empty": {
+        "title": "No transactions yet",
+        "body": "Add your first income or expense to get started.",
+        "addIncome": "Add Income",
+        "addExpense": "Add Expense"
+      }
+    }
+  },
+  "category": {
+    "table": {
+      "col": {
+        "number": "#",
+        "name": "Name",
+        "description": "Description"
+      }
+    }
+  },
+  "group": {
+    "table": {
+      "col": {
+        "number": "#",
+        "name": "Name"
+      }
+    }
+  },
+  "paymentMethod": {
+    "type": {
+      "CASH": "Cash",
+      "BANK": "Bank",
+      "WALLET": "Wallet",
+      "CREDIT_CARD": "Credit Card",
+      "OTHER": "Other"
+    },
+    "table": {
+      "col": {
+        "name": "Name",
+        "type": "Type",
+        "brand": "Brand",
+        "currency": "Currency",
+        "active": "Active"
+      }
+    }
+  },
+  "collaborator": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "table": {
+      "col": {
+        "name": "Name",
+        "status": "Status"
+      },
+      "empty": {
+        "title": "No collaborators yet",
+        "body": "Invite someone by email to share this ledger."
+      }
+    }
+  }
+}

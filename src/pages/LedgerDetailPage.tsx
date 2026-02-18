@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { LayoutDashboard } from "lucide-react";
 import { CategoriesTable } from "../components/molecules/CategoriesTable";
 import { CollaboratorsTable } from "../components/molecules/CollaboratorsTable";
@@ -13,31 +14,19 @@ import { cn } from "../utils/cn";
 import type { LedgerDetailTab, LedgerResponseDto } from "../types";
 
 // ---------------------------------------------------------------------------
-// Tab config
+// Tab config keys (non-translatable structural data stays at module level)
 // ---------------------------------------------------------------------------
 
-const TABS: {
+const TAB_CONFIG: {
   id: LedgerDetailTab;
-  label: string;
+  labelKey: string;
   count: (l: LedgerResponseDto) => number;
 }[] = [
-  {
-    id: "transactions",
-    label: "Transactions",
-    count: (l) => l.transactions.length,
-  },
-  { id: "categories", label: "Categories", count: (l) => l.categories.length },
-  {
-    id: "paymentMethods",
-    label: "Payment Methods",
-    count: (l) => l.paymentMethods.length,
-  },
-  { id: "groups", label: "Groups", count: (l) => l.groups.length },
-  {
-    id: "collaborators",
-    label: "Collaborators",
-    count: (l) => l.collaborations.length,
-  },
+  { id: "transactions", labelKey: "detail.tab.transactions", count: (l) => l.transactions.length },
+  { id: "categories", labelKey: "detail.tab.categories", count: (l) => l.categories.length },
+  { id: "paymentMethods", labelKey: "detail.tab.paymentMethods", count: (l) => l.paymentMethods.length },
+  { id: "groups", labelKey: "detail.tab.groups", count: (l) => l.groups.length },
+  { id: "collaborators", labelKey: "detail.tab.collaborators", count: (l) => l.collaborations.length },
 ];
 
 // ---------------------------------------------------------------------------
@@ -45,6 +34,7 @@ const TABS: {
 // ---------------------------------------------------------------------------
 
 export const LedgerDetailPage = () => {
+  const { t } = useTranslation("ledger");
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState<LedgerDetailTab>("transactions");
 
@@ -61,17 +51,16 @@ export const LedgerDetailPage = () => {
       <main className="flex-1 overflow-y-auto p-lg">
         <div className="flex flex-col items-center justify-center h-full gap-md text-center">
           <p className="text-4xl">🔍</p>
-          <h2 className="text-xl font-semibold text-slate-900">Ledger not found</h2>
+          <h2 className="text-xl font-semibold text-slate-900">{t("detail.notFound.title")}</h2>
           <p className="text-sm text-slate-500 max-w-xs">
-            No ledger with ID <span className="font-mono text-slate-700">{id}</span> exists in
-            your account.
+            {t("detail.notFound.body", { id })}
           </p>
           <Link
             to="/dashboard"
             className="flex items-center gap-xs text-sm font-medium text-primary-600 hover:text-primary-700"
           >
             <LayoutDashboard className="w-4 h-4" />
-            Back to dashboard
+            {t("detail.notFound.back")}
           </Link>
         </div>
       </main>
@@ -86,15 +75,14 @@ export const LedgerDetailPage = () => {
           <p className="text-4xl">🚧</p>
           <h2 className="text-xl font-semibold text-slate-900">{ledgerSummary.name}</h2>
           <p className="text-sm text-slate-500 max-w-xs">
-            Detailed data for this ledger isn't available yet. Full transaction history will appear
-            here once the API is connected.
+            {t("detail.unavailable.body")}
           </p>
           <Link
             to="/dashboard"
             className="flex items-center gap-xs text-sm font-medium text-primary-600 hover:text-primary-700"
           >
             <LayoutDashboard className="w-4 h-4" />
-            Back to dashboard
+            {t("detail.unavailable.back")}
           </Link>
         </div>
       </main>
@@ -108,7 +96,7 @@ export const LedgerDetailPage = () => {
       {/* Tab bar */}
       <div className="bg-white border-b border-slate-200 px-lg">
         <nav className="flex gap-xs -mb-px">
-          {TABS.map((tab) => {
+          {TAB_CONFIG.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
@@ -121,7 +109,7 @@ export const LedgerDetailPage = () => {
                     : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300",
                 )}
               >
-                {tab.label}
+                {t(tab.labelKey)}
                 <span
                   className={cn(
                     "inline-flex items-center justify-center rounded-full text-xs font-semibold w-5 h-5",

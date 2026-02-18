@@ -1,0 +1,134 @@
+{
+  "app": {
+    "name": "Budget Lens"
+  },
+  "nav": {
+    "dashboard": "Panel",
+    "transactions": "Transacciones",
+    "budgets": "Presupuestos",
+    "analytics": "Análisis",
+    "settings": "Configuración"
+  },
+  "header": {
+    "searchPlaceholder": "Buscar libros mayores...",
+    "newLedger": "+ Nuevo Libro Mayor",
+    "welcomeBack": "Bienvenido de nuevo, {{name}}. Aquí están tus libros mayores."
+  },
+  "budget": {
+    "overview": "Resumen de Presupuesto",
+    "edit": "Editar"
+  },
+  "recentTransactions": {
+    "title": "Transacciones Recientes",
+    "viewAll": "Ver Todas"
+  },
+  "stat": {
+    "vsLastMonth": "vs mes anterior"
+  },
+  "status": {
+    "active": "Activo",
+    "inactive": "Inactivo"
+  },
+  "landing": {
+    "nav": {
+      "features": "Funciones",
+      "howItWorks": "Cómo funciona",
+      "signIn": "Iniciar sesión",
+      "getStarted": "Comenzar"
+    },
+    "hero": {
+      "pill": "Seguí · Analizá · Colaborá",
+      "headline1": "Tus finanzas,",
+      "headline2": "en foco perfecto.",
+      "subheadline": "Budget Lens le da claridad a tu dinero. Creá libros mayores, registrá cada transacción, establecé presupuestos por categoría y conocé el impacto real de la inflación — todo en un solo lugar.",
+      "cta1": "Comenzar gratis",
+      "cta2": "Ver demo"
+    },
+    "mockup": {
+      "url": "app.budgetlens.io/panel",
+      "myLedgers": "Mis Libros Mayores",
+      "active": "3 activos",
+      "income": "Ingresos",
+      "expenses": "Gastos",
+      "recentTransactions": "Transacciones recientes"
+    },
+    "stats": {
+      "ledgerTypes": { "value": "10+", "label": "Tipos de libros mayores" },
+      "currencies": { "value": "ARS & USD", "label": "Monedas" },
+      "inflation": { "value": "CPI-aware", "label": "Seguimiento de inflación" },
+      "budget": { "value": "Tiempo real", "label": "Progreso del presupuesto" }
+    },
+    "features": {
+      "sectionLabel": "Funciones",
+      "heading": "Todo lo que necesitás para entender tu dinero",
+      "subheading": "Desde el seguimiento simple de gastos hasta análisis ajustados por inflación, Budget Lens te da el panorama completo sin complejidad.",
+      "multiLedger": {
+        "title": "Gestión de Múltiples Libros Mayores",
+        "desc": "Creá libros mayores separados para finanzas personales, familiares o empresariales. Mantené cada contexto organizado y claramente separado."
+      },
+      "categoryBudgets": {
+        "title": "Presupuestos por Categoría",
+        "desc": "Establecé límites de gasto por categoría y seguí el progreso visualmente. Sabé exactamente cuándo estás cerca de excederte."
+      },
+      "inflation": {
+        "title": "Análisis Ajustados por Inflación",
+        "desc": "Mirá tu poder adquisitivo real a lo largo del tiempo. Budget Lens ajusta los montos con índices CPI para que conozcas el costo verdadero."
+      },
+      "collaborative": {
+        "title": "Presupuesto Colaborativo",
+        "desc": "Invitá a familiares o compañeros de equipo a libros mayores compartidos. Todos alineados con visibilidad completa."
+      },
+      "multiCurrency": {
+        "title": "Soporte Multi-Moneda",
+        "desc": "Gestioná presupuestos en ARS y USD simultáneamente. Diseñado para economías de monedas mixtas y finanzas transfronterizas."
+      },
+      "paymentMethod": {
+        "title": "Seguimiento de Medios de Pago",
+        "desc": "Seguí efectivo, transferencias bancarias, billeteras y tarjetas de crédito por separado para un panorama de gastos verdaderamente completo."
+      }
+    },
+    "howItWorks": {
+      "sectionLabel": "Cómo funciona",
+      "heading": "Listo en minutos",
+      "create": {
+        "title": "Creá un Libro Mayor",
+        "desc": "Configurá un libro mayor para cualquier contexto — finanzas personales, hogar, un proyecto o tu equipo."
+      },
+      "add": {
+        "title": "Agregá Transacciones",
+        "desc": "Registrá ingresos y gastos con categorías, medios de pago y soporte de cuotas incorporado."
+      },
+      "gain": {
+        "title": "Obtené Claridad",
+        "desc": "Mirá adónde va tu dinero con resúmenes claros, progreso del presupuesto y montos reales ajustados por inflación."
+      }
+    },
+    "trust": {
+      "secure": {
+        "title": "Seguro por diseño",
+        "body": "Tus datos son tuyos. Sin compartir con terceros, sin publicidad, sin compromisos."
+      },
+      "inflation": {
+        "title": "Consciente de la inflación",
+        "body": "Diseñado para economías donde el poder adquisitivo cambia. Cada monto tiene un valor real."
+      },
+      "teams": {
+        "title": "Pensado para equipos",
+        "body": "Ya seas solo vos o todo tu hogar, Budget Lens se adapta a tus necesidades."
+      }
+    },
+    "cta": {
+      "heading": "¿Listo para tomar control de tus finanzas?",
+      "body": "Unite a Budget Lens y empezá a ver tu dinero con claridad — gratis, hoy mismo.",
+      "button": "Comenzar gratis",
+      "noCreditCard": "Sin tarjeta de crédito",
+      "freeToUse": "Gratis para usar",
+      "cancelAnytime": "Cancelá cuando quieras"
+    },
+    "footer": {
+      "copyright": "© 2025 Budget Lens. Construido para la claridad financiera.",
+      "privacy": "Privacidad",
+      "terms": "Términos"
+    }
+  }
+}

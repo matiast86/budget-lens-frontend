@@ -1,0 +1,149 @@
+{
+  "grid": {
+    "title": "Mis Libros Mayores",
+    "count_one": "{{count}} libro mayor en tu cuenta",
+    "count_other": "{{count}} libros mayores en tu cuenta",
+    "newLedger": "Nuevo Libro Mayor",
+    "empty": {
+      "title": "Aún no hay libros mayores",
+      "body": "Creá tu primer libro mayor para empezar a seguir tus finanzas.",
+      "action": "Crear Libro Mayor"
+    }
+  },
+  "card": {
+    "baseCpi": "CPI Base",
+    "noDescription": "Sin descripción.",
+    "created": "Creado {{date}}",
+    "open": "Abrir",
+    "currency": {
+      "ARS": "Peso Argentino",
+      "USD": "Dólar Estadounidense",
+      "EUR": "Euro",
+      "BRL": "Real Brasileño",
+      "CLP": "Peso Chileno",
+      "UYU": "Peso Uruguayo",
+      "PYG": "Guaraní Paraguayo",
+      "BOB": "Boliviano Boliviano"
+    }
+  },
+  "detail": {
+    "notFound": {
+      "title": "Libro mayor no encontrado",
+      "body": "No existe ningún libro mayor con ID {{id}} en tu cuenta.",
+      "back": "Volver al panel"
+    },
+    "unavailable": {
+      "body": "Los datos detallados de este libro mayor aún no están disponibles. El historial completo de transacciones aparecerá aquí una vez que la API esté conectada.",
+      "back": "Volver al panel"
+    },
+    "tab": {
+      "transactions": "Transacciones",
+      "categories": "Categorías",
+      "paymentMethods": "Medios de Pago",
+      "groups": "Grupos",
+      "collaborators": "Colaboradores"
+    },
+    "meta": {
+      "baseCpi": "CPI Base",
+      "created": "Creado {{date}}",
+      "collaborator_one": "{{count}} colaborador",
+      "collaborator_other": "{{count}} colaboradores",
+      "categories_one": "{{count}} categoría",
+      "categories_other": "{{count}} categorías"
+    },
+    "summary": {
+      "transactions": "Transacciones",
+      "income": "Ingresos",
+      "expenses": "Gastos",
+      "paymentMethods": "Medios de pago"
+    },
+    "action": {
+      "edit": "Editar",
+      "delete": "Eliminar"
+    }
+  },
+  "transaction": {
+    "entryType": {
+      "income": "Ingreso",
+      "expense": "Gasto"
+    },
+    "status": {
+      "current": "Corriente",
+      "closed": "Cerrado",
+      "future": "Futuro"
+    },
+    "table": {
+      "title": "Transacciones",
+      "addIncome": "Ingreso",
+      "addExpense": "Gasto",
+      "real": "real",
+      "col": {
+        "date": "Fecha",
+        "category": "Categoría",
+        "type": "Tipo",
+        "status": "Estado",
+        "amount": "Monto",
+        "quota": "Cuota",
+        "method": "Medio",
+        "paid": "Pagado",
+        "cashflow": "CF",
+        "cashflowFull": "Impacta en Flujo de Caja"
+      },
+      "empty": {
+        "title": "Aún no hay transacciones",
+        "body": "Agregá tu primer ingreso o gasto para comenzar.",
+        "addIncome": "Agregar Ingreso",
+        "addExpense": "Agregar Gasto"
+      }
+    }
+  },
+  "category": {
+    "table": {
+      "col": {
+        "number": "#",
+        "name": "Nombre",
+        "description": "Descripción"
+      }
+    }
+  },
+  "group": {
+    "table": {
+      "col": {
+        "number": "#",
+        "name": "Nombre"
+      }
+    }
+  },
+  "paymentMethod": {
+    "type": {
+      "CASH": "Efectivo",
+      "BANK": "Banco",
+      "WALLET": "Billetera Virtual",
+      "CREDIT_CARD": "Tarjeta de Crédito",
+      "OTHER": "Otro"
+    },
+    "table": {
+      "col": {
+        "name": "Nombre",
+        "type": "Tipo",
+        "brand": "Marca",
+        "currency": "Moneda",
+        "active": "Activo"
+      }
+    }
+  },
+  "collaborator": {
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "table": {
+      "col": {
+        "name": "Nombre",
+        "status": "Estado"
+      },
+      "empty": {
+        "title": "Aún no hay colaboradores",
+        "body": "Invitá a alguien por email para compartir este libro mayor."
+      }
+    }
+  }
+}

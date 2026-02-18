@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Bell, Search } from "lucide-react";
 import { Button } from "../atoms/Button";
 
@@ -6,7 +7,8 @@ interface AppHeaderProps {
   title?: string;
 }
 
-export const AppHeader = ({ userName, title = "Dashboard" }: AppHeaderProps) => {
+export const AppHeader = ({ userName, title }: AppHeaderProps) => {
+  const { t } = useTranslation("common");
   const firstName = userName.split(" ")[0];
 
   return (
@@ -14,7 +16,7 @@ export const AppHeader = ({ userName, title = "Dashboard" }: AppHeaderProps) => 
       <div>
         <h1 className="text-2xl font-semibold text-slate-900">{title}</h1>
         <p className="text-sm text-slate-500">
-          Welcome back, {firstName}. Here are your ledgers.
+          {t("header.welcomeBack", { name: firstName })}
         </p>
       </div>
 
@@ -23,7 +25,7 @@ export const AppHeader = ({ userName, title = "Dashboard" }: AppHeaderProps) => 
           <Search className="w-4 h-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Search ledgers..."
+            placeholder={t("header.searchPlaceholder")}
             className="bg-transparent text-sm text-slate-700 placeholder:text-slate-400 outline-none w-48"
           />
         </div>
@@ -33,8 +35,8 @@ export const AppHeader = ({ userName, title = "Dashboard" }: AppHeaderProps) => 
           <span className="absolute top-0 right-0 w-2 h-2 bg-expense-500 rounded-full" />
         </button>
 
-        <Button variant="default">+ New Ledger</Button>
+        <Button variant="default">{t("header.newLedger")}</Button>
       </div>
     </header>
   );
-}
+};

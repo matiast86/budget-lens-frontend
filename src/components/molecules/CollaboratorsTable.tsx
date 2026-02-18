@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Badge } from "../atoms/Badge";
 import type { CollaborationResponseDto } from "../../types";
 
@@ -8,12 +9,14 @@ interface CollaboratorsTableProps {
 export const CollaboratorsTable = ({
   collaborations,
 }: CollaboratorsTableProps) => {
+  const { t } = useTranslation("ledger");
+
   if (collaborations.length === 0) {
     return (
       <div className="card flex flex-col items-center justify-center py-2xl text-center">
-        <p className="section-title mb-xs">No collaborators yet</p>
+        <p className="section-title mb-xs">{t("collaborator.table.empty.title")}</p>
         <p className="text-sm text-slate-500">
-          Invite someone by email to share this ledger.
+          {t("collaborator.table.empty.body")}
         </p>
       </div>
     );
@@ -25,10 +28,10 @@ export const CollaboratorsTable = ({
         <thead>
           <tr className="bg-slate-50 border-b border-slate-200">
             <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide">
-              Name
+              {t("collaborator.table.col.name")}
             </th>
             <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide text-center">
-              Status
+              {t("collaborator.table.col.status")}
             </th>
           </tr>
         </thead>
@@ -43,7 +46,7 @@ export const CollaboratorsTable = ({
               </td>
               <td className="px-md py-sm text-center">
                 <Badge variant={c.isActive ? "income" : "closed"}>
-                  {c.isActive ? "Active" : "Inactive"}
+                  {c.isActive ? t("collaborator.active") : t("collaborator.inactive")}
                 </Badge>
               </td>
             </tr>

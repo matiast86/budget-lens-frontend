@@ -1,4 +1,6 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import type React from "react";
 import {
   BarChart3,
   Users,
@@ -13,76 +15,37 @@ import {
 } from "lucide-react";
 import { Button } from "../components/atoms/Button";
 
-const FEATURES = [
-  {
-    icon: Layers,
-    title: "Multi-Ledger Management",
-    description:
-      "Create separate ledgers for personal, family, or business budgets. Keep every context organized and clearly separated.",
-    colorBg: "bg-primary-100",
-    colorText: "text-primary-600",
-  },
-  {
-    icon: PieChart,
-    title: "Category Budgets",
-    description:
-      "Set spending limits per category and track progress visually. Know exactly when you're close to overspending.",
-    colorBg: "bg-income-100",
-    colorText: "text-income-600",
-  },
-  {
-    icon: TrendingUp,
-    title: "Inflation-Adjusted Insights",
-    description:
-      "See your real purchasing power over time. Budget Lens adjusts amounts with CPI indexes so you know the true cost.",
-    colorBg: "bg-accent-100",
-    colorText: "text-accent-600",
-  },
-  {
-    icon: Users,
-    title: "Collaborative Budgeting",
-    description:
-      "Invite family members or teammates to shared ledgers. Everyone stays aligned with full visibility.",
-    colorBg: "bg-warning-100",
-    colorText: "text-warning-600",
-  },
-  {
-    icon: Globe,
-    title: "Multi-Currency Support",
-    description:
-      "Manage budgets in ARS and USD simultaneously. Built for mixed-currency economies and cross-border finances.",
-    colorBg: "bg-expense-100",
-    colorText: "text-expense-600",
-  },
-  {
-    icon: CreditCard,
-    title: "Payment Method Tracking",
-    description:
-      "Track cash, bank transfers, wallets, and credit cards separately for a truly complete spending picture.",
-    colorBg: "bg-primary-100",
-    colorText: "text-primary-600",
-  },
+// Static (non-translatable) structural data stays at module level
+
+const FEATURE_CONFIG: {
+  key: string;
+  icon: React.ElementType;
+  colorBg: string;
+  colorText: string;
+}[] = [
+  { key: "multiLedger", icon: Layers, colorBg: "bg-primary-100", colorText: "text-primary-600" },
+  { key: "categoryBudgets", icon: PieChart, colorBg: "bg-income-100", colorText: "text-income-600" },
+  { key: "inflation", icon: TrendingUp, colorBg: "bg-accent-100", colorText: "text-accent-600" },
+  { key: "collaborative", icon: Users, colorBg: "bg-warning-100", colorText: "text-warning-600" },
+  { key: "multiCurrency", icon: Globe, colorBg: "bg-expense-100", colorText: "text-expense-600" },
+  { key: "paymentMethod", icon: CreditCard, colorBg: "bg-primary-100", colorText: "text-primary-600" },
 ];
 
-const STEPS = [
-  {
-    number: "01",
-    title: "Create a Ledger",
-    description:
-      "Set up a budget ledger for any context — personal finances, household, a project, or your team.",
-  },
-  {
-    number: "02",
-    title: "Add Transactions",
-    description:
-      "Log income and expenses with categories, payment methods, and installment support built in.",
-  },
-  {
-    number: "03",
-    title: "Gain Clarity",
-    description:
-      "See where your money goes with clear summaries, budget progress, and inflation-adjusted real amounts.",
-  },
+const STEP_CONFIG: { key: string; number: string }[] = [
+  { key: "create", number: "01" },
+  { key: "add", number: "02" },
+  { key: "gain", number: "03" },
+];
+
+const TRUST_CONFIG: {
+  key: string;
+  icon: React.ElementType;
+  color: string;
+  bg: string;
+}[] = [
+  { key: "secure", icon: ShieldCheck, color: "text-income-600", bg: "bg-income-50" },
+  { key: "inflation", icon: TrendingUp, color: "text-primary-600", bg: "bg-primary-50" },
+  { key: "teams", icon: Users, color: "text-accent-600", bg: "bg-accent-50" },
 ];
 
 const MOCK_LEDGERS = [
@@ -99,6 +62,21 @@ const MOCK_TRANSACTIONS = [
 
 export const LandingPage = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation("common");
+
+  const mockSidebarItems = [
+    t("landing.mockup.myLedgers"),
+    t("nav.transactions"),
+    t("nav.budgets"),
+    t("nav.analytics"),
+  ];
+
+  const stats = [
+    t("landing.stats.ledgerTypes", { returnObjects: true }) as { value: string; label: string },
+    t("landing.stats.currencies", { returnObjects: true }) as { value: string; label: string },
+    t("landing.stats.inflation", { returnObjects: true }) as { value: string; label: string },
+    t("landing.stats.budget", { returnObjects: true }) as { value: string; label: string },
+  ];
 
   return (
     <div className="min-h-screen bg-white">
@@ -117,31 +95,21 @@ export const LandingPage = () => {
 
           {/* Links */}
           <div className="hidden md:flex items-center gap-xl text-sm font-medium text-slate-600">
-            <a
-              href="#features"
-              className="hover:text-primary-600 transition-colors"
-            >
-              Features
+            <a href="#features" className="hover:text-primary-600 transition-colors">
+              {t("landing.nav.features")}
             </a>
-            <a
-              href="#how-it-works"
-              className="hover:text-primary-600 transition-colors"
-            >
-              How it works
+            <a href="#how-it-works" className="hover:text-primary-600 transition-colors">
+              {t("landing.nav.howItWorks")}
             </a>
           </div>
 
           {/* CTAs */}
           <div className="flex items-center gap-sm">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/dashboard")}
-            >
-              Sign in
+            <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
+              {t("landing.nav.signIn")}
             </Button>
             <Button size="sm" onClick={() => navigate("/dashboard")}>
-              Get started
+              {t("landing.nav.getStarted")}
             </Button>
           </div>
         </div>
@@ -158,35 +126,29 @@ export const LandingPage = () => {
           {/* Pill tag */}
           <div className="inline-flex items-center gap-xs px-md py-xs rounded-full bg-primary-100 text-primary-700 text-xs font-semibold mb-lg border border-primary-200/60">
             <span className="w-1.5 h-1.5 rounded-full bg-primary-500" />
-            Track · Analyze · Collaborate
+            {t("landing.hero.pill")}
           </div>
 
           {/* Headline */}
           <h1 className="text-5xl font-extrabold text-slate-900 leading-tight tracking-tight mb-md">
-            Your finances,
+            {t("landing.hero.headline1")}
             <br />
-            <span className="text-primary-600">in perfect focus.</span>
+            <span className="text-primary-600">{t("landing.hero.headline2")}</span>
           </h1>
 
           {/* Subheadline */}
           <p className="text-xl text-slate-500 max-w-2xl mx-auto mb-xl leading-relaxed">
-            Budget Lens brings clarity to your money. Create ledgers, track
-            every transaction, set category budgets, and see the real impact of
-            inflation — all in one place.
+            {t("landing.hero.subheadline")}
           </p>
 
           {/* CTA buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-sm mb-3xl">
             <Button size="lg" onClick={() => navigate("/dashboard")}>
-              Get started free
+              {t("landing.hero.cta1")}
               <ArrowRight className="w-4 h-4 ml-xs" />
             </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => navigate("/dashboard")}
-            >
-              View demo
+            <Button variant="outline" size="lg" onClick={() => navigate("/dashboard")}>
+              {t("landing.hero.cta2")}
             </Button>
           </div>
 
@@ -204,7 +166,7 @@ export const LandingPage = () => {
                   <span className="w-3 h-3 rounded-full bg-slate-300" />
                 </div>
                 <div className="flex-1 bg-white rounded border border-slate-200 px-md py-xs text-xs text-slate-400 text-center">
-                  app.budgetlens.io/dashboard
+                  {t("landing.mockup.url")}
                 </div>
               </div>
 
@@ -217,36 +179,32 @@ export const LandingPage = () => {
                       <BarChart3 className="w-3 h-3 text-white" />
                     </div>
                     <span className="text-xs font-bold text-slate-900">
-                      Budget Lens
+                      {t("app.name")}
                     </span>
                   </div>
-                  {["My Ledgers", "Transactions", "Budgets", "Analytics"].map(
-                    (item, i) => (
-                      <div
-                        key={item}
-                        className={`flex items-center gap-xs px-sm py-1.5 rounded-md text-xs font-medium ${
-                          i === 0
-                            ? "bg-primary-50 text-primary-700"
-                            : "text-slate-400"
-                        }`}
-                      >
-                        <span
-                          className={`w-1.5 h-1.5 rounded-full ${i === 0 ? "bg-primary-500" : "bg-slate-300"}`}
-                        />
-                        {item}
-                      </div>
-                    )
-                  )}
+                  {mockSidebarItems.map((item, i) => (
+                    <div
+                      key={item}
+                      className={`flex items-center gap-xs px-sm py-1.5 rounded-md text-xs font-medium ${
+                        i === 0 ? "bg-primary-50 text-primary-700" : "text-slate-400"
+                      }`}
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${i === 0 ? "bg-primary-500" : "bg-slate-300"}`}
+                      />
+                      {item}
+                    </div>
+                  ))}
                 </div>
 
                 {/* Main area */}
                 <div className="flex-1 bg-slate-50 p-md overflow-hidden">
                   <div className="flex items-center justify-between mb-sm">
                     <p className="text-xs font-semibold text-slate-800">
-                      My Ledgers
+                      {t("landing.mockup.myLedgers")}
                     </p>
                     <span className="text-[10px] px-sm py-0.5 rounded-full bg-primary-100 text-primary-600 font-medium">
-                      3 active
+                      {t("landing.mockup.active")}
                     </span>
                   </div>
 
@@ -268,7 +226,7 @@ export const LandingPage = () => {
                         <div className="space-y-0.5">
                           <div className="flex justify-between">
                             <span className="text-[9px] text-slate-400">
-                              Income
+                              {t("landing.mockup.income")}
                             </span>
                             <span className="text-[9px] font-semibold text-income-600">
                               {l.income}
@@ -276,7 +234,7 @@ export const LandingPage = () => {
                           </div>
                           <div className="flex justify-between">
                             <span className="text-[9px] text-slate-400">
-                              Expenses
+                              {t("landing.mockup.expenses")}
                             </span>
                             <span className="text-[9px] font-semibold text-expense-600">
                               {l.expense}
@@ -290,30 +248,23 @@ export const LandingPage = () => {
                   {/* Recent transactions strip */}
                   <div className="bg-white rounded-lg border border-slate-200 p-sm">
                     <p className="text-[10px] font-semibold text-slate-700 mb-xs">
-                      Recent transactions
+                      {t("landing.mockup.recentTransactions")}
                     </p>
                     <div className="space-y-xs">
-                      {MOCK_TRANSACTIONS.map((t) => (
-                        <div
-                          key={t.label}
-                          className="flex items-center justify-between"
-                        >
+                      {MOCK_TRANSACTIONS.map((tx) => (
+                        <div key={tx.label} className="flex items-center justify-between">
                           <div className="flex items-center gap-xs">
                             <span className="w-4 h-4 rounded-full bg-slate-100 flex items-center justify-center">
                               <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
                             </span>
-                            <span className="text-[9px] text-slate-600">
-                              {t.label}
-                            </span>
+                            <span className="text-[9px] text-slate-600">{tx.label}</span>
                           </div>
                           <span
                             className={`text-[9px] font-semibold ${
-                              t.type === "income"
-                                ? "text-income-600"
-                                : "text-expense-600"
+                              tx.type === "income" ? "text-income-600" : "text-expense-600"
                             }`}
                           >
-                            {t.amount}
+                            {tx.amount}
                           </span>
                         </div>
                       ))}
@@ -330,12 +281,7 @@ export const LandingPage = () => {
       <section className="border-y border-slate-200 bg-white py-xl">
         <div className="max-w-4xl mx-auto px-lg">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-lg text-center">
-            {[
-              { value: "10+", label: "Ledger types" },
-              { value: "ARS & USD", label: "Currencies" },
-              { value: "CPI-aware", label: "Inflation tracking" },
-              { value: "Real-time", label: "Budget progress" },
-            ].map((stat) => (
+            {stats.map((stat) => (
               <div key={stat.label}>
                 <p className="text-2xl font-bold text-slate-900 tabular-nums">
                   {stat.value}
@@ -352,23 +298,22 @@ export const LandingPage = () => {
         <div className="max-w-6xl mx-auto px-lg">
           <div className="text-center mb-2xl">
             <p className="text-sm font-semibold text-primary-600 uppercase tracking-widest mb-sm">
-              Features
+              {t("landing.features.sectionLabel")}
             </p>
             <h2 className="text-3xl font-bold text-slate-900 mb-md">
-              Everything you need to understand your money
+              {t("landing.features.heading")}
             </h2>
             <p className="text-slate-500 max-w-xl mx-auto leading-relaxed">
-              From simple expense tracking to inflation-adjusted analytics,
-              Budget Lens gives you the full picture without the complexity.
+              {t("landing.features.subheading")}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
-            {FEATURES.map((feature) => {
+            {FEATURE_CONFIG.map((feature) => {
               const Icon = feature.icon;
               return (
                 <div
-                  key={feature.title}
+                  key={feature.key}
                   className="card hover:shadow-card-hover transition-all duration-200"
                 >
                   <div
@@ -377,10 +322,10 @@ export const LandingPage = () => {
                     <Icon className={`w-5 h-5 ${feature.colorText}`} />
                   </div>
                   <h3 className="text-base font-semibold text-slate-900 mb-xs">
-                    {feature.title}
+                    {t(`landing.features.${feature.key}.title`)}
                   </h3>
                   <p className="text-sm text-slate-500 leading-relaxed">
-                    {feature.description}
+                    {t(`landing.features.${feature.key}.desc`)}
                   </p>
                 </div>
               );
@@ -394,10 +339,10 @@ export const LandingPage = () => {
         <div className="max-w-6xl mx-auto px-lg">
           <div className="text-center mb-2xl">
             <p className="text-sm font-semibold text-primary-600 uppercase tracking-widest mb-sm">
-              How it works
+              {t("landing.howItWorks.sectionLabel")}
             </p>
             <h2 className="text-3xl font-bold text-slate-900">
-              Up and running in minutes
+              {t("landing.howItWorks.heading")}
             </h2>
           </div>
 
@@ -405,16 +350,16 @@ export const LandingPage = () => {
             {/* Connector line */}
             <div className="hidden md:block absolute top-8 left-[calc(16.67%+2rem)] right-[calc(16.67%+2rem)] h-px bg-slate-200" />
 
-            {STEPS.map((step) => (
+            {STEP_CONFIG.map((step) => (
               <div key={step.number} className="relative text-center">
                 <div className="w-16 h-16 rounded-2xl bg-primary-600 text-white flex items-center justify-center text-xl font-bold mx-auto mb-md relative z-10 shadow-sm">
                   {step.number}
                 </div>
                 <h3 className="text-lg font-semibold text-slate-900 mb-sm">
-                  {step.title}
+                  {t(`landing.howItWorks.${step.key}.title`)}
                 </h3>
                 <p className="text-sm text-slate-500 leading-relaxed max-w-xs mx-auto">
-                  {step.description}
+                  {t(`landing.howItWorks.${step.key}.desc`)}
                 </p>
               </div>
             ))}
@@ -426,35 +371,10 @@ export const LandingPage = () => {
       <section className="py-xl bg-slate-50 border-y border-slate-200">
         <div className="max-w-4xl mx-auto px-lg">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
-            {[
-              {
-                icon: ShieldCheck,
-                title: "Secure by design",
-                body: "Your data stays yours. No third-party sharing, no ads, no compromises.",
-                color: "text-income-600",
-                bg: "bg-income-50",
-              },
-              {
-                icon: TrendingUp,
-                title: "Inflation-aware",
-                body: "Built for economies where purchasing power changes. Every amount has a real value.",
-                color: "text-primary-600",
-                bg: "bg-primary-50",
-              },
-              {
-                icon: Users,
-                title: "Built for teams",
-                body: "Whether it's just you or your entire household, Budget Lens scales to your needs.",
-                color: "text-accent-600",
-                bg: "bg-accent-50",
-              },
-            ].map((item) => {
+            {TRUST_CONFIG.map((item) => {
               const Icon = item.icon;
               return (
-                <div
-                  key={item.title}
-                  className="flex items-start gap-md"
-                >
+                <div key={item.key} className="flex items-start gap-md">
                   <div
                     className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${item.bg}`}
                   >
@@ -462,10 +382,10 @@ export const LandingPage = () => {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-slate-900 mb-xs">
-                      {item.title}
+                      {t(`landing.trust.${item.key}.title`)}
                     </p>
                     <p className="text-sm text-slate-500 leading-relaxed">
-                      {item.body}
+                      {t(`landing.trust.${item.key}.body`)}
                     </p>
                   </div>
                 </div>
@@ -479,30 +399,31 @@ export const LandingPage = () => {
       <section className="py-3xl bg-gradient-to-br from-primary-600 via-primary-700 to-accent-700">
         <div className="max-w-3xl mx-auto px-lg text-center">
           <h2 className="text-3xl font-bold text-white mb-md">
-            Ready to take control of your finances?
+            {t("landing.cta.heading")}
           </h2>
           <p className="text-primary-200 text-lg mb-xl leading-relaxed">
-            Join Budget Lens and start seeing your money with clarity — for
-            free, today.
+            {t("landing.cta.body")}
           </p>
 
           <button
             onClick={() => navigate("/dashboard")}
             className="inline-flex items-center gap-sm px-xl py-md bg-white text-primary-700 font-semibold rounded-lg shadow-card hover:bg-primary-50 active:bg-primary-100 transition-colors text-base"
           >
-            Get started free
+            {t("landing.cta.button")}
             <ArrowRight className="w-4 h-4" />
           </button>
 
           <div className="mt-lg flex flex-wrap items-center justify-center gap-xl text-primary-200 text-sm">
-            {["No credit card required", "Free to use", "Cancel anytime"].map(
-              (item) => (
-                <div key={item} className="flex items-center gap-xs">
-                  <Check className="w-4 h-4" />
-                  {item}
-                </div>
-              )
-            )}
+            {[
+              t("landing.cta.noCreditCard"),
+              t("landing.cta.freeToUse"),
+              t("landing.cta.cancelAnytime"),
+            ].map((item) => (
+              <div key={item} className="flex items-center gap-xs">
+                <Check className="w-4 h-4" />
+                {item}
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -515,18 +436,18 @@ export const LandingPage = () => {
               <BarChart3 className="w-3.5 h-3.5 text-white" />
             </div>
             <span className="text-sm font-bold text-white tracking-tight">
-              Budget Lens
+              {t("app.name")}
             </span>
           </div>
           <p className="text-xs text-slate-500 text-center">
-            © 2025 Budget Lens. Built for financial clarity.
+            {t("landing.footer.copyright")}
           </p>
           <div className="flex items-center gap-lg text-xs text-slate-500">
             <a href="#" className="hover:text-slate-300 transition-colors">
-              Privacy
+              {t("landing.footer.privacy")}
             </a>
             <a href="#" className="hover:text-slate-300 transition-colors">
-              Terms
+              {t("landing.footer.terms")}
             </a>
           </div>
         </div>

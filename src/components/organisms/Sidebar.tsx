@@ -1,4 +1,5 @@
 import { NavLink, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   LayoutDashboard,
   Wallet,
@@ -7,17 +8,26 @@ import {
   Settings,
   ChevronDown,
 } from "lucide-react";
+import type React from "react";
 import type { NavItem } from "../../types";
 
-const navItems: NavItem[] = [
-  { icon: LayoutDashboard, label: "Dashboard", to: "/dashboard" },
-  { icon: Wallet, label: "Transactions", to: "/transactions" },
-  { icon: PieChart, label: "Budgets", to: "/budgets" },
-  { icon: TrendingUp, label: "Analytics", to: "/analytics" },
-  { icon: Settings, label: "Settings", to: "/settings" },
+const NAV_ITEM_CONFIG: { icon: React.ElementType; key: keyof { dashboard: string; transactions: string; budgets: string; analytics: string; settings: string }; to: string }[] = [
+  { icon: LayoutDashboard, key: "dashboard", to: "/dashboard" },
+  { icon: Wallet, key: "transactions", to: "/transactions" },
+  { icon: PieChart, key: "budgets", to: "/budgets" },
+  { icon: TrendingUp, key: "analytics", to: "/analytics" },
+  { icon: Settings, key: "settings", to: "/settings" },
 ];
 
 export const Sidebar = () => {
+  const { t } = useTranslation("common");
+
+  const navItems: NavItem[] = NAV_ITEM_CONFIG.map((item) => ({
+    icon: item.icon,
+    label: t(`nav.${item.key}`),
+    to: item.to,
+  }));
+
   return (
     <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-slate-200">
       <Link
@@ -27,13 +37,13 @@ export const Sidebar = () => {
         <div className="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center">
           <span className="text-white text-sm font-bold">BL</span>
         </div>
-        <span className="text-lg font-semibold text-slate-900">Budget Lens</span>
+        <span className="text-lg font-semibold text-slate-900">{t("app.name")}</span>
       </Link>
 
       <nav className="flex-1 px-sm py-md space-y-xs">
         {navItems.map((item) => (
           <NavLink
-            key={item.label}
+            key={item.to}
             to={item.to}
             end
             className={({ isActive }) =>

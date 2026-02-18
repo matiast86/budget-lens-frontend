@@ -1,8 +1,11 @@
-import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
 import { CheckCircle2, Circle, Zap, ZapOff, Plus } from "lucide-react";
 import { Badge } from "../atoms/Badge";
 import { Button } from "../atoms/Button";
-import type { TransactionResponseDto, EntryType, Status } from "../../types";
+import { formatCurrency } from "../../utils/format-currency";
+import { formatTransactionDate, formatPaymentMonth } from "../../utils/format-date";
+import type { TransactionResponseDto, EntryType, Status, Currency } from "../../types";
+import type { TFunction } from "i18next";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -16,35 +19,28 @@ const PAYMENT_TYPE_ICONS: Record<string, string> = {
   OTHER: "💰",
 };
 
-const entryTypeBadge = (type: EntryType) => (
+const entryTypeBadge = (type: EntryType, t: TFunction) => (
   <Badge variant={type === "INCOME" ? "income" : "expense"}>
-    {type === "INCOME" ? "Income" : "Expense"}
+    {type === "INCOME" ? t("transaction.entryType.income") : t("transaction.entryType.expense")}
   </Badge>
 );
 
-const statusBadge = (status: Status) => {
+const statusBadge = (status: Status, t: TFunction) => {
   const map = {
-    CURRENT: { variant: "current" as const, label: "Current" },
-    CLOSED:  { variant: "closed"  as const, label: "Closed"  },
-    FUTURE:  { variant: "future"  as const, label: "Future"  },
+    CURRENT: { variant: "current" as const, key: "transaction.status.current" },
+    CLOSED:  { variant: "closed"  as const, key: "transaction.status.closed"  },
+    FUTURE:  { variant: "future"  as const, key: "transaction.status.future"  },
   };
-  const { variant, label } = map[status];
-  return <Badge variant={variant}>{label}</Badge>;
+  const { variant, key } = map[status];
+  return <Badge variant={variant}>{t(key)}</Badge>;
 };
-
-const formatAmount = (amount: number, currency: string) =>
-  new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
 
 // ---------------------------------------------------------------------------
 // Row
 // ---------------------------------------------------------------------------
 
 const TransactionTableRow = ({ tx }: { tx: TransactionResponseDto }) => {
+  const { t, i18n } = useTranslation("ledger");
   const isIncome = tx.entryType === "INCOME";
   const hasInstallments = tx.installments > 1;
 
@@ -53,10 +49,10 @@ const TransactionTableRow = ({ tx }: { tx: TransactionResponseDto }) => {
       {/* Date */}
       <td className="px-md py-sm whitespace-nowrap">
         <p className="text-sm text-slate-900 tabular-nums">
-          {format(new Date(tx.transactionDate), "dd MMM yyyy")}
+          {formatTransactionDate(tx.transactionDate, i18n.language)}
         </p>
         <p className="text-xs text-slate-400 tabular-nums">
-          {format(new Date(tx.paymentMonth), "MMM yyyy")}
+          {formatPaymentMonth(tx.paymentMonth, i18n.language)}
         </p>
       </td>
 
@@ -74,19 +70,19 @@ const TransactionTableRow = ({ tx }: { tx: TransactionResponseDto }) => {
       </td>
 
       {/* Type */}
-      <td className="px-md py-sm">{entryTypeBadge(tx.entryType)}</td>
+      <td className="px-md py-sm">{entryTypeBadge(tx.entryType, t)}</td>
 
       {/* Status */}
-      <td className="px-md py-sm">{statusBadge(tx.status)}</td>
+      <td className="px-md py-sm">{statusBadge(tx.status, t)}</td>
 
       {/* Amount */}
       <td className="px-md py-sm text-right">
         <p className={`text-sm financial-amount ${isIncome ? "amount-positive" : "amount-negative"}`}>
-          {isIncome ? "+" : "-"}{formatAmount(tx.monthlyAmount, tx.currency)}
+          {isIncome ? "+" : "-"}{formatCurrency(tx.monthlyAmount, tx.currency as Currency, i18n.language)}
         </p>
         {tx.realMonthlyAmount != null && (
           <p className="text-xs text-slate-400 tabular-nums">
-            ≈ {formatAmount(tx.realMonthlyAmount, tx.currency)} real
+            ≈ {formatCurrency(tx.realMonthlyAmount, tx.currency as Currency, i18n.language)} {t("transaction.table.real")}
           </p>
         )}
       </td>
@@ -142,19 +138,21 @@ interface TransactionTableProps {
 }
 
 export const TransactionTable = ({ transactions }: TransactionTableProps) => {
+  const { t } = useTranslation("ledger");
+
   if (transactions.length === 0) {
     return (
       <div className="card flex flex-col items-center justify-center py-3xl text-center">
-        <p className="section-title mb-xs">No transactions yet</p>
+        <p className="section-title mb-xs">{t("transaction.table.empty.title")}</p>
         <p className="text-sm text-slate-500 mb-lg">
-          Add your first income or expense to get started.
+          {t("transaction.table.empty.body")}
         </p>
         <div className="flex gap-sm">
           <Button variant="income" size="sm">
-            <Plus className="w-4 h-4" /> Add Income
+            <Plus className="w-4 h-4" /> {t("transaction.table.empty.addIncome")}
           </Button>
           <Button variant="expense" size="sm">
-            <Plus className="w-4 h-4" /> Add Expense
+            <Plus className="w-4 h-4" /> {t("transaction.table.empty.addExpense")}
           </Button>
         </div>
       </div>
@@ -165,13 +163,13 @@ export const TransactionTable = ({ transactions }: TransactionTableProps) => {
     <div className="card p-0 overflow-hidden">
       {/* Table header actions */}
       <div className="flex items-center justify-between px-md py-sm border-b border-slate-100">
-        <h2 className="section-title">Transactions</h2>
+        <h2 className="section-title">{t("transaction.table.title")}</h2>
         <div className="flex gap-sm">
           <Button variant="income" size="sm">
-            <Plus className="w-4 h-4" /> Income
+            <Plus className="w-4 h-4" /> {t("transaction.table.addIncome")}
           </Button>
           <Button variant="expense" size="sm">
-            <Plus className="w-4 h-4" /> Expense
+            <Plus className="w-4 h-4" /> {t("transaction.table.addExpense")}
           </Button>
         </div>
       </div>
@@ -181,15 +179,15 @@ export const TransactionTable = ({ transactions }: TransactionTableProps) => {
         <table className="w-full text-left">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
-              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">Date</th>
-              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide">Category</th>
-              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide">Type</th>
-              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
-              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide text-right">Amount</th>
-              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide text-center">Quota</th>
-              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide">Method</th>
-              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide text-center" title="Paid">Paid</th>
-              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide text-center" title="Impacts Cashflow">CF</th>
+              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">{t("transaction.table.col.date")}</th>
+              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide">{t("transaction.table.col.category")}</th>
+              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide">{t("transaction.table.col.type")}</th>
+              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide">{t("transaction.table.col.status")}</th>
+              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide text-right">{t("transaction.table.col.amount")}</th>
+              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide text-center">{t("transaction.table.col.quota")}</th>
+              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide">{t("transaction.table.col.method")}</th>
+              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide text-center" title={t("transaction.table.col.paid")}>{t("transaction.table.col.paid")}</th>
+              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide text-center" title={t("transaction.table.col.cashflowFull")}>{t("transaction.table.col.cashflow")}</th>
             </tr>
           </thead>
           <tbody>

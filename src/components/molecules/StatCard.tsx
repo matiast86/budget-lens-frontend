@@ -1,7 +1,10 @@
+import { useTranslation } from "react-i18next";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import type { StatCardData } from "../../types";
 
 export const StatCard = ({ label, value, change, trend }: StatCardData) => {
+  const { t } = useTranslation("common");
+
   return (
     <div className="card">
       <p className="label-muted mb-xs">{label}</p>
@@ -19,8 +22,8 @@ export const StatCard = ({ label, value, change, trend }: StatCardData) => {
         >
           {change}
         </span>
-        <span className="text-xs text-slate-400">vs last month</span>
+        <span className="text-xs text-slate-400">{t("stat.vsLastMonth")}</span>
       </div>
     </div>
   );
-}
+};
