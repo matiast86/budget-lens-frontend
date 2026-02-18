@@ -6,7 +6,7 @@ interface BudgetOverviewProps {
   items: BudgetItem[];
 }
 
-export function BudgetOverview({ items }: BudgetOverviewProps) {
+export const BudgetOverview = ({ items }: BudgetOverviewProps) => {
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-md">

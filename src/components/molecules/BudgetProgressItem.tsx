@@ -1,6 +1,6 @@
 import type { BudgetItem } from "../../types";
 
-export function BudgetProgressItem({ category, spent, budget, color }: BudgetItem) {
+export const BudgetProgressItem = ({ category, spent, budget, color }: BudgetItem) => {
   const pct = Math.min((spent / budget) * 100, 100);
   const isOver = spent > budget;
 

@@ -40,19 +40,17 @@ interface ButtonProps
   children: React.ReactNode;
 }
 
-export function Button({
+export const Button = ({
   children,
   variant,
   size,
   className,
   ...props
-}: ButtonProps) {
-  return (
-    <button
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-}
+}: ButtonProps) => (
+  <button
+    className={cn(buttonVariants({ variant, size, className }))}
+    {...props}
+  >
+    {children}
+  </button>
+);

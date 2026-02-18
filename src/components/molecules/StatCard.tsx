@@ -1,7 +1,7 @@
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import type { StatCardData } from "../../types";
 
-export function StatCard({ label, value, change, trend }: StatCardData) {
+export const StatCard = ({ label, value, change, trend }: StatCardData) => {
   return (
     <div className="card">
       <p className="label-muted mb-xs">{label}</p>

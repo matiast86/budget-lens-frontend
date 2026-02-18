@@ -6,7 +6,7 @@ interface AppHeaderProps {
   title?: string;
 }
 
-export function AppHeader({ userName, title = "Dashboard" }: AppHeaderProps) {
+export const AppHeader = ({ userName, title = "Dashboard" }: AppHeaderProps) => {
   const firstName = userName.split(" ")[0];
 
   return (

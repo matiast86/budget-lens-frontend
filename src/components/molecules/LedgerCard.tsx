@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { ArrowRight, TrendingUp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../atoms/Button";
 import type { LedgerDashboardResponseDto } from "../../types";
 
@@ -18,7 +19,8 @@ interface LedgerCardProps {
   ledger: LedgerDashboardResponseDto;
 }
 
-export function LedgerCard({ ledger }: LedgerCardProps) {
+export const LedgerCard = ({ ledger }: LedgerCardProps) => {
+  const navigate = useNavigate();
   const createdAt = format(new Date(ledger.createdAt), "MMM d, yyyy");
   const currencyLabel = CURRENCY_LABELS[ledger.currency] ?? ledger.currency;
 
@@ -61,7 +63,13 @@ export function LedgerCard({ ledger }: LedgerCardProps) {
           <p className="label-muted">{currencyLabel}</p>
           <p className="text-xs text-slate-400">Created {createdAt}</p>
         </div>
-        <Button variant="outline" size="sm">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() =>
+            navigate(`/ledgers/${ledger.id}`, { state: { title: ledger.name } })
+          }
+        >
           Open <ArrowRight className="w-3.5 h-3.5" />
         </Button>
       </div>

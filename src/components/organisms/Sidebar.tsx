@@ -16,7 +16,7 @@ const navItems: NavItem[] = [
   { icon: Settings, label: "Settings", active: false },
 ];
 
-export function Sidebar() {
+export const Sidebar = () => {
   return (
     <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-slate-200">
       <div className="flex items-center gap-sm px-lg py-lg border-b border-slate-100">

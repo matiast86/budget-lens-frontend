@@ -6,7 +6,7 @@ interface TransactionListProps {
   transactions: Transaction[];
 }
 
-export function TransactionList({ transactions }: TransactionListProps) {
+export const TransactionList = ({ transactions }: TransactionListProps) => {
   return (
     <div className="lg:col-span-2 card">
       <div className="flex items-center justify-between mb-md">

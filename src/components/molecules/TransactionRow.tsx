@@ -1,7 +1,7 @@
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import type { Transaction } from "../../types";
 
-export function TransactionRow({ name, category, amount, type }: Transaction) {
+export const TransactionRow = ({ name, category, amount, type }: Transaction) => {
   return (
     <div className="flex items-center justify-between py-sm border-b border-slate-100 last:border-0">
       <div className="flex items-center gap-sm">

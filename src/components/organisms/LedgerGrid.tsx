@@ -7,7 +7,7 @@ interface LedgerGridProps {
   ledgers: LedgerDashboardResponseDto[];
 }
 
-export function LedgerGrid({ ledgers }: LedgerGridProps) {
+export const LedgerGrid = ({ ledgers }: LedgerGridProps) => {
   return (
     <section>
       <div className="flex items-center justify-between mb-md">
