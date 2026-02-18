@@ -1,4 +1,4 @@
-# Budget Lens: React TypeScript Vite Project Setup
+# Budget Lens: React TypeScript Vite Frontend
 
 ## Design Philosophy
 
@@ -8,6 +8,87 @@
 - Trustworthy (blue primary) and calming (rose for expenses, not aggressive red)
 - Card-based dashboard layout
 - Tabular numbers for financial data alignment
+
+---
+
+## Coding Conventions
+
+These conventions are enforced across the entire codebase. All new code must follow them.
+
+### Components — arrow functions only
+
+All React components use `const` arrow functions. Never use the `function` keyword for components.
+
+```tsx
+// ✅ correct
+export const MyComponent = ({ label }: MyComponentProps) => {
+  return <div>{label}</div>;
+};
+
+// ❌ wrong
+export function MyComponent({ label }: MyComponentProps) { ... }
+```
+
+### Types — barrel import always
+
+All type imports go through the barrel `src/types/index.ts`. Never import directly from sub-files.
+
+```typescript
+// ✅ correct
+import type { LedgerResponseDto, Currency } from "../../types";
+
+// ❌ wrong
+import type { LedgerResponseDto } from "../../types/dtos";
+import type { Currency } from "../../types/prisma-enums";
+```
+
+### Types — where things live
+
+| What | Where |
+|---|---|
+| Prisma enum mirrors | `src/types/prisma-enums.ts` |
+| Backend response DTOs | `src/types/dtos.ts` |
+| UI-only types (no backend equivalent) | `src/types/ui-only.ts` |
+| Component-local props interfaces | Inside the component file — **not** in `types/` |
+| Runtime constants / config arrays | Inside the component/page file — **not** in `types/` |
+
+Only **types** (type aliases, interfaces) belong in `src/types/`. Runtime values (arrays, objects with functions) stay co-located with their single consumer.
+
+```typescript
+// ✅ type → goes in ui-only.ts
+export type LedgerDetailTab = "transactions" | "categories" | ...;
+
+// ✅ runtime constant → stays in LedgerDetailPage.tsx
+const TABS: { id: LedgerDetailTab; label: string; count: ... }[] = [...];
+```
+
+### React import
+
+When `React` namespace types are needed (e.g. `React.ElementType`, `React.ReactNode`), use:
+
+```typescript
+import type React from "react";  // always first in the file
+```
+
+### Atomic design — component levels
+
+| Level | Folder | Rule |
+|---|---|---|
+| Atom | `components/atoms/` | No dependencies on other components; primitive UI only |
+| Molecule | `components/molecules/` | Composes atoms; single responsibility; no organisms |
+| Organism | `components/organisms/` | Composes molecules/atoms; owns a full UI section |
+| Page | `pages/` | Composes organisms; owns route-level state and mock/data wiring |
+
+Never define a reusable component inline inside a page or organism. Extract it to the appropriate level.
+
+### Mocks
+
+Development mocks live in `src/helpers/mocks/`. Each file exports one mock object matching a backend DTO. Always import the mock from there — never define inline mock data in a page.
+
+```typescript
+// src/helpers/mocks/ledger-mocks.ts  →  export const mockLedger: LedgerResponseDto
+// src/helpers/mocks/user-mocks.ts   →  export const mockUser: UserDashboardViewDto
+```
 
 ---
 
@@ -33,8 +114,8 @@ Card surface:      bg-white
 Primary text:      text-slate-900
 Secondary text:    text-slate-500
 Borders:           border-slate-200
-Income amount:     text-income-600
-Expense amount:    text-expense-600
+Income amount:     text-income-600  (+ class .amount-positive)
+Expense amount:    text-expense-600 (+ class .amount-negative)
 Over-budget bar:   bg-expense-500
 ```
 
@@ -77,17 +158,17 @@ Font: **Inter** (variable font, all weights 100–900 in a single file)
 
 | Class | Size |
 |---|---|
-| `xs` | 4px |
-| `sm` | 8px |
-| `md` | 16px |
-| `lg` | 24px |
-| `xl` | 32px |
-| `2xl` | 48px |
-| `3xl` | 64px |
+| `p-xs` / `gap-xs` | 4px |
+| `p-sm` / `gap-sm` | 8px |
+| `p-md` / `gap-md` | 16px |
+| `p-lg` / `gap-lg` | 24px |
+| `p-xl` / `gap-xl` | 32px |
+| `p-2xl` / `gap-2xl` | 48px |
+| `p-3xl` / `gap-3xl` | 64px |
 
 ### CSS Utility Classes
 
-Defined in `@layer components` / `@layer utilities` in `index.css`:
+Defined in `@layer components` / `@layer utilities` in `src/index.css`:
 
 | Class | Purpose |
 |---|---|
@@ -113,21 +194,31 @@ Defined in `@layer components` / `@layer utilities` in `index.css`:
 
 ## App Layout Pattern
 
-The app uses a **sidebar + header + scrollable content** shell:
+The app uses a **sidebar + header + scrollable content** shell defined in `App.tsx`:
 
 ```
 ┌─────────────┬─────────────────────────────────────┐
 │   Sidebar   │            AppHeader                │
 │  (w-64,     ├─────────────────────────────────────┤
 │  hidden     │                                     │
-│  on mobile) │     Page (overflow-y-auto, p-lg)    │
-│             │                                     │
+│  on mobile) │     <Routes> / Page content         │
+│             │     (overflow-y-auto, p-lg)          │
 └─────────────┴─────────────────────────────────────┘
 ```
 
+- `BrowserRouter` wraps `<App>` in `main.tsx`
+- `App.tsx` reads `location.state.title` (set on navigation) to pass the page title to `AppHeader`
 - Sidebar is `hidden lg:flex` — hidden on mobile
-- `AppHeader` receives `userName` and optional `title` as props
-- Content area uses `p-lg` padding and an 8px grid
+- `AppHeader` receives `userName: string` and `title?: string` (defaults to `"Dashboard"`)
+
+### Routing
+
+| Path | Component | Notes |
+|---|---|---|
+| `/` | `DashboardPage` | Shows `LedgerGrid` from `UserDashboardViewDto` |
+| `/ledgers/:id` | `LedgerDetailPage` | Shows full `LedgerResponseDto` with tabs |
+
+Navigation from `LedgerCard` uses `useNavigate` and passes `state: { title: ledger.name }` so the header updates automatically.
 
 ---
 
@@ -136,32 +227,43 @@ The app uses a **sidebar + header + scrollable content** shell:
 ```
 budget-lens-frontend/
 ├── src/
-│   ├── assets/
 │   ├── components/
 │   │   ├── atoms/
-│   │   │   └── Button.tsx
+│   │   │   ├── Badge.tsx              # CVA badge variants: default, primary, income, expense, warning, current, closed, future
+│   │   │   └── Button.tsx             # CVA button variants: default, secondary, outline, ghost, income, expense, link
 │   │   ├── molecules/
-│   │   │   ├── LedgerCard.tsx        # Single ledger from LedgerDashboardResponseDto
-│   │   │   ├── StatCard.tsx          # Stat summary card (value + trend)
-│   │   │   ├── TransactionRow.tsx    # Single transaction row
-│   │   │   └── BudgetProgressItem.tsx# Budget category progress bar
+│   │   │   ├── CategoriesTable.tsx    # Table of CategoryResponseDto[]
+│   │   │   ├── CollaboratorsTable.tsx # Table of CollaborationResponseDto[] with empty state
+│   │   │   ├── GroupsTable.tsx        # Table of GroupResponseDto[]
+│   │   │   ├── PaymentMethodsTable.tsx# Table of PaymentMethodResponseDto[] with color dots
+│   │   │   ├── LedgerCard.tsx         # Single ledger card; navigates to /ledgers/:id on "Open"
+│   │   │   ├── StatCard.tsx           # Stat summary card (value + trend arrow)
+│   │   │   ├── TransactionRow.tsx     # Single transaction row (deprecated UI type)
+│   │   │   └── BudgetProgressItem.tsx # Budget category progress bar
 │   │   └── organisms/
-│   │       ├── Sidebar.tsx           # Nav + logo + user footer
-│   │       ├── AppHeader.tsx         # Search + notifications + CTA
-│   │       ├── LedgerGrid.tsx        # Grid of LedgerCards + empty state
-│   │       ├── TransactionList.tsx   # Card wrapping TransactionRows
-│   │       └── BudgetOverview.tsx    # Card wrapping BudgetProgressItems
-│   ├── contexts/
-│   ├── hooks/
+│   │       ├── AppHeader.tsx          # Search + notifications + title + CTA
+│   │       ├── BudgetOverview.tsx     # Card wrapping BudgetProgressItems
+│   │       ├── LedgerDetailHeader.tsx # Ledger name, metadata strip, transaction summary strip
+│   │       ├── LedgerGrid.tsx         # Responsive grid of LedgerCards + empty state
+│   │       ├── Sidebar.tsx            # Logo + nav items + user footer
+│   │       ├── TransactionList.tsx    # Card wrapping TransactionRows (deprecated UI type)
+│   │       └── TransactionTable.tsx   # Full table for TransactionResponseDto[] with all columns
+│   ├── helpers/
+│   │   └── mocks/
+│   │       ├── ledger-mocks.ts        # mockLedger: LedgerResponseDto
+│   │       └── user-mocks.ts          # mockUser: UserDashboardViewDto
 │   ├── pages/
-│   │   └── DashboardPage.tsx         # Composes LedgerGrid; owns mock UserDashboardViewDto
-│   ├── services/
+│   │   ├── DashboardPage.tsx          # Route "/": LedgerGrid from mockUser
+│   │   └── LedgerDetailPage.tsx       # Route "/ledgers/:id": tabs + LedgerDetailHeader
 │   ├── types/
-│   │   └── index.ts                  # All types: backend DTOs, enums, UI-only interfaces
+│   │   ├── index.ts                   # Barrel — re-exports everything; always import from here
+│   │   ├── prisma-enums.ts            # Union types mirroring Prisma enums exactly
+│   │   ├── dtos.ts                    # Backend response DTOs (imports from prisma-enums)
+│   │   └── ui-only.ts                 # Frontend-only types (NavItem, StatCardData, LedgerDetailTab, etc.)
 │   ├── utils/
-│   │   └── cn.ts
-│   ├── App.tsx                       # Shell: Sidebar + AppHeader + page
-│   └── main.tsx
+│   │   └── cn.ts                      # clsx + tailwind-merge helper
+│   ├── App.tsx                        # Shell: Sidebar + AppHeader + Routes
+│   └── main.tsx                       # createRoot + BrowserRouter
 ├── index.html
 ├── tailwind.config.js
 ├── vite.config.ts
@@ -170,121 +272,107 @@ budget-lens-frontend/
 
 ---
 
-## Types (`src/types/index.ts`)
+## Types
 
-### Backend Enums — mirror Prisma exactly
+### `src/types/prisma-enums.ts` — mirror Prisma schema exactly
 
 ```typescript
-Currency      "ARS" | "USD"
-Gender        "MALE" | "FEMALE"
-Role          "USER" | "ADMIN"
-EntryType     "INCOME" | "EXPENSE"
-Status        "CLOSED" | "CURRENT" | "FUTURE"
+Currency        "ARS" | "USD"
+Gender          "MALE" | "FEMALE"
+Role            "USER" | "ADMIN"
+EntryType       "INCOME" | "EXPENSE"
+Status          "CLOSED" | "CURRENT" | "FUTURE"
 TransactionType "FIXED" | "VARIABLE"
-PaymentType   "CASH" | "BANK" | "WALLET" | "CREDIT_CARD" | "OTHER"
-CreditBrand   "VISA" | "AMEX" | "MASTER" | "OTHER"
-DebtDirection "OWED_TO_ME" | "OWED_BY_ME"
-CategoryScope "GLOBAL"
+PaymentType     "CASH" | "BANK" | "WALLET" | "CREDIT_CARD" | "OTHER"
+CreditBrand     "VISA" | "AMEX" | "MASTER" | "OTHER"
+DebtDirection   "OWED_TO_ME" | "OWED_BY_ME"
+CategoryScope   "GLOBAL"
 ```
 
-### Backend DTOs
+### `src/types/dtos.ts` — backend response shapes
+
+Key types and their source endpoints:
 
 ```typescript
-// GET /users/me/dashboard  →  UserDashboardViewDto
-interface UserDashboardViewDto {
-  id: string;           // UUID
-  name: string;
-  email: string;
-  birthDate: string;    // ISO date string
-  gender: Gender;
-  role: Role;
-  createdAt: string;
-  updatedAt: string;
-  isActive: boolean;
-  ledgers: LedgerDashboardResponseDto[];
-}
+// GET /users/me/dashboard
+UserDashboardViewDto          { id, name, email, gender, role, isActive, ledgers[] }
 
-// Nested in UserDashboardViewDto
-interface LedgerDashboardResponseDto {
-  id: number;
-  name: string;
-  description?: string;
-  currency: Currency;
-  baseCpiIndex: number; // CPI at ledger creation — base for inflation-adjusted amounts
-  createdAt: string;
-  updatedAt: string;
-}
+// Nested in UserDashboardViewDto — used in DashboardPage / LedgerCard
+LedgerDashboardResponseDto    { id, name, description?, currency, baseCpiIndex, createdAt, updatedAt }
+
+// GET /ledgers/:id — used in LedgerDetailPage
+LedgerResponseDto             { id, name, currency, baseCpiIndex, ownerId, categories[], groups[],
+                                 transactions[], paymentMethods[], collaborations[], createdAt, updatedAt }
+
+// Nested in LedgerResponseDto
+TransactionResponseDto        { id, entryType, status, transactionDate, paymentMonth, currency,
+                                 totalAmount, monthlyAmount, installments, installment, isPaid,
+                                 impactsCashflow, cpiIndex?, realMonthlyAmount?, category, group?,
+                                 paymentMethod, comment?, transactionsBreakDown?, debtOwners? }
+CategoryResponseDto           { id, name, description?, ledgerId, templateId? }
+GroupResponseDto              { id, name, ledgerId, userId }
+PaymentMethodResponseDto      { id, name, type, brand?, color?, icon?, currency?, isActive, userId }
+CollaborationResponseDto      { id, name, isActive, userId, ledgerId }
 ```
 
-### UI-only types (not from backend)
+`baseCpiIndex` is the CPI index value at ledger creation (base = 100 at Jan 2024). Used with `cpiIndex` on transactions to compute `realMonthlyAmount` (inflation-adjusted).
+
+### `src/types/ui-only.ts` — frontend-only types
 
 ```typescript
-interface NavItem       // Sidebar nav item with icon component
-interface StatCardData  // label, value, change, trend — for future ledger detail pages
-interface Transaction   // UI transaction row shape (to be replaced by backend DTO)
-interface BudgetItem    // UI budget progress item (to be replaced by backend DTO)
+NavItem           // Sidebar nav item: { icon: React.ElementType, label, active }
+StatCardData      // Stat card props: { label, value, change, trend: "up"|"down" }
+LedgerDetailTab   // "transactions" | "categories" | "paymentMethods" | "groups" | "collaborators"
+
+// @deprecated — replace with TransactionResponseDto once API is wired
+Transaction       // { name, category, amount, type: "income"|"expense" }
+BudgetItem        // { category, spent, budget, color }
 ```
 
 ---
 
 ## Component Reference
 
+### Badge (`src/components/atoms/Badge.tsx`)
+
+```tsx
+<Badge variant="default">Tag</Badge>
+<Badge variant="primary">ARS</Badge>
+<Badge variant="income">Income</Badge>
+<Badge variant="expense">Expense</Badge>
+<Badge variant="warning">Over budget</Badge>
+<Badge variant="current">Current</Badge>
+<Badge variant="closed">Closed</Badge>
+<Badge variant="future">Future</Badge>
+
+<Badge size="sm">Small (default)</Badge>
+<Badge size="md">Medium</Badge>
+```
+
 ### Button (`src/components/atoms/Button.tsx`)
 
 ```tsx
-import { Button } from '@/components/atoms/Button'
-
-// Variants
 <Button variant="default">Primary action</Button>
 <Button variant="secondary">Accent/indigo</Button>
 <Button variant="outline">Bordered</Button>
-<Button variant="ghost">Subtle / nav actions</Button>
+<Button variant="ghost">Subtle / nav</Button>
 <Button variant="income">Record income</Button>
 <Button variant="expense">Record expense</Button>
-<Button variant="link">Inline link style</Button>
+<Button variant="link">Inline link</Button>
 
-// Sizes
-<Button size="sm">Small</Button>
-<Button size="default">Default</Button>
-<Button size="lg">Large</Button>
+<Button size="sm" />
+<Button size="default" />
+<Button size="lg" />
 ```
 
 All variants include `hover:`, `active:`, `focus-visible:`, and `disabled:` states.
 
-### LedgerCard (`src/components/molecules/LedgerCard.tsx`)
-
-```tsx
-import { LedgerCard } from '@/components/molecules/LedgerCard'
-
-<LedgerCard ledger={ledgerDashboardResponseDto} />
-```
-
-Displays: name, currency badge, description, Base CPI row, currency label + creation date, "Open" button.
-
-### LedgerGrid (`src/components/organisms/LedgerGrid.tsx`)
-
-```tsx
-import { LedgerGrid } from '@/components/organisms/LedgerGrid'
-
-<LedgerGrid ledgers={user.ledgers} />
-```
-
-Renders a responsive grid of `LedgerCard`s with a "New Ledger" CTA and a proper empty state.
-
-### AppHeader (`src/components/organisms/AppHeader.tsx`)
-
-```tsx
-import { AppHeader } from '@/components/organisms/AppHeader'
-
-<AppHeader userName="Jane Doe" title="Dashboard" />
-```
-
 ### cn utility (`src/utils/cn.ts`)
 
 ```typescript
-import { cn } from '@/utils/cn'
+import { cn } from "../../utils/cn";
 
-cn('px-4 py-2', isActive && 'bg-primary-500', className)
+cn("px-4 py-2", isActive && "bg-primary-500", className)
 ```
 
 ---
@@ -326,20 +414,22 @@ npm run lint     # ESLint
 
 ## Next Steps
 
-1. Set up React Router — wire `DashboardPage` and future pages to routes
-2. Set up React Query + API service layer — replace mock data with real API calls
-3. Implement Zustand store for auth/user session
-4. Build **Ledger Detail** page (transactions list, categories, payment methods)
-5. Build **Transactions** page — filter by status, entryType, period; support installments
-6. Build **Budgets** page — category spend vs budget with progress bars
-7. Build **Analytics** page — inflation-adjusted amounts using `baseCpiIndex` and `InflationIndex`
+1. **React Query + API service layer** — replace `mockUser` / `mockLedger` with real `useQuery` hooks
+2. **Zustand store** — auth/user session management
+3. **`LedgerDetailPage` routing** — read `useParams id`, fetch `GET /ledgers/:id` via React Query
+4. **Sidebar navigation** — wire nav items to routes using `NavLink`, derive active state from router
+5. **Transactions page** — filter by status, entryType, period; support installment grouping
+6. **Budgets page** — category spend vs budget with `BudgetProgressItem` + real data
+7. **Analytics page** — inflation-adjusted amounts using `baseCpiIndex` and `realMonthlyAmount`
 
-## Accessibility Considerations
+---
 
-- `focus-visible` rings use `outline-primary-500` (not `focus:` to avoid mouse clicks showing ring)
-- Use semantic HTML (`<nav>`, `<main>`, `<header>`, `<aside>`)
+## Accessibility
+
+- `focus-visible` rings use `outline-primary-500` (keyboard only — not on mouse click)
+- Semantic HTML: `<nav>`, `<main>`, `<header>`, `<aside>`
 - `::selection` color matches brand palette
-- Color contrast: `slate-900` on `white` = 21:1, `income-600` on `white` = 4.6:1
+- Color contrast: `slate-900` on `white` = 21:1, `income-600` on `white` ≥ 4.5:1
 
 ## Deployment
 

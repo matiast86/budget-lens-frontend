@@ -1,27 +1,20 @@
 import { useState } from "react";
+import { CategoriesTable } from "../components/molecules/CategoriesTable";
+import { CollaboratorsTable } from "../components/molecules/CollaboratorsTable";
+import { GroupsTable } from "../components/molecules/GroupsTable";
+import { PaymentMethodsTable } from "../components/molecules/PaymentMethodsTable";
 import { LedgerDetailHeader } from "../components/organisms/LedgerDetailHeader";
 import { TransactionTable } from "../components/organisms/TransactionTable";
-import { CategoriesTable } from "../components/molecules/CategoriesTable";
-import { PaymentMethodsTable } from "../components/molecules/PaymentMethodsTable";
-import { GroupsTable } from "../components/molecules/GroupsTable";
-import { CollaboratorsTable } from "../components/molecules/CollaboratorsTable";
-import type { LedgerResponseDto } from "../types";
-import { cn } from "../utils/cn";
 import { mockLedger } from "../helpers/mocks/ledger-mocks";
+import { cn } from "../utils/cn";
+import type { LedgerDetailTab, LedgerResponseDto } from "../types";
 
 // ---------------------------------------------------------------------------
-// Tab types
+// Tab config
 // ---------------------------------------------------------------------------
-
-type Tab =
-  | "transactions"
-  | "categories"
-  | "paymentMethods"
-  | "groups"
-  | "collaborators";
 
 const TABS: {
-  id: Tab;
+  id: LedgerDetailTab;
   label: string;
   count: (l: LedgerResponseDto) => number;
 }[] = [
@@ -50,7 +43,7 @@ const TABS: {
 
 export const LedgerDetailPage = () => {
   // TODO: replace mockLedger with useQuery fetching GET /ledgers/:id
-  const [activeTab, setActiveTab] = useState<Tab>("transactions");
+  const [activeTab, setActiveTab] = useState<LedgerDetailTab>("transactions");
   const ledger = mockLedger;
 
   return (
