@@ -8,6 +8,7 @@
 - Trustworthy (blue primary) and calming (rose for expenses, not aggressive red)
 - Card-based dashboard layout
 - Tabular numbers for financial data alignment
+- **Mobile-first** — every view is designed for small screens first, then enhanced for larger viewports with `md:` and `lg:` prefixes
 
 ---
 
@@ -80,6 +81,36 @@ import type React from "react";  // always first in the file
 | Page | `pages/` | Composes organisms; owns route-level state and mock/data wiring |
 
 Never define a reusable component inline inside a page or organism. Extract it to the appropriate level.
+
+### Responsive design — mobile-first always
+
+All layouts must be designed for mobile first. Start with the base (smallest) style, then progressively add `md:` and `lg:` overrides for larger viewports. Never write desktop-only styles without a mobile fallback.
+
+```tsx
+// ✅ correct — base is mobile, md: enhances for tablet/desktop
+<div className="flex flex-col gap-md md:flex-row md:items-center">
+
+// ❌ wrong — desktop-only, no mobile consideration
+<div className="flex flex-row items-center gap-md">
+```
+
+**Breakpoints in use (Tailwind defaults):**
+
+| Prefix | Min-width | Use case |
+|---|---|---|
+| *(none)* | 0px | Mobile base styles — always start here |
+| `sm:` | 640px | Large phones / small tablets |
+| `md:` | 768px | Tablets |
+| `lg:` | 1024px | Desktop — sidebar becomes visible, multi-column layouts |
+| `xl:` | 1280px | Wide desktop |
+
+**Key mobile patterns to follow:**
+
+- **Sidebar** — hidden on mobile (`-translate-x-full`), revealed as a fixed overlay via hamburger; `lg:static` restores it to the layout flow on desktop.
+- **Tables** — always wrapped in `overflow-x-auto` so they scroll horizontally rather than breaking the viewport.
+- **Tab bars** — use `overflow-x-auto scrollbar-hide` on the container and `min-w-max` on the inner `<nav>` to allow horizontal scroll.
+- **Navigation text / secondary UI** — use `hidden md:block` or `hidden md:flex` to hide on mobile and reveal on larger screens.
+- **Stacking** — on mobile, use `flex-col` by default; switch to `flex-row` with `md:flex-row` or `lg:flex-row`.
 
 ### Mocks
 

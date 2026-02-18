@@ -94,8 +94,8 @@ export const LedgerDetailPage = () => {
       <LedgerDetailHeader ledger={ledger} />
 
       {/* Tab bar */}
-      <div className="bg-white border-b border-slate-200 px-lg">
-        <nav className="flex gap-xs -mb-px">
+      <div className="bg-white border-b border-slate-200 px-lg overflow-x-auto scrollbar-hide">
+        <nav className="flex gap-xs -mb-px min-w-max">
           {TAB_CONFIG.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
