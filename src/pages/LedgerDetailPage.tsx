@@ -8,10 +8,12 @@ import { GroupsTable } from "../components/molecules/GroupsTable";
 import { PaymentMethodsTable } from "../components/molecules/PaymentMethodsTable";
 import { LedgerDetailHeader } from "../components/organisms/LedgerDetailHeader";
 import { TransactionTable } from "../components/organisms/TransactionTable";
+import { CreateTransactionModal } from "../components/organisms/CreateTransactionModal";
 import { mockLedger } from "../helpers/mocks/ledger-mocks";
 import { mockUser } from "../helpers/mocks/user-mocks";
 import { cn } from "../utils/cn";
-import type { LedgerDetailTab, LedgerResponseDto } from "../types";
+import type { LedgerDetailTab, LedgerResponseDto, EntryType } from "../types";
+import type { CreateTransactionFormData } from "../schemas/transaction.schema";
 
 // ---------------------------------------------------------------------------
 // Tab config keys (non-translatable structural data stays at module level)
@@ -37,6 +39,18 @@ export const LedgerDetailPage = () => {
   const { t } = useTranslation("ledger");
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState<LedgerDetailTab>("transactions");
+  const [txModal, setTxModal] = useState<{ open: boolean; entryType: EntryType }>({
+    open: false,
+    entryType: "EXPENSE",
+  });
+
+  const openTxModal = (entryType: EntryType) =>
+    setTxModal({ open: true, entryType });
+
+  const handleCreateTransaction = (data: CreateTransactionFormData) => {
+    // TODO: replace with React Query mutation once API is wired
+    console.log("Create transaction:", data);
+  };
 
   // Check if the id matches any ledger in the user's dashboard
   const ledgerSummary = mockUser.ledgers.find((l) => String(l.id) === id);
@@ -129,7 +143,11 @@ export const LedgerDetailPage = () => {
       {/* Tab content */}
       <div className="p-lg">
         {activeTab === "transactions" && (
-          <TransactionTable transactions={ledger.transactions} />
+          <TransactionTable
+            transactions={ledger.transactions}
+            onAddIncome={() => openTxModal("INCOME")}
+            onAddExpense={() => openTxModal("EXPENSE")}
+          />
         )}
         {activeTab === "categories" && (
           <CategoriesTable categories={ledger.categories} />
@@ -142,6 +160,17 @@ export const LedgerDetailPage = () => {
           <CollaboratorsTable collaborations={ledger.collaborations} />
         )}
       </div>
+
+      <CreateTransactionModal
+        open={txModal.open}
+        onClose={() => setTxModal((s) => ({ ...s, open: false }))}
+        onSubmit={handleCreateTransaction}
+        defaultEntryType={txModal.entryType}
+        defaultCurrency={ledger.currency}
+        categories={ledger.categories}
+        paymentMethods={ledger.paymentMethods}
+        groups={ledger.groups}
+      />
     </main>
   );
 };

@@ -1,4 +1,32 @@
 {
+  "create": {
+    "title": "Crear Libro Mayor",
+    "description": "Configurá un nuevo libro mayor para empezar a seguir tus finanzas.",
+    "field": {
+      "name": "Nombre del Libro Mayor",
+      "namePlaceholder": "ej. Hogar, Personal, Presupuesto del equipo",
+      "description": "Descripción",
+      "descriptionPlaceholder": "¿Para qué es este libro mayor? (opcional)",
+      "currency": "Moneda",
+      "baseCpiIndex": "Índice CPI Base",
+      "baseCpiIndexHint": "El valor del índice de inflación al inicio de este libro mayor. Se usa para calcular montos reales.",
+      "baseCpiIndexPlaceholder": "ej. 100"
+    },
+    "currency": {
+      "ARS": "Peso Argentino (ARS)",
+      "USD": "Dólar Estadounidense (USD)"
+    },
+    "error": {
+      "nameRequired": "El nombre del libro mayor es obligatorio",
+      "nameTooLong": "El nombre no puede superar los 100 caracteres",
+      "descriptionTooLong": "La descripción no puede superar los 300 caracteres",
+      "baseCpiPositive": "Debe ser un número positivo"
+    },
+    "action": {
+      "submit": "Crear Libro Mayor",
+      "cancel": "Cancelar"
+    }
+  },
   "grid": {
     "title": "Mis Libros Mayores",
     "count_one": "{{count}} libro mayor en tu cuenta",
@@ -63,6 +91,42 @@
     }
   },
   "transaction": {
+    "create": {
+      "title": {
+        "income": "Agregar Ingreso",
+        "expense": "Agregar Gasto"
+      },
+      "field": {
+        "amount": "Monto Total",
+        "installments": "Cuotas",
+        "monthlyPreview": "≈ {{amount}} / mes",
+        "date": "Fecha",
+        "paymentMonth": "Mes de Pago",
+        "category": "Categoría",
+        "selectCategory": "Seleccioná una categoría...",
+        "paymentMethod": "Medio de Pago",
+        "selectMethod": "Seleccioná un medio...",
+        "group": "Grupo (opcional)",
+        "status": "Estado",
+        "comment": "Nota (opcional)",
+        "commentPlaceholder": "Breve descripción...",
+        "isPaid": "Marcar como pagado",
+        "impactsCashflow": "Impacta en flujo de caja"
+      },
+      "error": {
+        "dateRequired": "La fecha es obligatoria",
+        "paymentMonthRequired": "El mes de pago es obligatorio",
+        "amountPositive": "El monto debe ser mayor a 0",
+        "installmentsMin": "Se requiere al menos 1 cuota",
+        "categoryRequired": "Por favor seleccioná una categoría",
+        "paymentMethodRequired": "Por favor seleccioná un medio de pago",
+        "commentTooLong": "La nota no puede superar los 500 caracteres"
+      },
+      "action": {
+        "submit": "Guardar Transacción"
+      },
+      "noGroup": "Sin grupo"
+    },
     "entryType": {
       "income": "Ingreso",
       "expense": "Gasto"

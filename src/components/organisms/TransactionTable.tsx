@@ -135,9 +135,11 @@ const TransactionTableRow = ({ tx }: { tx: TransactionResponseDto }) => {
 
 interface TransactionTableProps {
   transactions: TransactionResponseDto[];
+  onAddIncome?: () => void;
+  onAddExpense?: () => void;
 }
 
-export const TransactionTable = ({ transactions }: TransactionTableProps) => {
+export const TransactionTable = ({ transactions, onAddIncome, onAddExpense }: TransactionTableProps) => {
   const { t } = useTranslation("ledger");
 
   if (transactions.length === 0) {
@@ -148,10 +150,10 @@ export const TransactionTable = ({ transactions }: TransactionTableProps) => {
           {t("transaction.table.empty.body")}
         </p>
         <div className="flex gap-sm">
-          <Button variant="income" size="sm">
+          <Button variant="income" size="sm" onClick={onAddIncome}>
             <Plus className="w-4 h-4" /> {t("transaction.table.empty.addIncome")}
           </Button>
-          <Button variant="expense" size="sm">
+          <Button variant="expense" size="sm" onClick={onAddExpense}>
             <Plus className="w-4 h-4" /> {t("transaction.table.empty.addExpense")}
           </Button>
         </div>
@@ -165,10 +167,10 @@ export const TransactionTable = ({ transactions }: TransactionTableProps) => {
       <div className="flex items-center justify-between px-md py-sm border-b border-stone-100">
         <h2 className="section-title">{t("transaction.table.title")}</h2>
         <div className="flex gap-sm">
-          <Button variant="income" size="sm">
+          <Button variant="income" size="sm" onClick={onAddIncome}>
             <Plus className="w-4 h-4" /> {t("transaction.table.addIncome")}
           </Button>
-          <Button variant="expense" size="sm">
+          <Button variant="expense" size="sm" onClick={onAddExpense}>
             <Plus className="w-4 h-4" /> {t("transaction.table.addExpense")}
           </Button>
         </div>

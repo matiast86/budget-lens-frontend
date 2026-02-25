@@ -1,4 +1,32 @@
 {
+  "create": {
+    "title": "Create Ledger",
+    "description": "Set up a new ledger to start tracking your finances.",
+    "field": {
+      "name": "Ledger Name",
+      "namePlaceholder": "e.g. Household, Personal, Team Budget",
+      "description": "Description",
+      "descriptionPlaceholder": "What is this ledger for? (optional)",
+      "currency": "Currency",
+      "baseCpiIndex": "Base CPI Index",
+      "baseCpiIndexHint": "The inflation index value at the start of this ledger. Used to calculate real amounts.",
+      "baseCpiIndexPlaceholder": "e.g. 100"
+    },
+    "currency": {
+      "ARS": "Argentine Peso (ARS)",
+      "USD": "US Dollar (USD)"
+    },
+    "error": {
+      "nameRequired": "Ledger name is required",
+      "nameTooLong": "Name must be 100 characters or less",
+      "descriptionTooLong": "Description must be 300 characters or less",
+      "baseCpiPositive": "Must be a positive number"
+    },
+    "action": {
+      "submit": "Create Ledger",
+      "cancel": "Cancel"
+    }
+  },
   "grid": {
     "title": "My Ledgers",
     "count_one": "{{count}} ledger in your account",
@@ -63,6 +91,42 @@
     }
   },
   "transaction": {
+    "create": {
+      "title": {
+        "income": "Add Income",
+        "expense": "Add Expense"
+      },
+      "field": {
+        "amount": "Total Amount",
+        "installments": "Installments",
+        "monthlyPreview": "≈ {{amount}} / month",
+        "date": "Date",
+        "paymentMonth": "Payment Month",
+        "category": "Category",
+        "selectCategory": "Select category...",
+        "paymentMethod": "Payment Method",
+        "selectMethod": "Select method...",
+        "group": "Group (optional)",
+        "status": "Status",
+        "comment": "Note (optional)",
+        "commentPlaceholder": "Brief description...",
+        "isPaid": "Mark as paid",
+        "impactsCashflow": "Impacts cashflow"
+      },
+      "error": {
+        "dateRequired": "Date is required",
+        "paymentMonthRequired": "Payment month is required",
+        "amountPositive": "Amount must be greater than 0",
+        "installmentsMin": "At least 1 installment required",
+        "categoryRequired": "Please select a category",
+        "paymentMethodRequired": "Please select a payment method",
+        "commentTooLong": "Note must be 500 characters or less"
+      },
+      "action": {
+        "submit": "Save Transaction"
+      },
+      "noGroup": "No group"
+    },
     "entryType": {
       "income": "Income",
       "expense": "Expense"

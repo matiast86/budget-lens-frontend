@@ -6,9 +6,10 @@ import { Button } from "../atoms/Button";
 interface AppHeaderProps {
   userName: string;
   title?: string;
+  onNewLedger?: () => void;
 }
 
-export const AppHeader = ({ userName, title }: AppHeaderProps) => {
+export const AppHeader = ({ userName, title, onNewLedger }: AppHeaderProps) => {
   const { t } = useTranslation("common");
   const firstName = userName.split(" ")[0];
   const initials = userName
@@ -61,7 +62,7 @@ export const AppHeader = ({ userName, title }: AppHeaderProps) => {
 
         {/* New Ledger — desktop only */}
         <div className="hidden md:block">
-          <Button variant="default" size="sm">{t("header.newLedger")}</Button>
+          <Button variant="default" size="sm" onClick={onNewLedger}>{t("header.newLedger")}</Button>
         </div>
 
         {/* Avatar — always visible */}
