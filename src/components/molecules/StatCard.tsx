@@ -8,7 +8,7 @@ export const StatCard = ({ label, value, change, trend }: StatCardData) => {
   return (
     <div className="card">
       <p className="label-muted mb-xs">{label}</p>
-      <p className="text-3xl financial-amount text-slate-900">{value}</p>
+      <p className="text-3xl financial-amount text-stone-900">{value}</p>
       <div className="flex items-center gap-xs mt-sm">
         {trend === "up" ? (
           <ArrowUpRight className="w-4 h-4 text-income-500" />
@@ -22,7 +22,7 @@ export const StatCard = ({ label, value, change, trend }: StatCardData) => {
         >
           {change}
         </span>
-        <span className="text-xs text-slate-400">{t("stat.vsLastMonth")}</span>
+        <span className="text-xs text-stone-400">{t("stat.vsLastMonth")}</span>
       </div>
     </div>
   );

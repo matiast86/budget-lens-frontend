@@ -3,7 +3,7 @@ import type { Transaction } from "../../types";
 
 export const TransactionRow = ({ name, category, amount, type }: Transaction) => {
   return (
-    <div className="flex items-center justify-between py-sm border-b border-slate-100 last:border-0">
+    <div className="flex items-center justify-between py-sm border-b border-stone-100 last:border-0">
       <div className="flex items-center gap-sm">
         <div
           className={`w-8 h-8 rounded-full flex items-center justify-center ${
@@ -19,8 +19,8 @@ export const TransactionRow = ({ name, category, amount, type }: Transaction) =>
           )}
         </div>
         <div>
-          <p className="text-sm font-medium text-slate-900">{name}</p>
-          <p className="text-xs text-slate-500">{category}</p>
+          <p className="text-sm font-medium text-stone-900">{name}</p>
+          <p className="text-xs text-stone-500">{category}</p>
         </div>
       </div>
       <span

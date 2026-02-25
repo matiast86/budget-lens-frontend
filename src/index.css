@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -16,19 +14,19 @@
   }
 
   body {
-    @apply font-sans text-slate-900 bg-slate-50;
+    @apply font-sans text-stone-900 bg-cream;
   }
 
   *:focus-visible {
-    @apply outline-2 outline-offset-2 outline-primary-500;
+    @apply outline-2 outline-offset-2 outline-primary-600;
   }
 
   ::selection {
-    @apply bg-primary-200 text-primary-900;
+    @apply bg-primary-100 text-primary-900;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight text-slate-900;
+    @apply font-semibold tracking-tight text-stone-900;
   }
 
   ::-webkit-scrollbar {
@@ -38,10 +36,10 @@
     @apply bg-transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-slate-300 rounded-full;
+    @apply bg-stone-300 rounded-full;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-400;
+    @apply bg-stone-400;
   }
 }
 
@@ -49,20 +47,56 @@
    COMPONENT LAYER -- Reusable component classes
    ============================================ */
 @layer components {
+  /* Card -- warm surface, soft shadow */
   .card {
-    @apply bg-white rounded-lg shadow-card border border-slate-200/60
-           p-md transition-shadow duration-200;
+    @apply bg-white rounded-xl shadow-card border border-stone-100 p-md;
   }
   .card:hover {
     @apply shadow-card-hover;
   }
 
-  .section-title {
-    @apply text-lg font-semibold text-slate-900;
+  /* Hero card -- teal gradient, full bleed on mobile */
+  .card-hero {
+    @apply bg-gradient-to-br from-primary-800 to-primary-600 rounded-2xl p-lg text-white;
   }
 
+  /* Icon pill -- colored background for category icons */
+  .icon-pill {
+    @apply w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0;
+  }
+
+  /* Section title */
+  .section-title {
+    @apply text-lg font-semibold text-stone-900;
+  }
+
+  /* Muted label */
   .label-muted {
-    @apply text-sm font-medium text-slate-500;
+    @apply text-sm font-medium text-stone-500;
+  }
+
+  /* Financial amounts */
+  .financial-amount {
+    @apply font-bold tracking-tight;
+  }
+  .amount-positive {
+    @apply text-income-600;
+  }
+  .amount-negative {
+    @apply text-expense-600;
+  }
+
+  /* Budget signal -- emoji + label row */
+  .budget-signal {
+    @apply text-xs font-medium flex items-center gap-xs;
+  }
+
+  /* Bottom tab bar item */
+  .tab-bar-item {
+    @apply flex flex-col items-center justify-center gap-xs flex-1 py-sm text-stone-400;
+  }
+  .tab-bar-item.active {
+    @apply text-primary-600;
   }
 }
 
@@ -78,20 +112,6 @@
   .slashed-zero {
     font-variant-numeric: tabular-nums slashed-zero;
     font-feature-settings: "tnum", "zero";
-  }
-
-  .financial-amount {
-    font-variant-numeric: tabular-nums;
-    font-feature-settings: "tnum";
-    @apply font-semibold tracking-tight;
-  }
-
-  .amount-positive {
-    @apply text-income-600;
-  }
-
-  .amount-negative {
-    @apply text-expense-600;
   }
 
   .scrollbar-hide {

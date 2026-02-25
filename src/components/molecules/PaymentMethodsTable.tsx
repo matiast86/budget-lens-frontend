@@ -13,20 +13,20 @@ export const PaymentMethodsTable = ({ methods }: PaymentMethodsTableProps) => {
     <div className="card p-0 overflow-hidden">
       <table className="w-full text-left">
         <thead>
-          <tr className="bg-slate-50 border-b border-slate-200">
-            <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide">
+          <tr className="bg-stone-50 border-b border-stone-200">
+            <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide">
               {t("paymentMethod.table.col.name")}
             </th>
-            <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide">
+            <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide">
               {t("paymentMethod.table.col.type")}
             </th>
-            <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide">
+            <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide">
               {t("paymentMethod.table.col.brand")}
             </th>
-            <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide">
+            <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide">
               {t("paymentMethod.table.col.currency")}
             </th>
-            <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide text-center">
+            <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide text-center">
               {t("paymentMethod.table.col.active")}
             </th>
           </tr>
@@ -35,7 +35,7 @@ export const PaymentMethodsTable = ({ methods }: PaymentMethodsTableProps) => {
           {methods.map((pm) => (
             <tr
               key={pm.id}
-              className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
+              className="border-b border-stone-100 hover:bg-stone-50 transition-colors"
             >
               <td className="px-md py-sm">
                 <div className="flex items-center gap-sm">
@@ -45,7 +45,7 @@ export const PaymentMethodsTable = ({ methods }: PaymentMethodsTableProps) => {
                       style={{ backgroundColor: pm.color }}
                     />
                   )}
-                  <span className="text-sm font-medium text-slate-900">
+                  <span className="text-sm font-medium text-stone-900">
                     {pm.name}
                   </span>
                 </div>
@@ -53,15 +53,15 @@ export const PaymentMethodsTable = ({ methods }: PaymentMethodsTableProps) => {
               <td className="px-md py-sm">
                 <Badge variant="default">{t(`paymentMethod.type.${pm.type}`)}</Badge>
               </td>
-              <td className="px-md py-sm text-sm text-slate-500">
-                {pm.brand ?? <span className="text-slate-300 italic">—</span>}
+              <td className="px-md py-sm text-sm text-stone-500">
+                {pm.brand ?? <span className="text-stone-300 italic">—</span>}
               </td>
               <td className="px-md py-sm">
                 {pm.currency && <Badge variant="primary">{pm.currency}</Badge>}
               </td>
               <td className="px-md py-sm text-center">
                 <span
-                  className={`inline-block w-2 h-2 rounded-full ${pm.isActive ? "bg-income-500" : "bg-slate-300"}`}
+                  className={`inline-block w-2 h-2 rounded-full ${pm.isActive ? "bg-income-500" : "bg-stone-300"}`}
                 />
               </td>
             </tr>

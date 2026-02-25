@@ -38,3 +38,9 @@ export type LedgerDetailTab =
   | "paymentMethods"
   | "groups"
   | "collaborators";
+
+export interface BottomTabItem {
+  icon: React.ElementType;
+  label: string;
+  path: string;
+}

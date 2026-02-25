@@ -7,20 +7,37 @@
     "transactions": "Transacciones",
     "budgets": "Presupuestos",
     "analytics": "Análisis",
-    "settings": "Configuración"
+    "settings": "Configuración",
+    "add": "Agregar",
+    "profile": "Perfil",
+    "bottomBar": "Navegación principal",
+    "sidebar": "Navegación lateral"
   },
   "header": {
     "searchPlaceholder": "Buscar libros mayores...",
     "newLedger": "+ Nuevo Libro Mayor",
-    "welcomeBack": "Bienvenido de nuevo, {{name}}. Aquí están tus libros mayores."
+    "welcomeBack": "Bienvenido de nuevo, {{name}}. Aquí están tus libros mayores.",
+    "notifications": "Notificaciones",
+    "profileMenu": "Menú de perfil"
   },
   "budget": {
     "overview": "Resumen de Presupuesto",
-    "edit": "Editar"
+    "edit": "Editar",
+    "signal": {
+      "good": "¡Muy bien!",
+      "heads_up": "Atención",
+      "close": "Casi al límite"
+    }
+  },
+  "dashboard": {
+    "streak": "¡{{count}} meses bajo presupuesto! Seguí así 🎉",
+    "balance_label": "Saldo actual"
   },
   "recentTransactions": {
     "title": "Transacciones Recientes",
-    "viewAll": "Ver Todas"
+    "viewAll": "Ver Todas",
+    "income": "Ingresos",
+    "expenses": "Gastos"
   },
   "stat": {
     "vsLastMonth": "vs mes anterior"

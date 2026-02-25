@@ -15,7 +15,7 @@ export const CollaboratorsTable = ({
     return (
       <div className="card flex flex-col items-center justify-center py-2xl text-center">
         <p className="section-title mb-xs">{t("collaborator.table.empty.title")}</p>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-stone-500">
           {t("collaborator.table.empty.body")}
         </p>
       </div>
@@ -26,11 +26,11 @@ export const CollaboratorsTable = ({
     <div className="card p-0 overflow-hidden">
       <table className="w-full text-left">
         <thead>
-          <tr className="bg-slate-50 border-b border-slate-200">
-            <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide">
+          <tr className="bg-stone-50 border-b border-stone-200">
+            <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide">
               {t("collaborator.table.col.name")}
             </th>
-            <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide text-center">
+            <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide text-center">
               {t("collaborator.table.col.status")}
             </th>
           </tr>
@@ -39,9 +39,9 @@ export const CollaboratorsTable = ({
           {collaborations.map((c) => (
             <tr
               key={c.id}
-              className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
+              className="border-b border-stone-100 hover:bg-stone-50 transition-colors"
             >
-              <td className="px-md py-sm text-sm font-medium text-slate-900">
+              <td className="px-md py-sm text-sm font-medium text-stone-900">
                 {c.name}
               </td>
               <td className="px-md py-sm text-center">

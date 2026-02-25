@@ -12,7 +12,9 @@
       "Bash(collaboration)",
       "Bash(transaction)",
       "Bash(debt \")",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(node -e \"const pkg = require\\(''./node_modules/date-fns/package.json''\\); console.log\\(''date-fns version:'', pkg.version\\)\")",
+      "Bash(npx tsc --noEmit)"
     ]
   }
 }

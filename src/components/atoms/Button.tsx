@@ -3,22 +3,22 @@ import { type VariantProps, cva } from "class-variance-authority";
 import { cn } from "../../utils/cn";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         default:
-          "bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700",
+          "bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800",
         secondary:
-          "bg-accent-500 text-white hover:bg-accent-600 active:bg-accent-700",
+          "bg-primary-100 text-primary-700 hover:bg-primary-200 active:bg-primary-200",
         outline:
-          "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 active:bg-slate-100",
+          "border border-stone-300 bg-white text-stone-700 hover:bg-stone-50 hover:text-stone-900 active:bg-stone-100",
         ghost:
-          "text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200",
+          "text-stone-600 hover:bg-stone-100 hover:text-stone-900 active:bg-stone-200",
         income:
           "bg-income-500 text-white hover:bg-income-600 active:bg-income-700",
         expense:
-          "bg-expense-500 text-white hover:bg-expense-600 active:bg-expense-700",
+          "bg-expense-400 text-white hover:bg-expense-500 active:bg-expense-600",
         link: "text-primary-600 underline-offset-4 hover:underline hover:text-primary-700 p-0 h-auto",
       },
       size: {

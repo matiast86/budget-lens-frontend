@@ -7,14 +7,14 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default:  "bg-slate-100 text-slate-600",
+        default:  "bg-stone-100 text-stone-600",
         primary:  "bg-primary-50 text-primary-700",
         income:   "bg-income-50 text-income-700",
         expense:  "bg-expense-50 text-expense-700",
         warning:  "bg-warning-50 text-warning-700",
         current:  "bg-primary-50 text-primary-700",
-        closed:   "bg-slate-100 text-slate-500",
-        future:   "bg-accent-50 text-accent-700",
+        closed:   "bg-stone-100 text-stone-500",
+        future:   "bg-primary-50 text-primary-700",
       },
       size: {
         sm: "px-xs py-[2px] text-xs",

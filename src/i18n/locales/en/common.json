@@ -7,20 +7,37 @@
     "transactions": "Transactions",
     "budgets": "Budgets",
     "analytics": "Analytics",
-    "settings": "Settings"
+    "settings": "Settings",
+    "add": "Add",
+    "profile": "Profile",
+    "bottomBar": "Main navigation",
+    "sidebar": "Sidebar navigation"
   },
   "header": {
     "searchPlaceholder": "Search ledgers...",
     "newLedger": "+ New Ledger",
-    "welcomeBack": "Welcome back, {{name}}. Here are your ledgers."
+    "welcomeBack": "Welcome back, {{name}}. Here are your ledgers.",
+    "notifications": "Notifications",
+    "profileMenu": "Profile menu"
   },
   "budget": {
     "overview": "Budget Overview",
-    "edit": "Edit"
+    "edit": "Edit",
+    "signal": {
+      "good": "Looking good!",
+      "heads_up": "Heads up",
+      "close": "Getting close"
+    }
+  },
+  "dashboard": {
+    "streak": "{{count}} months under budget! Keep it up 🎉",
+    "balance_label": "Current balance"
   },
   "recentTransactions": {
     "title": "Recent Transactions",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "income": "Income",
+    "expenses": "Expenses"
   },
   "stat": {
     "vsLastMonth": "vs last month"

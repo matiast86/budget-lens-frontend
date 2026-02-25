@@ -51,8 +51,8 @@ export const LedgerDetailPage = () => {
       <main className="flex-1 overflow-y-auto p-lg">
         <div className="flex flex-col items-center justify-center h-full gap-md text-center">
           <p className="text-4xl">🔍</p>
-          <h2 className="text-xl font-semibold text-slate-900">{t("detail.notFound.title")}</h2>
-          <p className="text-sm text-slate-500 max-w-xs">
+          <h2 className="text-xl font-semibold text-stone-900">{t("detail.notFound.title")}</h2>
+          <p className="text-sm text-stone-500 max-w-xs">
             {t("detail.notFound.body", { id })}
           </p>
           <Link
@@ -73,8 +73,8 @@ export const LedgerDetailPage = () => {
       <main className="flex-1 overflow-y-auto p-lg">
         <div className="flex flex-col items-center justify-center h-full gap-md text-center">
           <p className="text-4xl">🚧</p>
-          <h2 className="text-xl font-semibold text-slate-900">{ledgerSummary.name}</h2>
-          <p className="text-sm text-slate-500 max-w-xs">
+          <h2 className="text-xl font-semibold text-stone-900">{ledgerSummary.name}</h2>
+          <p className="text-sm text-stone-500 max-w-xs">
             {t("detail.unavailable.body")}
           </p>
           <Link
@@ -94,7 +94,7 @@ export const LedgerDetailPage = () => {
       <LedgerDetailHeader ledger={ledger} />
 
       {/* Tab bar */}
-      <div className="bg-white border-b border-slate-200 px-lg overflow-x-auto scrollbar-hide">
+      <div className="bg-white border-b border-stone-200 px-lg overflow-x-auto scrollbar-hide">
         <nav className="flex gap-xs -mb-px min-w-max">
           {TAB_CONFIG.map((tab) => {
             const isActive = activeTab === tab.id;
@@ -106,7 +106,7 @@ export const LedgerDetailPage = () => {
                   "flex items-center gap-xs px-md py-sm text-sm font-medium border-b-2 transition-colors",
                   isActive
                     ? "border-primary-500 text-primary-700"
-                    : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300",
+                    : "border-transparent text-stone-500 hover:text-stone-800 hover:border-stone-300",
                 )}
               >
                 {t(tab.labelKey)}
@@ -115,7 +115,7 @@ export const LedgerDetailPage = () => {
                     "inline-flex items-center justify-center rounded-full text-xs font-semibold w-5 h-5",
                     isActive
                       ? "bg-primary-100 text-primary-700"
-                      : "bg-slate-100 text-slate-500",
+                      : "bg-stone-100 text-stone-500",
                   )}
                 >
                   {tab.count(ledger)}

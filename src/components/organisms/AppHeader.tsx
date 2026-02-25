@@ -1,51 +1,76 @@
+import type React from "react";
 import { useTranslation } from "react-i18next";
-import { Bell, Search, Menu } from "lucide-react";
+import { Bell, Search } from "lucide-react";
 import { Button } from "../atoms/Button";
 
 interface AppHeaderProps {
   userName: string;
   title?: string;
-  onMenuClick?: () => void;
 }
 
-export const AppHeader = ({ userName, title, onMenuClick }: AppHeaderProps) => {
+export const AppHeader = ({ userName, title }: AppHeaderProps) => {
   const { t } = useTranslation("common");
   const firstName = userName.split(" ")[0];
+  const initials = userName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
-    <header className="flex items-center justify-between px-lg py-md bg-white border-b border-slate-200">
-      <div className="flex items-center gap-md">
-        <button
-          className="lg:hidden p-xs rounded-md hover:bg-slate-100 transition-colors"
-          onClick={onMenuClick}
-          aria-label="Open menu"
-        >
-          <Menu className="w-5 h-5 text-slate-600" />
-        </button>
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">{title}</h1>
-          <p className="text-sm text-slate-500">
+    <header className="flex items-center justify-between px-lg py-sm bg-white border-b border-stone-100">
+      {/* Mobile: app logo / Desktop: page title */}
+      <div className="flex items-center gap-sm">
+        {/* Logo — mobile only */}
+        <div className="lg:hidden flex items-center gap-xs">
+          <div className="w-7 h-7 rounded-lg bg-primary-600 flex items-center justify-center">
+            <span className="text-white text-xs font-bold">BL</span>
+          </div>
+          <span className="text-base font-semibold text-stone-900">{t("app.name")}</span>
+        </div>
+
+        {/* Page title — desktop only */}
+        <div className="hidden lg:block">
+          <h1 className="text-2xl font-semibold text-stone-900">{title}</h1>
+          <p className="text-sm text-stone-500">
             {t("header.welcomeBack", { name: firstName })}
           </p>
         </div>
       </div>
 
-      <div className="flex items-center gap-md">
-        <div className="hidden md:flex items-center gap-sm bg-slate-100 rounded-md px-sm py-xs">
-          <Search className="w-4 h-4 text-slate-400" />
+      <div className="flex items-center gap-sm md:gap-md">
+        {/* Search — desktop only */}
+        <div className="hidden md:flex items-center gap-sm bg-stone-100 rounded-md px-sm py-xs">
+          <Search className="w-4 h-4 text-stone-400" />
           <input
             type="text"
             placeholder={t("header.searchPlaceholder")}
-            className="bg-transparent text-sm text-slate-700 placeholder:text-slate-400 outline-none w-48"
+            className="bg-transparent text-sm text-stone-700 placeholder:text-stone-400 outline-none w-48"
           />
         </div>
 
-        <button className="relative p-xs rounded-md hover:bg-slate-100 transition-colors">
-          <Bell className="w-5 h-5 text-slate-600" />
-          <span className="absolute top-0 right-0 w-2 h-2 bg-expense-500 rounded-full" />
+        {/* Bell — desktop only */}
+        <button
+          className="hidden md:block relative p-xs rounded-md hover:bg-stone-100 transition-colors"
+          aria-label={t("header.notifications")}
+        >
+          <Bell className="w-5 h-5 text-stone-600" />
+          <span className="absolute top-0 right-0 w-2 h-2 bg-expense-400 rounded-full" />
         </button>
 
-        <Button variant="default">{t("header.newLedger")}</Button>
+        {/* New Ledger — desktop only */}
+        <div className="hidden md:block">
+          <Button variant="default" size="sm">{t("header.newLedger")}</Button>
+        </div>
+
+        {/* Avatar — always visible */}
+        <button
+          className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center hover:bg-primary-200 transition-colors"
+          aria-label={t("header.profileMenu")}
+        >
+          <span className="text-xs font-semibold text-primary-700">{initials}</span>
+        </button>
       </div>
     </header>
   );

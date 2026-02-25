@@ -17,11 +17,11 @@ export const LedgerDetailHeader = ({ ledger }: LedgerDetailHeaderProps) => {
   const expenseCount = ledger.transactions.filter((tx) => tx.entryType === "EXPENSE").length;
 
   return (
-    <div className="bg-white border-b border-slate-200 px-lg py-lg">
+    <div className="bg-white border-b border-stone-200 px-lg py-lg">
       {/* Title row */}
       <div className="flex items-start justify-between gap-md mb-sm">
         <div className="flex items-center gap-sm">
-          <h1 className="text-2xl font-semibold text-slate-900">{ledger.name}</h1>
+          <h1 className="text-2xl font-semibold text-stone-900">{ledger.name}</h1>
           <Badge variant="primary" size="md">{ledger.currency}</Badge>
         </div>
         <div className="flex items-center gap-sm shrink-0">
@@ -38,54 +38,54 @@ export const LedgerDetailHeader = ({ ledger }: LedgerDetailHeaderProps) => {
 
       {/* Description */}
       {ledger.description && (
-        <p className="text-sm text-slate-500 mb-md">{ledger.description}</p>
+        <p className="text-sm text-stone-500 mb-md">{ledger.description}</p>
       )}
 
       {/* Metadata strip */}
-      <div className="flex flex-wrap items-center gap-lg text-sm text-slate-500">
+      <div className="flex flex-wrap items-center gap-lg text-sm text-stone-500">
         <span className="flex items-center gap-xs">
-          <TrendingUp className="w-4 h-4 text-slate-400" />
+          <TrendingUp className="w-4 h-4 text-stone-400" />
           {t("detail.meta.baseCpi")}&nbsp;
-          <span className="font-medium text-slate-700 tabular-nums">
+          <span className="font-medium text-stone-700 tabular-nums">
             {ledger.baseCpiIndex.toLocaleString(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
           </span>
         </span>
         <span className="flex items-center gap-xs">
-          <CalendarDays className="w-4 h-4 text-slate-400" />
+          <CalendarDays className="w-4 h-4 text-stone-400" />
           {t("detail.meta.created", { date: createdAt })}
         </span>
         <span className="flex items-center gap-xs">
-          <Users className="w-4 h-4 text-slate-400" />
+          <Users className="w-4 h-4 text-stone-400" />
           {t("detail.meta.collaborator", { count: ledger.collaborations.length })}
         </span>
         <span className="flex items-center gap-xs">
-          <Layers className="w-4 h-4 text-slate-400" />
+          <Layers className="w-4 h-4 text-stone-400" />
           {t("detail.meta.categories", { count: ledger.categories.length })}
         </span>
       </div>
 
       {/* Transaction summary strip */}
-      <div className="flex items-center gap-md mt-md pt-md border-t border-slate-100">
+      <div className="flex items-center gap-md mt-md pt-md border-t border-stone-100">
         <div className="flex items-center gap-xs">
           <span className="label-muted">{t("detail.summary.transactions")}</span>
-          <span className="text-sm font-semibold text-slate-900 tabular-nums">{txCount}</span>
+          <span className="text-sm font-semibold text-stone-900 tabular-nums">{txCount}</span>
         </div>
-        <div className="w-px h-4 bg-slate-200" />
+        <div className="w-px h-4 bg-stone-200" />
         <div className="flex items-center gap-xs">
           <span className="w-2 h-2 rounded-full bg-income-500" />
           <span className="label-muted">{t("detail.summary.income")}</span>
           <span className="text-sm font-semibold text-income-600 tabular-nums">{incomeCount}</span>
         </div>
-        <div className="w-px h-4 bg-slate-200" />
+        <div className="w-px h-4 bg-stone-200" />
         <div className="flex items-center gap-xs">
           <span className="w-2 h-2 rounded-full bg-expense-500" />
           <span className="label-muted">{t("detail.summary.expenses")}</span>
           <span className="text-sm font-semibold text-expense-600 tabular-nums">{expenseCount}</span>
         </div>
-        <div className="w-px h-4 bg-slate-200" />
+        <div className="w-px h-4 bg-stone-200" />
         <div className="flex items-center gap-xs">
           <span className="label-muted">{t("detail.summary.paymentMethods")}</span>
-          <span className="text-sm font-semibold text-slate-900 tabular-nums">{ledger.paymentMethods.length}</span>
+          <span className="text-sm font-semibold text-stone-900 tabular-nums">{ledger.paymentMethods.length}</span>
         </div>
       </div>
     </div>

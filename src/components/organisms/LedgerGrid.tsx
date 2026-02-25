@@ -16,7 +16,7 @@ export const LedgerGrid = ({ ledgers }: LedgerGridProps) => {
       <div className="flex items-center justify-between mb-md">
         <div>
           <h2 className="section-title">{t("grid.title")}</h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-stone-500">
             {t("grid.count", { count: ledgers.length })}
           </p>
         </div>
@@ -28,15 +28,15 @@ export const LedgerGrid = ({ ledgers }: LedgerGridProps) => {
 
       {ledgers.length === 0 ? (
         <div className="card flex flex-col items-center justify-center py-3xl text-center">
-          <PlusCircle className="w-10 h-10 text-slate-300 mb-md" />
+          <PlusCircle className="w-10 h-10 text-stone-300 mb-md" />
           <p className="section-title mb-xs">{t("grid.empty.title")}</p>
-          <p className="text-sm text-slate-500 mb-lg">
+          <p className="text-sm text-stone-500 mb-lg">
             {t("grid.empty.body")}
           </p>
           <Button variant="default">{t("grid.empty.action")}</Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-md">
+        <div className="flex gap-md overflow-x-auto scrollbar-hide pb-sm lg:grid lg:grid-cols-2 lg:overflow-visible xl:grid-cols-3">
           {ledgers.map((ledger) => (
             <LedgerCard key={ledger.id} ledger={ledger} />
           ))}

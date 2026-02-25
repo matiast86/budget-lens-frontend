@@ -16,10 +16,10 @@ export const LedgerCard = ({ ledger }: LedgerCardProps) => {
   const currencyLabel = t(`card.currency.${ledger.currency}`, { defaultValue: ledger.currency });
 
   return (
-    <div className="card flex flex-col gap-md">
+    <div className="card flex flex-col gap-md min-w-[280px] lg:min-w-0">
       {/* Header row */}
       <div className="flex items-start justify-between gap-sm">
-        <h3 className="text-base font-semibold text-slate-900 leading-tight">
+        <h3 className="text-base font-semibold text-stone-900 leading-tight">
           {ledger.name}
         </h3>
         <span className="shrink-0 inline-flex items-center px-sm py-xs rounded-sm bg-primary-50 text-primary-700 text-xs font-semibold tabular-nums">
@@ -29,18 +29,18 @@ export const LedgerCard = ({ ledger }: LedgerCardProps) => {
 
       {/* Description */}
       {ledger.description ? (
-        <p className="text-sm text-slate-500 leading-relaxed line-clamp-2">
+        <p className="text-sm text-stone-500 leading-relaxed line-clamp-2">
           {ledger.description}
         </p>
       ) : (
-        <p className="text-sm text-slate-400 italic">{t("card.noDescription")}</p>
+        <p className="text-sm text-stone-400 italic">{t("card.noDescription")}</p>
       )}
 
       {/* CPI index */}
-      <div className="flex items-center gap-xs text-sm text-slate-500 bg-slate-50 rounded-md px-sm py-xs">
-        <TrendingUp className="w-4 h-4 text-slate-400 shrink-0" />
+      <div className="flex items-center gap-xs text-sm text-stone-500 bg-stone-50 rounded-lg px-sm py-xs">
+        <TrendingUp className="w-4 h-4 text-stone-400 shrink-0" />
         <span className="label-muted">{t("card.baseCpi")}</span>
-        <span className="ml-auto tabular-nums font-medium text-slate-700">
+        <span className="ml-auto tabular-nums font-medium text-stone-700">
           {ledger.baseCpiIndex.toLocaleString(i18n.language, {
             minimumFractionDigits: 2,
             maximumFractionDigits: 4,
@@ -49,10 +49,10 @@ export const LedgerCard = ({ ledger }: LedgerCardProps) => {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between mt-auto pt-sm border-t border-slate-100">
+      <div className="flex items-center justify-between mt-auto pt-sm border-t border-stone-100">
         <div>
           <p className="label-muted">{currencyLabel}</p>
-          <p className="text-xs text-slate-400">{t("card.created", { date: createdAt })}</p>
+          <p className="text-xs text-stone-400">{t("card.created", { date: createdAt })}</p>
         </div>
         <Button
           variant="outline"

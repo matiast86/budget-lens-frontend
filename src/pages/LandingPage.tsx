@@ -23,18 +23,18 @@ const FEATURE_CONFIG: {
   colorBg: string;
   colorText: string;
 }[] = [
-  { key: "multiLedger", icon: Layers, colorBg: "bg-primary-100", colorText: "text-primary-600" },
-  { key: "categoryBudgets", icon: PieChart, colorBg: "bg-income-100", colorText: "text-income-600" },
-  { key: "inflation", icon: TrendingUp, colorBg: "bg-accent-100", colorText: "text-accent-600" },
-  { key: "collaborative", icon: Users, colorBg: "bg-warning-100", colorText: "text-warning-600" },
-  { key: "multiCurrency", icon: Globe, colorBg: "bg-expense-100", colorText: "text-expense-600" },
-  { key: "paymentMethod", icon: CreditCard, colorBg: "bg-primary-100", colorText: "text-primary-600" },
+  { key: "multiLedger",    icon: Layers,    colorBg: "bg-primary-100", colorText: "text-primary-600" },
+  { key: "categoryBudgets",icon: PieChart,  colorBg: "bg-income-100",  colorText: "text-income-600" },
+  { key: "inflation",      icon: TrendingUp,colorBg: "bg-purple-100",  colorText: "text-purple-600" },
+  { key: "collaborative",  icon: Users,     colorBg: "bg-warning-100", colorText: "text-warning-600" },
+  { key: "multiCurrency",  icon: Globe,     colorBg: "bg-expense-100", colorText: "text-expense-600" },
+  { key: "paymentMethod",  icon: CreditCard,colorBg: "bg-primary-100", colorText: "text-primary-600" },
 ];
 
 const STEP_CONFIG: { key: string; number: string }[] = [
   { key: "create", number: "01" },
-  { key: "add", number: "02" },
-  { key: "gain", number: "03" },
+  { key: "add",    number: "02" },
+  { key: "gain",   number: "03" },
 ];
 
 const TRUST_CONFIG: {
@@ -43,21 +43,21 @@ const TRUST_CONFIG: {
   color: string;
   bg: string;
 }[] = [
-  { key: "secure", icon: ShieldCheck, color: "text-income-600", bg: "bg-income-50" },
-  { key: "inflation", icon: TrendingUp, color: "text-primary-600", bg: "bg-primary-50" },
-  { key: "teams", icon: Users, color: "text-accent-600", bg: "bg-accent-50" },
+  { key: "secure",   icon: ShieldCheck, color: "text-income-600",  bg: "bg-income-50" },
+  { key: "inflation",icon: TrendingUp,  color: "text-primary-600", bg: "bg-primary-50" },
+  { key: "teams",    icon: Users,       color: "text-primary-600", bg: "bg-primary-50" },
 ];
 
 const MOCK_LEDGERS = [
   { name: "Personal 2025", currency: "ARS", income: "$1,240", expense: "$890" },
-  { name: "Household", currency: "ARS", income: "$3,600", expense: "$2,100" },
-  { name: "Side Project", currency: "USD", income: "$500", expense: "$200" },
+  { name: "Household",     currency: "ARS", income: "$3,600", expense: "$2,100" },
+  { name: "Side Project",  currency: "USD", income: "$500",   expense: "$200" },
 ];
 
 const MOCK_TRANSACTIONS = [
   { label: "Supermarket", amount: "-$142.00", type: "expense" },
-  { label: "Freelance", amount: "+$850.00", type: "income" },
-  { label: "Utilities", amount: "-$68.50", type: "expense" },
+  { label: "Freelance",   amount: "+$850.00", type: "income" },
+  { label: "Utilities",   amount: "-$68.50",  type: "expense" },
 ];
 
 export const LandingPage = () => {
@@ -73,28 +73,28 @@ export const LandingPage = () => {
 
   const stats = [
     t("landing.stats.ledgerTypes", { returnObjects: true }) as { value: string; label: string },
-    t("landing.stats.currencies", { returnObjects: true }) as { value: string; label: string },
-    t("landing.stats.inflation", { returnObjects: true }) as { value: string; label: string },
-    t("landing.stats.budget", { returnObjects: true }) as { value: string; label: string },
+    t("landing.stats.currencies",  { returnObjects: true }) as { value: string; label: string },
+    t("landing.stats.inflation",   { returnObjects: true }) as { value: string; label: string },
+    t("landing.stats.budget",      { returnObjects: true }) as { value: string; label: string },
   ];
 
   return (
     <div className="min-h-screen bg-white">
       {/* ── NAVIGATION ─────────────────────────────────────────── */}
-      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/60">
+      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-stone-200/60">
         <div className="max-w-6xl mx-auto px-lg flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-sm">
             <div className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center shadow-sm">
               <BarChart3 className="w-4 h-4 text-white" />
             </div>
-            <span className="text-base font-bold text-slate-900 tracking-tight">
+            <span className="text-base font-bold text-stone-900 tracking-tight">
               Budget <span className="text-primary-600">Lens</span>
             </span>
           </div>
 
           {/* Links */}
-          <div className="hidden md:flex items-center gap-xl text-sm font-medium text-slate-600">
+          <div className="hidden md:flex items-center gap-xl text-sm font-medium text-stone-600">
             <a href="#features" className="hover:text-primary-600 transition-colors">
               {t("landing.nav.features")}
             </a>
@@ -118,9 +118,9 @@ export const LandingPage = () => {
       {/* ── HERO ───────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
         {/* Gradient backdrop */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-accent-50 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-emerald-50 pointer-events-none" />
         <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-primary-100/40 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -left-40 w-96 h-96 rounded-full bg-accent-100/30 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -left-40 w-96 h-96 rounded-full bg-emerald-100/30 blur-3xl pointer-events-none" />
 
         <div className="relative max-w-6xl mx-auto px-lg pt-3xl pb-xl text-center">
           {/* Pill tag */}
@@ -130,14 +130,14 @@ export const LandingPage = () => {
           </div>
 
           {/* Headline */}
-          <h1 className="text-5xl font-extrabold text-slate-900 leading-tight tracking-tight mb-md">
+          <h1 className="text-5xl font-extrabold text-stone-900 leading-tight tracking-tight mb-md">
             {t("landing.hero.headline1")}
             <br />
             <span className="text-primary-600">{t("landing.hero.headline2")}</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-xl text-slate-500 max-w-2xl mx-auto mb-xl leading-relaxed">
+          <p className="text-xl text-stone-500 max-w-2xl mx-auto mb-xl leading-relaxed">
             {t("landing.hero.subheadline")}
           </p>
 
@@ -157,15 +157,15 @@ export const LandingPage = () => {
             {/* Glow under mockup */}
             <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-3/4 h-16 bg-primary-400/20 blur-2xl rounded-full" />
 
-            <div className="rounded-2xl border border-slate-200/80 shadow-dropdown overflow-hidden bg-white relative">
+            <div className="rounded-2xl border border-stone-200/80 shadow-dropdown overflow-hidden bg-white relative">
               {/* Browser chrome */}
-              <div className="bg-slate-100 border-b border-slate-200 px-md py-sm flex items-center gap-sm">
+              <div className="bg-stone-100 border-b border-stone-200 px-md py-sm flex items-center gap-sm">
                 <div className="flex gap-xs">
-                  <span className="w-3 h-3 rounded-full bg-slate-300" />
-                  <span className="w-3 h-3 rounded-full bg-slate-300" />
-                  <span className="w-3 h-3 rounded-full bg-slate-300" />
+                  <span className="w-3 h-3 rounded-full bg-stone-300" />
+                  <span className="w-3 h-3 rounded-full bg-stone-300" />
+                  <span className="w-3 h-3 rounded-full bg-stone-300" />
                 </div>
-                <div className="flex-1 bg-white rounded border border-slate-200 px-md py-xs text-xs text-slate-400 text-center">
+                <div className="flex-1 bg-white rounded border border-stone-200 px-md py-xs text-xs text-stone-400 text-center">
                   {t("landing.mockup.url")}
                 </div>
               </div>
@@ -173,12 +173,12 @@ export const LandingPage = () => {
               {/* App chrome */}
               <div className="flex h-64 text-left">
                 {/* Sidebar mock */}
-                <div className="w-44 bg-white border-r border-slate-100 p-sm hidden md:flex flex-col gap-xs shrink-0">
+                <div className="w-44 bg-white border-r border-stone-100 p-sm hidden md:flex flex-col gap-xs shrink-0">
                   <div className="flex items-center gap-xs px-sm py-sm mb-xs">
                     <div className="w-6 h-6 rounded-md bg-primary-600 flex items-center justify-center">
                       <BarChart3 className="w-3 h-3 text-white" />
                     </div>
-                    <span className="text-xs font-bold text-slate-900">
+                    <span className="text-xs font-bold text-stone-900">
                       {t("app.name")}
                     </span>
                   </div>
@@ -186,11 +186,11 @@ export const LandingPage = () => {
                     <div
                       key={item}
                       className={`flex items-center gap-xs px-sm py-1.5 rounded-md text-xs font-medium ${
-                        i === 0 ? "bg-primary-50 text-primary-700" : "text-slate-400"
+                        i === 0 ? "bg-primary-50 text-primary-700" : "text-stone-400"
                       }`}
                     >
                       <span
-                        className={`w-1.5 h-1.5 rounded-full ${i === 0 ? "bg-primary-500" : "bg-slate-300"}`}
+                        className={`w-1.5 h-1.5 rounded-full ${i === 0 ? "bg-primary-500" : "bg-stone-300"}`}
                       />
                       {item}
                     </div>
@@ -198,9 +198,9 @@ export const LandingPage = () => {
                 </div>
 
                 {/* Main area */}
-                <div className="flex-1 bg-slate-50 p-md overflow-hidden">
+                <div className="flex-1 bg-cream p-md overflow-hidden">
                   <div className="flex items-center justify-between mb-sm">
-                    <p className="text-xs font-semibold text-slate-800">
+                    <p className="text-xs font-semibold text-stone-800">
                       {t("landing.mockup.myLedgers")}
                     </p>
                     <span className="text-[10px] px-sm py-0.5 rounded-full bg-primary-100 text-primary-600 font-medium">
@@ -213,10 +213,10 @@ export const LandingPage = () => {
                     {MOCK_LEDGERS.map((l) => (
                       <div
                         key={l.name}
-                        className="bg-white rounded-lg border border-slate-200 p-sm"
+                        className="bg-white rounded-lg border border-stone-200 p-sm"
                       >
                         <div className="flex items-center justify-between mb-xs">
-                          <p className="text-[10px] font-semibold text-slate-800 truncate leading-tight">
+                          <p className="text-[10px] font-semibold text-stone-800 truncate leading-tight">
                             {l.name}
                           </p>
                           <span className="text-[9px] px-1 py-0.5 rounded bg-primary-100 text-primary-600 font-bold shrink-0 ml-xs">
@@ -225,7 +225,7 @@ export const LandingPage = () => {
                         </div>
                         <div className="space-y-0.5">
                           <div className="flex justify-between">
-                            <span className="text-[9px] text-slate-400">
+                            <span className="text-[9px] text-stone-400">
                               {t("landing.mockup.income")}
                             </span>
                             <span className="text-[9px] font-semibold text-income-600">
@@ -233,7 +233,7 @@ export const LandingPage = () => {
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-[9px] text-slate-400">
+                            <span className="text-[9px] text-stone-400">
                               {t("landing.mockup.expenses")}
                             </span>
                             <span className="text-[9px] font-semibold text-expense-600">
@@ -246,18 +246,18 @@ export const LandingPage = () => {
                   </div>
 
                   {/* Recent transactions strip */}
-                  <div className="bg-white rounded-lg border border-slate-200 p-sm">
-                    <p className="text-[10px] font-semibold text-slate-700 mb-xs">
+                  <div className="bg-white rounded-lg border border-stone-200 p-sm">
+                    <p className="text-[10px] font-semibold text-stone-700 mb-xs">
                       {t("landing.mockup.recentTransactions")}
                     </p>
                     <div className="space-y-xs">
                       {MOCK_TRANSACTIONS.map((tx) => (
                         <div key={tx.label} className="flex items-center justify-between">
                           <div className="flex items-center gap-xs">
-                            <span className="w-4 h-4 rounded-full bg-slate-100 flex items-center justify-center">
-                              <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                            <span className="w-4 h-4 rounded-full bg-stone-100 flex items-center justify-center">
+                              <span className="w-1.5 h-1.5 rounded-full bg-stone-400" />
                             </span>
-                            <span className="text-[9px] text-slate-600">{tx.label}</span>
+                            <span className="text-[9px] text-stone-600">{tx.label}</span>
                           </div>
                           <span
                             className={`text-[9px] font-semibold ${
@@ -278,15 +278,15 @@ export const LandingPage = () => {
       </section>
 
       {/* ── SOCIAL PROOF STRIP ─────────────────────────────────── */}
-      <section className="border-y border-slate-200 bg-white py-xl">
+      <section className="border-y border-stone-200 bg-white py-xl">
         <div className="max-w-4xl mx-auto px-lg">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-lg text-center">
             {stats.map((stat) => (
               <div key={stat.label}>
-                <p className="text-2xl font-bold text-slate-900 tabular-nums">
+                <p className="text-2xl font-bold text-stone-900 tabular-nums">
                   {stat.value}
                 </p>
-                <p className="text-sm text-slate-500 mt-xs">{stat.label}</p>
+                <p className="text-sm text-stone-500 mt-xs">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -294,16 +294,16 @@ export const LandingPage = () => {
       </section>
 
       {/* ── FEATURES ───────────────────────────────────────────── */}
-      <section id="features" className="py-3xl bg-slate-50">
+      <section id="features" className="py-3xl bg-cream">
         <div className="max-w-6xl mx-auto px-lg">
           <div className="text-center mb-2xl">
             <p className="text-sm font-semibold text-primary-600 uppercase tracking-widest mb-sm">
               {t("landing.features.sectionLabel")}
             </p>
-            <h2 className="text-3xl font-bold text-slate-900 mb-md">
+            <h2 className="text-3xl font-bold text-stone-900 mb-md">
               {t("landing.features.heading")}
             </h2>
-            <p className="text-slate-500 max-w-xl mx-auto leading-relaxed">
+            <p className="text-stone-500 max-w-xl mx-auto leading-relaxed">
               {t("landing.features.subheading")}
             </p>
           </div>
@@ -321,10 +321,10 @@ export const LandingPage = () => {
                   >
                     <Icon className={`w-5 h-5 ${feature.colorText}`} />
                   </div>
-                  <h3 className="text-base font-semibold text-slate-900 mb-xs">
+                  <h3 className="text-base font-semibold text-stone-900 mb-xs">
                     {t(`landing.features.${feature.key}.title`)}
                   </h3>
-                  <p className="text-sm text-slate-500 leading-relaxed">
+                  <p className="text-sm text-stone-500 leading-relaxed">
                     {t(`landing.features.${feature.key}.desc`)}
                   </p>
                 </div>
@@ -341,24 +341,24 @@ export const LandingPage = () => {
             <p className="text-sm font-semibold text-primary-600 uppercase tracking-widest mb-sm">
               {t("landing.howItWorks.sectionLabel")}
             </p>
-            <h2 className="text-3xl font-bold text-slate-900">
+            <h2 className="text-3xl font-bold text-stone-900">
               {t("landing.howItWorks.heading")}
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-xl relative">
             {/* Connector line */}
-            <div className="hidden md:block absolute top-8 left-[calc(16.67%+2rem)] right-[calc(16.67%+2rem)] h-px bg-slate-200" />
+            <div className="hidden md:block absolute top-8 left-[calc(16.67%+2rem)] right-[calc(16.67%+2rem)] h-px bg-stone-200" />
 
             {STEP_CONFIG.map((step) => (
               <div key={step.number} className="relative text-center">
                 <div className="w-16 h-16 rounded-2xl bg-primary-600 text-white flex items-center justify-center text-xl font-bold mx-auto mb-md relative z-10 shadow-sm">
                   {step.number}
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-sm">
+                <h3 className="text-lg font-semibold text-stone-900 mb-sm">
                   {t(`landing.howItWorks.${step.key}.title`)}
                 </h3>
-                <p className="text-sm text-slate-500 leading-relaxed max-w-xs mx-auto">
+                <p className="text-sm text-stone-500 leading-relaxed max-w-xs mx-auto">
                   {t(`landing.howItWorks.${step.key}.desc`)}
                 </p>
               </div>
@@ -368,7 +368,7 @@ export const LandingPage = () => {
       </section>
 
       {/* ── TRUST STRIP ────────────────────────────────────────── */}
-      <section className="py-xl bg-slate-50 border-y border-slate-200">
+      <section className="py-xl bg-cream border-y border-stone-200">
         <div className="max-w-4xl mx-auto px-lg">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
             {TRUST_CONFIG.map((item) => {
@@ -381,10 +381,10 @@ export const LandingPage = () => {
                     <Icon className={`w-5 h-5 ${item.color}`} />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-slate-900 mb-xs">
+                    <p className="text-sm font-semibold text-stone-900 mb-xs">
                       {t(`landing.trust.${item.key}.title`)}
                     </p>
-                    <p className="text-sm text-slate-500 leading-relaxed">
+                    <p className="text-sm text-stone-500 leading-relaxed">
                       {t(`landing.trust.${item.key}.body`)}
                     </p>
                   </div>
@@ -396,7 +396,7 @@ export const LandingPage = () => {
       </section>
 
       {/* ── CTA SECTION ────────────────────────────────────────── */}
-      <section className="py-3xl bg-gradient-to-br from-primary-600 via-primary-700 to-accent-700">
+      <section className="py-3xl bg-gradient-to-br from-primary-800 to-primary-600">
         <div className="max-w-3xl mx-auto px-lg text-center">
           <h2 className="text-3xl font-bold text-white mb-md">
             {t("landing.cta.heading")}
@@ -407,7 +407,7 @@ export const LandingPage = () => {
 
           <button
             onClick={() => navigate("/dashboard")}
-            className="inline-flex items-center gap-sm px-xl py-md bg-white text-primary-700 font-semibold rounded-lg shadow-card hover:bg-primary-50 active:bg-primary-100 transition-colors text-base"
+            className="inline-flex items-center gap-sm px-xl py-md bg-white text-primary-700 font-semibold rounded-xl shadow-card hover:bg-primary-50 active:bg-primary-100 transition-colors text-base"
           >
             {t("landing.cta.button")}
             <ArrowRight className="w-4 h-4" />
@@ -429,7 +429,7 @@ export const LandingPage = () => {
       </section>
 
       {/* ── FOOTER ─────────────────────────────────────────────── */}
-      <footer className="bg-slate-900 py-xl">
+      <footer className="bg-stone-900 py-xl">
         <div className="max-w-6xl mx-auto px-lg flex flex-col md:flex-row items-center justify-between gap-md">
           <div className="flex items-center gap-sm">
             <div className="w-7 h-7 rounded-lg bg-primary-600 flex items-center justify-center">
@@ -439,14 +439,14 @@ export const LandingPage = () => {
               {t("app.name")}
             </span>
           </div>
-          <p className="text-xs text-slate-500 text-center">
+          <p className="text-xs text-stone-500 text-center">
             {t("landing.footer.copyright")}
           </p>
-          <div className="flex items-center gap-lg text-xs text-slate-500">
-            <a href="#" className="hover:text-slate-300 transition-colors">
+          <div className="flex items-center gap-lg text-xs text-stone-500">
+            <a href="#" className="hover:text-stone-300 transition-colors">
               {t("landing.footer.privacy")}
             </a>
-            <a href="#" className="hover:text-slate-300 transition-colors">
+            <a href="#" className="hover:text-stone-300 transition-colors">
               {t("landing.footer.terms")}
             </a>
           </div>

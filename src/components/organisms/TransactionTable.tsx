@@ -45,27 +45,27 @@ const TransactionTableRow = ({ tx }: { tx: TransactionResponseDto }) => {
   const hasInstallments = tx.installments > 1;
 
   return (
-    <tr className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+    <tr className="border-b border-stone-100 hover:bg-stone-50 transition-colors">
       {/* Date */}
       <td className="px-md py-sm whitespace-nowrap">
-        <p className="text-sm text-slate-900 tabular-nums">
+        <p className="text-sm text-stone-900 tabular-nums">
           {formatTransactionDate(tx.transactionDate, i18n.language)}
         </p>
-        <p className="text-xs text-slate-400 tabular-nums">
+        <p className="text-xs text-stone-400 tabular-nums">
           {formatPaymentMonth(tx.paymentMonth, i18n.language)}
         </p>
       </td>
 
       {/* Category / Comment */}
       <td className="px-md py-sm max-w-[200px]">
-        <p className="text-sm font-medium text-slate-900 truncate">
+        <p className="text-sm font-medium text-stone-900 truncate">
           {tx.category.name}
         </p>
         {tx.comment && (
-          <p className="text-xs text-slate-400 truncate">{tx.comment}</p>
+          <p className="text-xs text-stone-400 truncate">{tx.comment}</p>
         )}
         {tx.group && (
-          <p className="text-xs text-slate-400 truncate">↳ {tx.group.name}</p>
+          <p className="text-xs text-stone-400 truncate">↳ {tx.group.name}</p>
         )}
       </td>
 
@@ -81,7 +81,7 @@ const TransactionTableRow = ({ tx }: { tx: TransactionResponseDto }) => {
           {isIncome ? "+" : "-"}{formatCurrency(tx.monthlyAmount, tx.currency as Currency, i18n.language)}
         </p>
         {tx.realMonthlyAmount != null && (
-          <p className="text-xs text-slate-400 tabular-nums">
+          <p className="text-xs text-stone-400 tabular-nums">
             ≈ {formatCurrency(tx.realMonthlyAmount, tx.currency as Currency, i18n.language)} {t("transaction.table.real")}
           </p>
         )}
@@ -94,7 +94,7 @@ const TransactionTableRow = ({ tx }: { tx: TransactionResponseDto }) => {
             {tx.installment}/{tx.installments}
           </Badge>
         ) : (
-          <span className="text-slate-300 text-xs">—</span>
+          <span className="text-stone-300 text-xs">—</span>
         )}
       </td>
 
@@ -102,7 +102,7 @@ const TransactionTableRow = ({ tx }: { tx: TransactionResponseDto }) => {
       <td className="px-md py-sm">
         <div className="flex items-center gap-xs">
           <span>{PAYMENT_TYPE_ICONS[tx.paymentMethod.type] ?? "💰"}</span>
-          <span className="text-sm text-slate-700 truncate max-w-[100px]">
+          <span className="text-sm text-stone-700 truncate max-w-[100px]">
             {tx.paymentMethod.name}
           </span>
         </div>
@@ -113,7 +113,7 @@ const TransactionTableRow = ({ tx }: { tx: TransactionResponseDto }) => {
         {tx.isPaid ? (
           <CheckCircle2 className="w-4 h-4 text-income-500 mx-auto" />
         ) : (
-          <Circle className="w-4 h-4 text-slate-300 mx-auto" />
+          <Circle className="w-4 h-4 text-stone-300 mx-auto" />
         )}
       </td>
 
@@ -122,7 +122,7 @@ const TransactionTableRow = ({ tx }: { tx: TransactionResponseDto }) => {
         {tx.impactsCashflow ? (
           <Zap className="w-4 h-4 text-warning-500 mx-auto" />
         ) : (
-          <ZapOff className="w-4 h-4 text-slate-300 mx-auto" />
+          <ZapOff className="w-4 h-4 text-stone-300 mx-auto" />
         )}
       </td>
     </tr>
@@ -144,7 +144,7 @@ export const TransactionTable = ({ transactions }: TransactionTableProps) => {
     return (
       <div className="card flex flex-col items-center justify-center py-3xl text-center">
         <p className="section-title mb-xs">{t("transaction.table.empty.title")}</p>
-        <p className="text-sm text-slate-500 mb-lg">
+        <p className="text-sm text-stone-500 mb-lg">
           {t("transaction.table.empty.body")}
         </p>
         <div className="flex gap-sm">
@@ -162,7 +162,7 @@ export const TransactionTable = ({ transactions }: TransactionTableProps) => {
   return (
     <div className="card p-0 overflow-hidden">
       {/* Table header actions */}
-      <div className="flex items-center justify-between px-md py-sm border-b border-slate-100">
+      <div className="flex items-center justify-between px-md py-sm border-b border-stone-100">
         <h2 className="section-title">{t("transaction.table.title")}</h2>
         <div className="flex gap-sm">
           <Button variant="income" size="sm">
@@ -178,16 +178,16 @@ export const TransactionTable = ({ transactions }: TransactionTableProps) => {
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="bg-slate-50 border-b border-slate-200">
-              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">{t("transaction.table.col.date")}</th>
-              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide">{t("transaction.table.col.category")}</th>
-              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide">{t("transaction.table.col.type")}</th>
-              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide">{t("transaction.table.col.status")}</th>
-              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide text-right">{t("transaction.table.col.amount")}</th>
-              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide text-center">{t("transaction.table.col.quota")}</th>
-              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide">{t("transaction.table.col.method")}</th>
-              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide text-center" title={t("transaction.table.col.paid")}>{t("transaction.table.col.paid")}</th>
-              <th className="px-md py-sm text-xs font-semibold text-slate-500 uppercase tracking-wide text-center" title={t("transaction.table.col.cashflowFull")}>{t("transaction.table.col.cashflow")}</th>
+            <tr className="bg-stone-50 border-b border-stone-200">
+              <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide whitespace-nowrap">{t("transaction.table.col.date")}</th>
+              <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide">{t("transaction.table.col.category")}</th>
+              <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide">{t("transaction.table.col.type")}</th>
+              <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide">{t("transaction.table.col.status")}</th>
+              <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide text-right">{t("transaction.table.col.amount")}</th>
+              <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide text-center">{t("transaction.table.col.quota")}</th>
+              <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide">{t("transaction.table.col.method")}</th>
+              <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide text-center" title={t("transaction.table.col.paid")}>{t("transaction.table.col.paid")}</th>
+              <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide text-center" title={t("transaction.table.col.cashflowFull")}>{t("transaction.table.col.cashflow")}</th>
             </tr>
           </thead>
           <tbody>

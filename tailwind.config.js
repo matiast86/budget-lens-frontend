@@ -4,36 +4,22 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Brand -- Blue (trust, professionalism, clarity)
+        // Brand -- Teal (trust, warmth, clarity)
         primary: {
-          50: "#EFF6FF",
-          100: "#DBEAFE",
-          200: "#BFDBFE",
-          300: "#93C5FD",
-          400: "#60A5FA",
-          500: "#3B82F6",
-          600: "#2563EB",
-          700: "#1D4ED8",
-          800: "#1E40AF",
-          900: "#1E3A8A",
-          950: "#172554",
-          DEFAULT: "#3B82F6",
+          50: "#F0FDFA",
+          100: "#CCFBF1",
+          200: "#99F6E4",
+          500: "#14B8A6",
+          600: "#0D9488",
+          700: "#0F766E",
+          800: "#115E59",
+          900: "#134E4A",
+          DEFAULT: "#0D9488",
+          dark: "#115E59",
+          light: "#F0FDFA",
         },
-        // Accent -- Indigo (secondary CTAs, chart variety)
-        accent: {
-          50: "#EEF2FF",
-          100: "#E0E7FF",
-          200: "#C7D2FE",
-          300: "#A5B4FC",
-          400: "#818CF8",
-          500: "#6366F1",
-          600: "#4F46E5",
-          700: "#4338CA",
-          800: "#3730A3",
-          900: "#312E81",
-          950: "#1E1B4B",
-          DEFAULT: "#6366F1",
-        },
+        // App background -- warm cream
+        cream: "#FAFAF7",
         // Financial: Income (emerald -- growth, positive)
         income: {
           50: "#ECFDF5",
@@ -49,7 +35,7 @@ export default {
           950: "#022C22",
           DEFAULT: "#10B981",
         },
-        // Financial: Expense (rose -- calming negative, not aggressive red)
+        // Financial: Expense (rose -- calming, not aggressive red)
         expense: {
           50: "#FFF1F2",
           100: "#FFE4E6",
@@ -62,7 +48,7 @@ export default {
           800: "#9F1239",
           900: "#881337",
           950: "#4C0519",
-          DEFAULT: "#F43F5E",
+          DEFAULT: "#FB7185",
         },
         // Financial: Warning (amber -- budget limits, thresholds)
         warning: {
@@ -77,14 +63,17 @@ export default {
           800: "#92400E",
           900: "#78350F",
           950: "#451A03",
-          DEFAULT: "#F59E0B",
+          DEFAULT: "#FBBF24",
         },
-        // Grays: use Tailwind's built-in "slate" palette (slate-50 to slate-950).
-        // No custom "neutral" key -- avoids overriding Tailwind's neutral scale.
+        // Grays: warm stone (not cold slate)
+      },
+
+      backgroundColor: {
+        app: "#FAFAF7",
       },
 
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["Poppins", "system-ui", "sans-serif"],
       },
 
       fontSize: {
@@ -119,9 +108,9 @@ export default {
       },
 
       boxShadow: {
-        card: "0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04)",
-        "card-hover": "0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05)",
-        dropdown: "0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04)",
+        card: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
+        "card-hover": "0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04)",
+        dropdown: "0 8px 24px rgba(0,0,0,0.10)",
         "inner-light": "inset 0 1px 2px 0 rgb(0 0 0 / 0.04)",
       },
 

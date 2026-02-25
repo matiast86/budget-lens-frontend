@@ -1,14 +1,32 @@
 # Budget Lens: React TypeScript Vite Frontend
 
+## 🎨 Design Redesign Brief — Read This First
+
+The app has undergone a full visual redesign. **Before writing any component, style, or layout code, read and internalize this section.** Every decision below is intentional. Do not revert to the old blue/slate/Inter palette under any circumstance.
+
+### Why it changed
+
+The previous design (blue primary, slate grays, Inter, tabular data-first) felt like a corporate dashboard. Budget Lens is used by regular people on their phones — not finance professionals on desktops. The new design feels like a **friendly companion that helps you understand your money**, not a tool that overwhelms you with it.
+
+### The New Design Personality
+
+- **Warm, not cold** — teal + cream instead of blue + slate
+- **Friendly, not corporate** — Poppins (rounded) instead of Inter
+- **Approachable numbers** — large, bold amounts with plain-language context, not raw tables
+- **Mobile-native** — bottom tab bar, not sidebar; list rows, not horizontal tables; hero card, not four stat cards
+- **Playful progress** — emoji signals, progress arcs, streaks; numbers always have context around them
+
+---
+
 ## Design Philosophy
 
 **Budget Lens** ("Lens" = clarity, focus, insight) follows these principles:
-- Clean and airy — generous whitespace, let the numbers speak
-- Data-focused with clear visual hierarchy
-- Trustworthy (blue primary) and calming (rose for expenses, not aggressive red)
-- Card-based dashboard layout
-- Tabular numbers for financial data alignment
-- **Mobile-first** — every view is designed for small screens first, then enhanced for larger viewports with `md:` and `lg:` prefixes
+- Warm and airy — cream background, soft shadows, generous whitespace
+- Numbers are never naked — always accompanied by context (label, trend, emoji signal)
+- Trustworthy (deep teal primary) and calm (soft rose for expenses, never aggressive red)
+- Card-based layout with soft elevation
+- **Mobile-first** — every view is designed for small screens first, enhanced for larger viewports with `md:` and `lg:` prefixes
+- Progress and gamification — users feel momentum, not anxiety
 
 ---
 
@@ -17,8 +35,6 @@
 These conventions are enforced across the entire codebase. All new code must follow them.
 
 ### Components — arrow functions only
-
-All React components use `const` arrow functions. Never use the `function` keyword for components.
 
 ```tsx
 // ✅ correct
@@ -32,15 +48,12 @@ export function MyComponent({ label }: MyComponentProps) { ... }
 
 ### Types — barrel import always
 
-All type imports go through the barrel `src/types/index.ts`. Never import directly from sub-files.
-
 ```typescript
 // ✅ correct
 import type { LedgerResponseDto, Currency } from "../../types";
 
 // ❌ wrong
 import type { LedgerResponseDto } from "../../types/dtos";
-import type { Currency } from "../../types/prisma-enums";
 ```
 
 ### Types — where things live
@@ -50,22 +63,10 @@ import type { Currency } from "../../types/prisma-enums";
 | Prisma enum mirrors | `src/types/prisma-enums.ts` |
 | Backend response DTOs | `src/types/dtos.ts` |
 | UI-only types (no backend equivalent) | `src/types/ui-only.ts` |
-| Component-local props interfaces | Inside the component file — **not** in `types/` |
-| Runtime constants / config arrays | Inside the component/page file — **not** in `types/` |
-
-Only **types** (type aliases, interfaces) belong in `src/types/`. Runtime values (arrays, objects with functions) stay co-located with their single consumer.
-
-```typescript
-// ✅ type → goes in ui-only.ts
-export type LedgerDetailTab = "transactions" | "categories" | ...;
-
-// ✅ runtime constant → stays in LedgerDetailPage.tsx
-const TABS: { id: LedgerDetailTab; label: string; count: ... }[] = [...];
-```
+| Component-local props interfaces | Inside the component file |
+| Runtime constants / config arrays | Inside the component/page file |
 
 ### React import
-
-When `React` namespace types are needed (e.g. `React.ElementType`, `React.ReactNode`), use:
 
 ```typescript
 import type React from "react";  // always first in the file
@@ -76,15 +77,11 @@ import type React from "react";  // always first in the file
 | Level | Folder | Rule |
 |---|---|---|
 | Atom | `components/atoms/` | No dependencies on other components; primitive UI only |
-| Molecule | `components/molecules/` | Composes atoms; single responsibility; no organisms |
+| Molecule | `components/molecules/` | Composes atoms; single responsibility |
 | Organism | `components/organisms/` | Composes molecules/atoms; owns a full UI section |
-| Page | `pages/` | Composes organisms; owns route-level state and mock/data wiring |
-
-Never define a reusable component inline inside a page or organism. Extract it to the appropriate level.
+| Page | `pages/` | Composes organisms; owns route-level state |
 
 ### Responsive design — mobile-first always
-
-All layouts must be designed for mobile first. Start with the base (smallest) style, then progressively add `md:` and `lg:` overrides for larger viewports. Never write desktop-only styles without a mobile fallback.
 
 ```tsx
 // ✅ correct — base is mobile, md: enhances for tablet/desktop
@@ -94,27 +91,13 @@ All layouts must be designed for mobile first. Start with the base (smallest) st
 <div className="flex flex-row items-center gap-md">
 ```
 
-**Breakpoints in use (Tailwind defaults):**
-
-| Prefix | Min-width | Use case |
-|---|---|---|
-| *(none)* | 0px | Mobile base styles — always start here |
-| `sm:` | 640px | Large phones / small tablets |
-| `md:` | 768px | Tablets |
-| `lg:` | 1024px | Desktop — sidebar becomes visible, multi-column layouts |
-| `xl:` | 1280px | Wide desktop |
-
-**Key mobile patterns to follow:**
-
-- **Sidebar** — hidden on mobile (`-translate-x-full`), revealed as a fixed overlay via hamburger; `lg:static` restores it to the layout flow on desktop.
-- **Tables** — always wrapped in `overflow-x-auto` so they scroll horizontally rather than breaking the viewport.
-- **Tab bars** — use `overflow-x-auto scrollbar-hide` on the container and `min-w-max` on the inner `<nav>` to allow horizontal scroll.
-- **Navigation text / secondary UI** — use `hidden md:block` or `hidden md:flex` to hide on mobile and reveal on larger screens.
-- **Stacking** — on mobile, use `flex-col` by default; switch to `flex-row` with `md:flex-row` or `lg:flex-row`.
+**Key mobile patterns:**
+- **Navigation** — bottom tab bar on mobile; sidebar revealed only at `lg:` breakpoint
+- **Tables** — always wrapped in `overflow-x-auto`; prefer list rows on mobile
+- **Tab bars** — `overflow-x-auto scrollbar-hide` container, `min-w-max` inner `<nav>`
+- **Stacking** — `flex-col` base, `md:flex-row` or `lg:flex-row` for larger screens
 
 ### Mocks
-
-Development mocks live in `src/helpers/mocks/`. Each file exports one mock object matching a backend DTO. Always import the mock from there — never define inline mock data in a page.
 
 ```typescript
 // src/helpers/mocks/ledger-mocks.ts  →  export const mockLedger: LedgerResponseDto
@@ -124,8 +107,6 @@ Development mocks live in `src/helpers/mocks/`. Each file exports one mock objec
 ---
 
 ## Engineering Conventions
-
-These rules apply to every file generated or modified. They are not optional.
 
 ### Naming
 
@@ -138,24 +119,20 @@ These rules apply to every file generated or modified. They are not optional.
 | Mock files | kebab-case with `-mocks` suffix | `ledger-mocks.ts` |
 | Schema files | kebab-case with `.schema` suffix | `ledger.schema.ts` |
 | Local constants | SCREAMING_SNAKE_CASE | `MAX_COLLABORATORS` |
-| Custom hooks | camelCase with `use` prefix | `useLedger`, `useTransactionFilter` |
+| Custom hooks | camelCase with `use` prefix | `useLedger` |
 | Environment variables | `VITE_` prefix + SCREAMING_SNAKE_CASE | `VITE_API_BASE_URL` |
 
 ### Exports — named only, never default
-
-All exports are named. Never use `export default` except where a framework strictly requires it (none currently do in this project).
 
 ```typescript
 // ✅ correct
 export const StatCard = ({ ... }: StatCardProps) => { ... };
 
-// ❌ wrong — untraceable across refactors
+// ❌ wrong
 export default StatCard;
 ```
 
 ### No `any` — ever
-
-`any` is forbidden. Use `unknown` for truly untyped external data and narrow it explicitly.
 
 ```typescript
 // ✅ correct
@@ -165,282 +142,147 @@ const parsed: unknown = JSON.parse(raw);
 const parsed: any = JSON.parse(raw);
 ```
 
-If you find yourself reaching for `any`, stop and use a proper type, `unknown`, or a discriminated union instead.
-
-### No array-index keys in lists
-
-Never use the array index as a React `key`. Always use a stable, unique ID from the data.
+### No array-index keys
 
 ```tsx
 // ✅ correct
 transactions.map((tx) => <TransactionRow key={tx.id} transaction={tx} />)
 
-// ❌ wrong — breaks reconciliation on reorder/filter
+// ❌ wrong
 transactions.map((tx, i) => <TransactionRow key={i} transaction={tx} />)
 ```
 
 ### No prop drilling beyond 2 levels
 
-If a prop passes through more than 2 components without being consumed, extract a custom hook, use React Context, or wire it through Zustand. Drilling through 3+ levels is a structure smell.
+### File size guideline — ~250 lines max; extract or split beyond that
 
-### File size guideline
-
-A file exceeding ~250 lines is a signal to split — either extract a subcomponent to the appropriate atomic level, or extract logic into a custom hook. There is no hard line, but long files should be flagged in review.
-
-### `src/utils/` — what belongs here
-
-`src/utils/` is for pure, stateless helper functions only. No React, no hooks, no side effects.
-
-| File | Responsibility |
-|---|---|
-| `cn.ts` | Class merging (already exists) |
-| `format-currency.ts` | `formatCurrency(amount, currency, locale)` via `Intl.NumberFormat` |
-| `format-date.ts` | `formatTransactionDate(date, locale)`, `formatPaymentMonth(date, locale)` via `date-fns` |
-| `format-percent.ts` | `formatPercent(ratio)` for budget progress display |
-
-### Number and currency formatting — raw values never in JSX
-
-Every numeric amount displayed to the user must go through a formatter in `src/utils/`. Raw numbers in JSX are forbidden.
+### Number and currency formatting — never raw in JSX
 
 ```tsx
-// ✅ correct — locale-aware, uses i18n.language from useTranslation
-<span className="financial-amount amount-negative">
-  {formatCurrency(transaction.totalAmount, transaction.currency, i18n.language)}
-</span>
+// ✅ correct
+{formatCurrency(transaction.totalAmount, transaction.currency, i18n.language)}
 
-// ❌ wrong — raw number, locale-unaware, untestable
-<span>{transaction.totalAmount}</span>
+// ❌ wrong
+{transaction.totalAmount}
 ```
-
-All currency formatting uses `Intl.NumberFormat` internally — never manual string concatenation or `.toFixed()` alone. Always pass `i18n.language` (from `useTranslation`) as the locale — never hardcode `"es-AR"` or any locale string.
-
-```typescript
-// src/utils/format-currency.ts
-export const formatCurrency = (
-  amount: number,
-  currency: Currency,
-  locale: string,
-): string =>
-  new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-```
-
-### `src/hooks/` — custom hook conventions
-
-Any non-trivial stateful logic that is used by more than one component, or that makes a component file exceed the size guideline, must be extracted to `src/hooks/`.
-
-```
-src/hooks/
-  use-ledger.ts                 # will wrap React Query for GET /ledgers/:id
-  use-user-dashboard.ts         # will wrap React Query for GET /users/me/dashboard
-  use-transaction-filter.ts     # local filter/sort state for TransactionTable
-  use-currency-formatter.ts     # locale-aware formatter bound to user's ledger currency
-```
-
-A hook file exports exactly one hook. If you need two hooks, make two files.
-
-### State — what lives where
-
-| Data kind | Location | Reason |
-|---|---|---|
-| Server data (ledgers, transactions) | React Query | Cache, refetch, stale-while-revalidate |
-| Auth / user session | Zustand `auth` slice | Persists across components, survives navigation |
-| Cross-component UI state (sidebar open, toasts) | Zustand `ui` slice | Shared but not server-derived |
-| Local ephemeral UI state (tab selection, modal open) | `useState` in component | No sharing needed |
-
-Never put server data in Zustand. Never use React Query for UI-only state.
-
-### Zustand — slice pattern
-
-When the Zustand store is introduced, it follows a slices pattern:
-
-```
-src/store/
-  auth.slice.ts     # { user, token, setToken, logout }
-  ui.slice.ts       # { sidebarOpen, toasts, addToast }
-  store.ts          # combines slices into one store
-```
-
-Each slice is defined in isolation and combined in `store.ts`. Import the store hook only from `store.ts`.
-
-### React Query — key factory pattern (for when API layer is wired)
-
-Query keys are never hardcoded inline at call sites. Each resource has a key factory in its service file.
-
-```typescript
-// src/services/ledger.service.ts
-export const ledgerKeys = {
-  all: ["ledgers"] as const,
-  detail: (id: string) => ["ledgers", id] as const,
-};
-```
-
-### Service layer structure (for when API layer is wired)
-
-API calls live in `src/services/`. Each file maps to one backend resource and exports a key factory plus fetch functions. Hooks in `src/hooks/` wrap service functions with `useQuery` / `useMutation`.
-
-```
-src/services/
-  api-client.ts          # base fetch wrapper: auth headers, base URL, error shape
-  ledger.service.ts      # ledgerKeys + getById(), getAll()
-  user.service.ts        # userKeys + getDashboard()
-```
-
-No component or hook calls `fetch` directly — always through a service function.
-
----
-
-## Internationalization (i18n)
-
-The app uses `i18next` + `react-i18next` with browser language detection. The setup lives in `src/i18n/index.ts` and is initialized in `main.tsx` before the React root mounts.
-
-### Namespaces
-
-| Namespace | File | Contents |
-|---|---|---|
-| `common` | `src/i18n/locales/{lang}/common.json` | App name, nav labels, header, stat cards, budget overview, recent transactions, entire landing page |
-| `ledger` | `src/i18n/locales/{lang}/ledger.json` | Ledger grid/card/detail, transactions table, categories/groups/payment methods/collaborators tables |
-
-Supported languages: `"en"` (default), `"es"`. Detection order: `localStorage` → `navigator`. The active language key in localStorage is `i18nextLng`.
-
-### Usage in components
-
-```typescript
-// Single namespace
-const { t } = useTranslation("ledger");
-
-// With locale for formatters
-const { t, i18n } = useTranslation("ledger");
-formatCurrency(tx.monthlyAmount, tx.currency, i18n.language)
-formatTransactionDate(tx.transactionDate, i18n.language)
-```
-
-### Rules
-
-- **Never hardcode user-visible strings** in JSX — always use `t("key")`.
-- **Never hardcode a locale string** (e.g. `"es-AR"`) — always use `i18n.language`.
-- **Pluralization** uses the `_one` / `_other` key suffix convention: `t("grid.count", { count: n })`.
-- **Interpolation** uses double-brace variables: `t("card.created", { date: createdAt })`.
-- **Static config arrays** that contain translatable labels (FEATURES, STEPS, etc.) must store a `key` field at module level — never the translated string. Call `t(\`namespace.${item.key}.title\`)` in JSX.
-- **Helper functions** that receive `t` (non-hook context) must be typed with `TFunction` from `"i18next"`.
-
-```typescript
-// ✅ static config at module level — key only, no t() calls
-const FEATURE_CONFIG = [
-  { key: "multiLedger", icon: LayoutGrid, ... },
-];
-
-// ✅ translation in JSX
-{FEATURE_CONFIG.map((f) => (
-  <h3>{t(`landing.features.${f.key}.title`)}</h3>
-))}
-
-// ✅ helper function accepting TFunction
-import type { TFunction } from "i18next";
-const statusBadge = (status: Status, t: TFunction) => (
-  <Badge>{t(`transaction.status.${status.toLowerCase()}`)}</Badge>
-);
-```
-
-### Adding new strings
-
-1. Add the key + English string to `src/i18n/locales/en/common.json` or `en/ledger.json`.
-2. Add the Spanish translation to the corresponding `es/` file.
-3. Use `t("your.new.key")` in the component.
-
----
-
-## Deferred Conventions
-
-The following conventions are intentionally **not yet implemented**. They are documented here so the first implementation follows a deliberate pattern rather than becoming an accidental standard.
-
-### Deferred until auth is wired
-
-- **Token storage** — JWT will be stored in memory only (Zustand `auth` slice). Never `localStorage` or `sessionStorage`.
-- **Route protection** — A `<RequireAuth>` guard component will wrap all `AppShell` child routes. It reads the token from the auth slice and redirects to `/` if absent.
-- **`VITE_API_BASE_URL`** — Must exist in `.env.local` (gitignored). A `.env.example` with empty values is committed so the shape is documented.
-
-### Deferred until the API layer exists
-
-- **Zod schema validation** — Every API response will be parsed through a Zod schema at the service layer boundary before touching any hook or component. Types in `dtos.ts` will be replaced by `z.infer<typeof schema>` derived types. Schemas live in `src/schemas/`.
-- **`AppError` type** — A typed error union (`{ kind: "unauthorized" } | { kind: "not_found" } | ...`) will be defined and thrown by `api-client.ts`. Components and hooks never receive raw `Response` objects.
-- **React Query key factories** — Introduced alongside the first real `useQuery` call.
-
-### Deferred until a second developer joins or tests are added
-
-- **Git commit convention** — Conventional Commits (`feat(ledger): ...`, `fix(auth): ...`).
-- **Pre-commit hooks** — lint-staged + Husky running `eslint --fix` and `prettier --write` on staged files.
-- **Testing strategy** — Vitest + Testing Library for components; MSW for service-layer integration tests. Every formatter util and Zod schema gets a unit test.
 
 ---
 
 ## Design System
 
+### ⚠️ Full Palette Replacement
+
+The old `blue` primary and `slate` gray scale are **completely replaced**. Do not use `blue-*`, `slate-*`, or `neutral-*` anywhere in the codebase.
+
 ### Color Tokens
 
-All semantic colors have a full 50–950 scale. **All grays use Tailwind's built-in `slate-*` palette** — there is no custom `neutral` key.
+| Token | Hex | Tailwind key | Purpose |
+|---|---|---|---|
+| `primary` | `#0D9488` | `teal-600` | CTAs, active nav, progress fills, links |
+| `primary-dark` | `#115E59` | `teal-800` | Hero backgrounds, header gradient |
+| `primary-light` | `#F0FDFA` | `teal-50` | Selected state backgrounds, highlights |
+| `background` | `#FAFAF7` | custom `cream` | App background — **not** pure white |
+| `surface` | `#FFFFFF` | `white` | Card surfaces |
+| `income` | `#10B981` | `emerald-500` | Positive amounts, income |
+| `expense` | `#FB7185` | `rose-400` | Negative amounts, expenses (soft, not aggressive) |
+| `warning` | `#FBBF24` | `amber-400` | Budget thresholds, over-limit |
+| `text-primary` | `#1C1917` | `stone-900` | Headlines, amounts, primary labels |
+| `text-secondary` | `#78716C` | `stone-500` | Captions, secondary labels |
+| `border` | `#E7E5E0` | `stone-200` | Card borders, dividers |
 
-| Token | Default | Purpose |
+**All grays now use `stone-*`** (warm undertone), not `slate-*` (cold undertone). This single change shifts the entire emotional temperature of the app.
+
+Configure these in `tailwind.config.js`:
+
+```js
+theme: {
+  extend: {
+    colors: {
+      primary: {
+        DEFAULT: '#0D9488',
+        dark: '#115E59',
+        light: '#F0FDFA',
+        50: '#F0FDFA',
+        100: '#CCFBF1',
+        200: '#99F6E4',
+        500: '#14B8A6',
+        600: '#0D9488',
+        700: '#0F766E',
+        800: '#115E59',
+        900: '#134E4A',
+      },
+      cream: '#FAFAF7',
+      income: {
+        DEFAULT: '#10B981',
+        50: '#ECFDF5',
+        100: '#D1FAE5',
+        600: '#059669',
+      },
+      expense: {
+        DEFAULT: '#FB7185',
+        50: '#FFF1F2',
+        100: '#FFE4E6',
+        600: '#E11D48',
+      },
+      warning: {
+        DEFAULT: '#FBBF24',
+        50: '#FFFBEB',
+        600: '#D97706',
+      },
+    },
+    backgroundColor: {
+      app: '#FAFAF7',
+    },
+  }
+}
+```
+
+### Typography — Poppins replaces Inter
+
+**Font: Poppins** (import via Google Fonts in `index.html`)
+
+```html
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+```
+
+```js
+// tailwind.config.js
+fontFamily: {
+  sans: ['Poppins', 'system-ui', 'sans-serif'],
+}
+```
+
+| Role | Weight | Size | Class |
+|---|---|---|---|
+| App name / hero | 700 Bold | 28–32px | `text-3xl font-bold` |
+| Page titles | 600 SemiBold | 22px | `text-2xl font-semibold` |
+| Card titles | 600 SemiBold | 16px | `text-lg font-semibold` |
+| Body / labels | 400 Regular | 14px | `text-sm` |
+| **Financial amounts** | **700 Bold** | **20–32px** | `text-2xl font-bold` |
+| Captions / hints | 400 Regular | 12px | `text-xs` |
+
+**Critical rule for financial amounts:** amounts must be **large and bold**, never shrunk. A user's monthly spend shown in `text-3xl font-bold` feels clear and legible. The same number in `text-sm tabular-nums` feels like a spreadsheet and creates anxiety.
+
+### Shadows
+
+| Class | Definition | Use case |
 |---|---|---|
-| `primary` | `#3B82F6` | Brand, primary CTAs, active nav |
-| `accent` | `#6366F1` | Secondary CTAs, chart variety |
-| `income` | `#10B981` | Positive values, income, growth |
-| `expense` | `#F43F5E` | Negative values, expenses (rose, not red) |
-| `warning` | `#F59E0B` | Budget limits, thresholds |
-| `slate-*` | built-in | All grays: text, borders, backgrounds |
+| `shadow-card` | `0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)` | Default card |
+| `shadow-card-hover` | `0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04)` | Card on hover |
+| `shadow-dropdown` | `0 8px 24px rgba(0,0,0,0.10)` | Popovers, dropdowns |
 
-**Common usage patterns:**
-```
-Page background:   bg-slate-50
-Card surface:      bg-white
-Primary text:      text-slate-900
-Secondary text:    text-slate-500
-Borders:           border-slate-200
-Income amount:     text-income-600  (+ class .amount-positive)
-Expense amount:    text-expense-600 (+ class .amount-negative)
-Over-budget bar:   bg-expense-500
-```
-
-### Typography
-
-Font: **Inter** (variable font, all weights 100–900 in a single file)
+### Border Radius — rounded and friendly
 
 | Class | Size | Use case |
 |---|---|---|
-| `text-xs` | 12px | Labels, captions |
-| `text-sm` | 14px | Body, table rows |
-| `text-base` | 16px | Default body |
-| `text-lg` | 18px | Card titles, section headers |
-| `text-xl` | 20px | Page subtitles |
-| `text-2xl` | 24px | Page titles |
-| `text-3xl` | 30px | Stat card amounts |
-| `text-4xl` | 36px | Dashboard hero numbers |
-| `text-5xl` | 48px | Large display numbers |
-
-### Shadows (semantic names)
-
-| Class | Use case |
-|---|---|
-| `shadow-card` | Default card elevation |
-| `shadow-card-hover` | Card on hover |
-| `shadow-dropdown` | Popovers, dropdowns |
-| `shadow-inner-light` | Inset inputs |
-
-### Border Radius
-
-| Class | Size | Use case |
-|---|---|---|
-| `rounded-sm` | 4px | Badges, small tags |
-| `rounded` / `rounded-md` | 8px | Buttons, inputs |
+| `rounded-sm` | 4px | Tiny badges |
+| `rounded-md` | 8px | Buttons, inputs |
 | `rounded-lg` | 12px | Cards |
 | `rounded-xl` | 16px | Large cards, modals |
-| `rounded-2xl` | 24px | Hero sections |
+| `rounded-2xl` | 24px | Hero card, hero sections |
+| `rounded-full` | 9999px | Avatar circles, FAB, icon backgrounds |
 
-### Spacing (semantic names)
+### Spacing (semantic names — unchanged)
 
 | Class | Size |
 |---|---|
@@ -452,143 +294,333 @@ Font: **Inter** (variable font, all weights 100–900 in a single file)
 | `p-2xl` / `gap-2xl` | 48px |
 | `p-3xl` / `gap-3xl` | 64px |
 
-### CSS Utility Classes
+### CSS Utility Classes (`src/index.css`)
 
-Defined in `@layer components` / `@layer utilities` in `src/index.css`:
+Update `@layer components` with these new definitions:
 
-| Class | Purpose |
-|---|---|
-| `.card` | White card with `shadow-card`, `rounded-lg`, `border-slate-200/60`, `p-md` |
-| `.section-title` | `text-lg font-semibold text-slate-900` |
-| `.label-muted` | `text-sm font-medium text-slate-500` |
-| `.tabular-nums` | `font-variant-numeric: tabular-nums` — digit alignment in columns |
-| `.slashed-zero` | Tabular nums + slashed zero (0 vs O distinction) |
-| `.financial-amount` | `tabular-nums + font-semibold tracking-tight` |
-| `.amount-positive` | `text-income-600` |
-| `.amount-negative` | `text-expense-600` |
-| `.scrollbar-hide` | Hides scrollbar, keeps scrolling |
+```css
+@layer components {
+  /* Card — warm surface, soft shadow */
+  .card {
+    @apply bg-white rounded-xl shadow-card border border-stone-100 p-md;
+  }
 
-### Animations
+  /* Hero card — teal gradient, full bleed on mobile */
+  .card-hero {
+    @apply bg-gradient-to-br from-primary-800 to-primary-600 rounded-2xl p-lg text-white;
+  }
 
-| Class | Duration | Use case |
-|---|---|---|
-| `animate-fade-in` | 200ms | Modals, toasts appearing |
-| `animate-slide-up` | 300ms | Dropdowns, drawers |
-| `animate-slide-down` | 300ms | Collapsibles |
+  /* Icon pill — colored background for category icons */
+  .icon-pill {
+    @apply w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0;
+  }
 
----
+  /* Section title */
+  .section-title {
+    @apply text-lg font-semibold text-stone-900;
+  }
 
-## App Layout Pattern
+  /* Muted label */
+  .label-muted {
+    @apply text-sm font-medium text-stone-500;
+  }
 
-`App.tsx` uses a **layout-route pattern** with two distinct shells:
+  /* Financial amounts */
+  .financial-amount {
+    @apply font-bold tracking-tight;
+  }
+  .amount-positive {
+    @apply text-income-600;
+  }
+  .amount-negative {
+    @apply text-expense-600;
+  }
 
-**Landing shell** — full-width, no sidebar or header:
-```
-┌─────────────────────────────────────────────────────┐
-│                   LandingPage                       │
-│           (sticky nav + sections + footer)          │
-└─────────────────────────────────────────────────────┘
-```
+  /* Budget signal — emoji + label row */
+  .budget-signal {
+    @apply text-xs font-medium flex items-center gap-xs;
+  }
 
-**App shell (`AppShell`)** — sidebar + header + scrollable content:
-```
-┌─────────────┬─────────────────────────────────────┐
-│   Sidebar   │            AppHeader                │
-│  (w-64,     ├─────────────────────────────────────┤
-│  hidden     │                                     │
-│  on mobile) │     <Outlet /> / Page content       │
-│             │     (overflow-y-auto, p-lg)          │
-└─────────────┴─────────────────────────────────────┘
-```
+  /* Bottom tab bar item */
+  .tab-bar-item {
+    @apply flex flex-col items-center justify-center gap-xs flex-1 py-sm text-stone-400;
+  }
+  .tab-bar-item.active {
+    @apply text-primary;
+  }
+}
 
-- `BrowserRouter` wraps `<App>` in `main.tsx`
-- `App.tsx` declares a top-level `<Routes>`: `/` → `LandingPage`, everything else → `AppShell` (layout route)
-- `AppShell` reads `location.state.title` and renders `<Outlet />` for child routes
-- Sidebar is `hidden lg:flex` — hidden on mobile
-- `AppHeader` receives `userName: string` and `title?: string` (defaults to `"My Ledgers"`)
-
-### Routing
-
-| Path | Layout | Component | Notes |
-|---|---|---|---|
-| `/` | None | `LandingPage` | Marketing/home page — no sidebar or header |
-| `/dashboard` | `AppShell` | `DashboardPage` | Shows `LedgerGrid` from `UserDashboardViewDto` |
-| `/ledgers/:id` | `AppShell` | `LedgerDetailPage` | Shows full `LedgerResponseDto` with tabs |
-
-Navigation from `LedgerCard` uses `useNavigate` and passes `state: { title: ledger.name }` so the header updates automatically. The landing page CTAs navigate to `/dashboard`.
-
----
-
-## Project Structure
-
-```
-budget-lens-frontend/
-├── src/
-│   ├── i18n/
-│   │   ├── index.ts                   # i18next init: LanguageDetector, two namespaces, en+es
-│   │   └── locales/
-│   │       ├── en/
-│   │       │   ├── common.json        # Nav, header, stat, landing page strings (English)
-│   │       │   └── ledger.json        # Ledger, transaction, table strings (English)
-│   │       └── es/
-│   │           ├── common.json        # Nav, header, stat, landing page strings (Spanish)
-│   │           └── ledger.json        # Ledger, transaction, table strings (Spanish)
-│   ├── components/
-│   │   ├── atoms/
-│   │   │   ├── Badge.tsx              # CVA badge variants: default, primary, income, expense, warning, current, closed, future
-│   │   │   └── Button.tsx             # CVA button variants: default, secondary, outline, ghost, income, expense, link
-│   │   ├── molecules/
-│   │   │   ├── CategoriesTable.tsx    # Table of CategoryResponseDto[]
-│   │   │   ├── CollaboratorsTable.tsx # Table of CollaborationResponseDto[] with empty state
-│   │   │   ├── GroupsTable.tsx        # Table of GroupResponseDto[]
-│   │   │   ├── PaymentMethodsTable.tsx# Table of PaymentMethodResponseDto[] with color dots
-│   │   │   ├── LedgerCard.tsx         # Single ledger card; navigates to /ledgers/:id on "Open"
-│   │   │   ├── StatCard.tsx           # Stat summary card (value + trend arrow)
-│   │   │   ├── TransactionRow.tsx     # Single transaction row (deprecated UI type)
-│   │   │   └── BudgetProgressItem.tsx # Budget category progress bar
-│   │   └── organisms/
-│   │       ├── AppHeader.tsx          # Search + notifications + title + CTA
-│   │       ├── BudgetOverview.tsx     # Card wrapping BudgetProgressItems
-│   │       ├── LedgerDetailHeader.tsx # Ledger name, metadata strip, transaction summary strip
-│   │       ├── LedgerGrid.tsx         # Responsive grid of LedgerCards + empty state
-│   │       ├── Sidebar.tsx            # Logo + nav items + user footer
-│   │       ├── TransactionList.tsx    # Card wrapping TransactionRows (deprecated UI type)
-│   │       └── TransactionTable.tsx   # Full table for TransactionResponseDto[] with all columns
-│   ├── helpers/
-│   │   └── mocks/
-│   │       ├── ledger-mocks.ts        # mockLedger: LedgerResponseDto
-│   │       └── user-mocks.ts          # mockUser: UserDashboardViewDto
-│   ├── hooks/                         # custom hooks — one hook per file
-│   ├── pages/
-│   │   ├── LandingPage.tsx            # Route "/": marketing page — no AppShell
-│   │   ├── DashboardPage.tsx          # Route "/dashboard": LedgerGrid from mockUser
-│   │   └── LedgerDetailPage.tsx       # Route "/ledgers/:id": tabs + LedgerDetailHeader
-│   ├── services/                      # API service functions — wired when API layer begins
-│   ├── types/
-│   │   ├── index.ts                   # Barrel — re-exports everything; always import from here
-│   │   ├── prisma-enums.ts            # Union types mirroring Prisma enums exactly
-│   │   ├── dtos.ts                    # Backend response DTOs (imports from prisma-enums)
-│   │   └── ui-only.ts                 # Frontend-only types (NavItem, StatCardData, LedgerDetailTab, etc.)
-│   ├── utils/
-│   │   ├── cn.ts                      # clsx + tailwind-merge helper
-│   │   ├── format-currency.ts         # formatCurrency(amount, currency, locale) → string
-│   │   ├── format-date.ts             # formatTransactionDate(date, locale), formatPaymentMonth(date, locale)
-│   │   └── format-percent.ts          # formatPercent(ratio) → string
-│   ├── App.tsx                        # Top-level routes: LandingPage (/) + AppShell layout route
-│   └── main.tsx                       # createRoot + BrowserRouter
-├── .env.example                       # committed — shape only, no values
-├── .env.local                         # gitignored — real values
-├── index.html
-├── tailwind.config.js
-├── vite.config.ts
-└── package.json
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
 ```
 
 ---
 
-## Types
+## App Layout Pattern — Mobile-First Overhaul
 
-### `src/types/prisma-enums.ts` — mirror Prisma schema exactly
+### Mobile layout (default — `< lg`)
+
+```
+┌──────────────────────────────────┐
+│           AppHeader              │  ← slim top bar: app name + avatar
+├──────────────────────────────────┤
+│                                  │
+│         <Outlet /> content       │  ← scrollable, bg-cream
+│                                  │
+├──────────────────────────────────┤
+│         BottomTabBar             │  ← fixed bottom: Home | Ledgers | + | Profile
+└──────────────────────────────────┘
+```
+
+### Desktop layout (`lg:` and above)
+
+```
+┌─────────────┬────────────────────────────────┐
+│   Sidebar   │          AppHeader             │
+│  (w-64,     ├────────────────────────────────┤
+│  static)    │                                │
+│             │      <Outlet /> content        │
+│             │      (overflow-y-auto, p-lg)   │
+└─────────────┴────────────────────────────────┘
+```
+
+### Key layout rules
+
+- **`AppShell`** renders `<BottomTabBar>` on mobile and `<Sidebar>` on `lg:`. Never show both simultaneously.
+- **App background** is always `bg-cream` (`#FAFAF7`), never `bg-white` or `bg-slate-50`.
+- **`AppHeader`** on mobile is slim — just the logo/title and the user avatar. No search bar on mobile (move search to a dedicated screen or modal).
+- **`BottomTabBar`** is a new organism. It is `fixed bottom-0 left-0 right-0`, `bg-white border-t border-stone-100`, `safe-area` aware (`pb-safe`). Four items: Home, Ledgers, Add (+), Profile. The Add item is the teal FAB-style center button.
+
+---
+
+## Component Changes
+
+### Dashboard — replace stat card grid with hero card
+
+**Old pattern (do not use):**
+```tsx
+<div className="grid grid-cols-2 gap-md">
+  <StatCard label="Income" value={...} />
+  <StatCard label="Expenses" value={...} />
+  <StatCard label="Balance" value={...} />
+  <StatCard label="Savings" value={...} />
+</div>
+```
+
+**New pattern:**
+```tsx
+{/* Full-bleed teal hero card — single glance summary */}
+<div className="card-hero mx-[-1rem] rounded-none sm:mx-0 sm:rounded-2xl">
+  <p className="label-muted text-teal-200">February 2026</p>
+  <p className="text-4xl font-bold mt-xs">{formatCurrency(balance, currency, i18n.language)}</p>
+  <p className="text-teal-200 text-sm mt-xs">Current balance</p>
+  <div className="flex gap-lg mt-lg">
+    <div>
+      <p className="text-teal-200 text-xs">Income</p>
+      <p className="text-xl font-semibold">{formatCurrency(income, currency, i18n.language)}</p>
+    </div>
+    <div>
+      <p className="text-teal-200 text-xs">Expenses</p>
+      <p className="text-xl font-semibold">{formatCurrency(expenses, currency, i18n.language)}</p>
+    </div>
+  </div>
+</div>
+
+{/* Progress arc or horizontal progress bar for monthly budget */}
+<BudgetOverview ... />
+
+{/* Recent transactions as list rows, not a table */}
+<RecentTransactionList ... />
+```
+
+### Transaction display — list rows replace tables on mobile
+
+Tables require horizontal scrolling on mobile, which feels broken. Use a **list row pattern** on all screen sizes below `lg:`. At `lg:` and above, the full `TransactionTable` can be shown inside `overflow-x-auto`.
+
+**`TransactionListRow` molecule:**
+```tsx
+<div className="flex items-center gap-md py-sm">
+  {/* Icon pill with category color */}
+  <div className="icon-pill bg-amber-50">
+    <UtensilsIcon className="w-5 h-5 text-amber-500" />
+  </div>
+  {/* Name + category */}
+  <div className="flex-1 min-w-0">
+    <p className="text-sm font-semibold text-stone-900 truncate">{transaction.comment}</p>
+    <p className="text-xs text-stone-500">{transaction.category.name}</p>
+  </div>
+  {/* Amount — right aligned, colored */}
+  <p className={cn("financial-amount text-base", transaction.entryType === "EXPENSE" ? "amount-negative" : "amount-positive")}>
+    {transaction.entryType === "EXPENSE" ? "−" : "+"}{formatCurrency(transaction.monthlyAmount, transaction.currency, i18n.language)}
+  </p>
+</div>
+```
+
+### Budget progress — emoji signals replace bare progress bars
+
+**`BudgetProgressItem` update:**
+```tsx
+// Determine signal based on ratio
+const ratio = spent / budget;
+const signal = ratio < 0.6 ? { emoji: "🟢", label: t("budget.signal.good") }
+             : ratio < 0.85 ? { emoji: "🟡", label: t("budget.signal.heads_up") }
+             : { emoji: "🔴", label: t("budget.signal.close") };
+
+// Progress bar color follows signal
+const barColor = ratio < 0.6 ? "bg-income" : ratio < 0.85 ? "bg-warning" : "bg-expense";
+```
+
+### Ledger cards — horizontal carousel on mobile
+
+```tsx
+{/* Horizontal scroll carousel — no grid on mobile */}
+<div className="flex gap-md overflow-x-auto scrollbar-hide pb-sm lg:grid lg:grid-cols-2 lg:overflow-visible">
+  {ledgers.map((ledger) => (
+    <LedgerCard key={ledger.id} ledger={ledger} />
+  ))}
+</div>
+```
+
+`LedgerCard` itself should have `min-w-[280px]` on mobile so cards don't collapse in the carousel.
+
+### Icon treatment — icon pills, not raw icons
+
+Every category, transaction type, and payment method should use an **icon pill**: a `rounded-full` container with a soft pastel background color matched to the category, and a `lucide-react` icon inside. This gives the emoji-style colorful feel with consistent cross-platform rendering.
+
+**Category → color mapping (define in a util or constant):**
+```typescript
+// src/utils/category-colors.ts
+export const CATEGORY_COLORS: Record<string, { bg: string; icon: string }> = {
+  food:       { bg: "bg-amber-50",   icon: "text-amber-500" },
+  transport:  { bg: "bg-blue-50",    icon: "text-blue-500" },
+  home:       { bg: "bg-teal-50",    icon: "text-teal-600" },
+  health:     { bg: "bg-rose-50",    icon: "text-rose-500" },
+  leisure:    { bg: "bg-purple-50",  icon: "text-purple-500" },
+  savings:    { bg: "bg-emerald-50", icon: "text-emerald-600" },
+  default:    { bg: "bg-stone-100",  icon: "text-stone-500" },
+};
+```
+
+---
+
+## Gamification Patterns
+
+These are new UI patterns introduced in the redesign. They reduce financial anxiety by making progress visible and rewarding.
+
+### Budget emoji signals
+
+Already defined in the `BudgetProgressItem` section above. Three states: 🟢 good, 🟡 heads up, 🔴 getting close. Always shown next to the progress bar with a plain-language label.
+
+### Monthly streak banner
+
+A subtle banner shown at the top of the dashboard when the user has been under budget for 2+ consecutive months:
+
+```tsx
+{streakMonths >= 2 && (
+  <div className="flex items-center gap-sm bg-income-50 border border-income-100 rounded-xl p-sm">
+    <span className="text-xl">🎉</span>
+    <p className="text-sm font-medium text-income-600">
+      {t("dashboard.streak", { count: streakMonths })}
+    </p>
+  </div>
+)}
+```
+
+### Progress arc (optional — for savings goals)
+
+A circular SVG progress arc on the dashboard hero or savings card. Use a thin `stroke-width` ring with the teal primary color. Keep it simple — no third-party chart library needed for a single arc.
+
+---
+
+## Internationalization (i18n)
+
+No changes to the i18n architecture. New strings needed for redesign features:
+
+Add to `en/common.json`:
+```json
+{
+  "dashboard": {
+    "streak": "{{count}} months under budget! Keep it up 🎉",
+    "balance_label": "Current balance"
+  },
+  "budget": {
+    "signal": {
+      "good": "Looking good!",
+      "heads_up": "Heads up",
+      "close": "Getting close"
+    }
+  }
+}
+```
+
+Add equivalent keys to `es/common.json`.
+
+All other i18n rules remain unchanged (never hardcode strings, never hardcode locale, use `i18n.language` for formatters).
+
+---
+
+## Migration Checklist
+
+When implementing the redesign, follow this order to avoid cascading breakage:
+
+1. **`tailwind.config.js`** — add `primary` (teal), `cream`, `income`, `expense`, `warning` tokens; replace `slate` references with `stone`; add Poppins to `fontFamily.sans`
+2. **`index.html`** — add Poppins Google Fonts `<link>`
+3. **`src/index.css`** — update `.card`, `.section-title`, `.label-muted`, `.financial-amount`, `.amount-positive`, `.amount-negative`; add `.card-hero`, `.icon-pill`, `.tab-bar-item`, `.budget-signal`
+4. **`AppShell`** — add `<BottomTabBar>` for mobile, keep `<Sidebar>` for `lg:`; change `bg-slate-50` → `bg-cream`
+5. **`AppHeader`** — slim mobile version; full version at `md:`
+6. **`DashboardPage`** — replace stat card grid with hero card + carousel ledgers + list transactions
+7. **`BudgetProgressItem`** — add emoji signal logic and colored progress bar
+8. **`LedgerCard`** — add `min-w-[280px]`, update colors to teal/stone
+9. **`TransactionTable`** — keep for `lg:` desktop; add `TransactionListRow` for mobile
+10. **`Badge`** — update color variants to use new palette (teal for primary, stone for default)
+11. **`Button`** — update `default` variant to teal; update `income`/`expense` variants to new softer tones
+12. **All pages** — audit for any remaining `slate-*`, `blue-*`, or `neutral-*` classes and replace
+
+---
+
+## What NOT to Change
+
+- The TypeScript conventions (arrow functions, barrel imports, named exports, no `any`)
+- The atomic design folder structure
+- The `src/types/` architecture
+- The mock data location (`src/helpers/mocks/`)
+- The i18n namespace structure and translation key conventions
+- The React Query / Zustand state separation rules
+- The service layer pattern (deferred until API is wired)
+- Accessibility requirements (ARIA labels, semantic HTML, focus rings)
+- The routing structure (`/`, `/dashboard`, `/ledgers/:id`)
+
+---
+
+## Deferred Conventions (unchanged)
+
+### Deferred until auth is wired
+- Token storage in Zustand `auth` slice (never localStorage)
+- `<RequireAuth>` guard component
+- `VITE_API_BASE_URL` in `.env.local`
+
+### Deferred until API layer exists
+- Zod schema validation at service boundary
+- `AppError` typed union
+- React Query key factories
+
+### Deferred until second developer or tests added
+- Conventional Commits
+- Pre-commit hooks (lint-staged + Husky)
+- Vitest + Testing Library + MSW
+
+---
+
+## Types (unchanged)
+
+### `src/types/prisma-enums.ts`
 
 ```typescript
 Currency        "ARS" | "USD"
@@ -603,22 +635,13 @@ DebtDirection   "OWED_TO_ME" | "OWED_BY_ME"
 CategoryScope   "GLOBAL"
 ```
 
-### `src/types/dtos.ts` — backend response shapes
-
-Key types and their source endpoints:
+### `src/types/dtos.ts`
 
 ```typescript
-// GET /users/me/dashboard
 UserDashboardViewDto          { id, name, email, gender, role, isActive, ledgers[] }
-
-// Nested in UserDashboardViewDto — used in DashboardPage / LedgerCard
 LedgerDashboardResponseDto    { id, name, description?, currency, baseCpiIndex, createdAt, updatedAt }
-
-// GET /ledgers/:id — used in LedgerDetailPage
 LedgerResponseDto             { id, name, currency, baseCpiIndex, ownerId, categories[], groups[],
                                  transactions[], paymentMethods[], collaborations[], createdAt, updatedAt }
-
-// Nested in LedgerResponseDto
 TransactionResponseDto        { id, entryType, status, transactionDate, paymentMonth, currency,
                                  totalAmount, monthlyAmount, installments, installment, isPaid,
                                  impactsCashflow, cpiIndex?, realMonthlyAmount?, category, group?,
@@ -629,14 +652,13 @@ PaymentMethodResponseDto      { id, name, type, brand?, color?, icon?, currency?
 CollaborationResponseDto      { id, name, isActive, userId, ledgerId }
 ```
 
-`baseCpiIndex` is the CPI index value at ledger creation (base = 100 at Jan 2024). Used with `cpiIndex` on transactions to compute `realMonthlyAmount` (inflation-adjusted).
-
-### `src/types/ui-only.ts` — frontend-only types
+### `src/types/ui-only.ts`
 
 ```typescript
-NavItem           // Sidebar nav item: { icon: React.ElementType, label, active }
-StatCardData      // Stat card props: { label, value, change, trend: "up"|"down" }
+NavItem           // { icon: React.ElementType, label, active }
+StatCardData      // { label, value, change, trend: "up"|"down" }
 LedgerDetailTab   // "transactions" | "categories" | "paymentMethods" | "groups" | "collaborators"
+BottomTabItem     // { icon: React.ElementType, label: string, path: string } — NEW
 
 // @deprecated — replace with TransactionResponseDto once API is wired
 Transaction       // { name, category, amount, type: "income"|"expense" }
@@ -645,53 +667,91 @@ BudgetItem        // { category, spent, budget, color }
 
 ---
 
-## Component Reference
+## Project Structure (updated)
 
-### Badge (`src/components/atoms/Badge.tsx`)
-
-```tsx
-<Badge variant="default">Tag</Badge>
-<Badge variant="primary">ARS</Badge>
-<Badge variant="income">Income</Badge>
-<Badge variant="expense">Expense</Badge>
-<Badge variant="warning">Over budget</Badge>
-<Badge variant="current">Current</Badge>
-<Badge variant="closed">Closed</Badge>
-<Badge variant="future">Future</Badge>
-
-<Badge size="sm">Small (default)</Badge>
-<Badge size="md">Medium</Badge>
 ```
-
-### Button (`src/components/atoms/Button.tsx`)
-
-```tsx
-<Button variant="default">Primary action</Button>
-<Button variant="secondary">Accent/indigo</Button>
-<Button variant="outline">Bordered</Button>
-<Button variant="ghost">Subtle / nav</Button>
-<Button variant="income">Record income</Button>
-<Button variant="expense">Record expense</Button>
-<Button variant="link">Inline link</Button>
-
-<Button size="sm" />
-<Button size="default" />
-<Button size="lg" />
-```
-
-All variants include `hover:`, `active:`, `focus-visible:`, and `disabled:` states.
-
-### cn utility (`src/utils/cn.ts`)
-
-```typescript
-import { cn } from "../../utils/cn";
-
-cn("px-4 py-2", isActive && "bg-primary-500", className)
+budget-lens-frontend/
+├── src/
+│   ├── i18n/
+│   │   ├── index.ts
+│   │   └── locales/
+│   │       ├── en/
+│   │       │   ├── common.json        # includes new streak + budget signal strings
+│   │       │   └── ledger.json
+│   │       └── es/
+│   │           ├── common.json
+│   │           └── ledger.json
+│   ├── components/
+│   │   ├── atoms/
+│   │   │   ├── Badge.tsx              # updated to teal/stone palette
+│   │   │   └── Button.tsx             # updated: default → teal, softer expense/income
+│   │   ├── molecules/
+│   │   │   ├── CategoriesTable.tsx
+│   │   │   ├── CollaboratorsTable.tsx
+│   │   │   ├── GroupsTable.tsx
+│   │   │   ├── PaymentMethodsTable.tsx
+│   │   │   ├── LedgerCard.tsx         # updated: min-w-[280px], teal/stone, icon pill
+│   │   │   ├── StatCard.tsx           # kept for desktop fallback; not used in mobile hero
+│   │   │   ├── TransactionListRow.tsx # NEW — mobile-first list row pattern
+│   │   │   ├── TransactionRow.tsx     # @deprecated — kept until API wired
+│   │   │   └── BudgetProgressItem.tsx # updated: emoji signal + colored bar
+│   │   └── organisms/
+│   │       ├── AppHeader.tsx          # updated: slim mobile / full desktop
+│   │       ├── BottomTabBar.tsx       # NEW — mobile bottom navigation
+│   │       ├── BudgetOverview.tsx     # updated: uses new BudgetProgressItem
+│   │       ├── DashboardHeroCard.tsx  # NEW — teal gradient, monthly summary
+│   │       ├── LedgerDetailHeader.tsx
+│   │       ├── LedgerGrid.tsx         # updated: horizontal carousel on mobile
+│   │       ├── RecentTransactionList.tsx # NEW — list rows, not table
+│   │       ├── Sidebar.tsx            # updated: teal active state, stone neutrals; lg: only
+│   │       ├── TransactionList.tsx    # @deprecated
+│   │       └── TransactionTable.tsx   # kept for lg: desktop only; wrapped in overflow-x-auto
+│   ├── helpers/
+│   │   └── mocks/
+│   │       ├── ledger-mocks.ts
+│   │       └── user-mocks.ts
+│   ├── hooks/
+│   ├── pages/
+│   │   ├── LandingPage.tsx
+│   │   ├── DashboardPage.tsx          # updated: hero card + carousel + list rows
+│   │   └── LedgerDetailPage.tsx
+│   ├── services/
+│   ├── types/
+│   │   ├── index.ts
+│   │   ├── prisma-enums.ts
+│   │   ├── dtos.ts
+│   │   └── ui-only.ts                 # updated: added BottomTabItem
+│   ├── utils/
+│   │   ├── cn.ts
+│   │   ├── category-colors.ts         # NEW — icon pill color map per category
+│   │   ├── format-currency.ts
+│   │   ├── format-date.ts
+│   │   └── format-percent.ts
+│   ├── App.tsx
+│   └── main.tsx
+├── .env.example
+├── .env.local
+├── index.html                         # updated: Poppins Google Fonts link
+├── tailwind.config.js                 # updated: teal primary, stone grays, cream bg, Poppins
+├── vite.config.ts
+└── package.json
 ```
 
 ---
 
-## Installed Dependencies
+## Accessibility (unchanged requirements)
+
+- `focus-visible` rings use `outline-primary` (keyboard only)
+- Semantic HTML: `<nav>`, `<main>`, `<header>`, `<aside>`
+- Icon-only interactive elements must have `aria-label`
+- Color is never the sole conveyor of meaning — income/expense always reinforced by `+`/`−` sign or label
+- Status messages use `role="status"` or `role="alert"` with `aria-live`
+- Tables use `<thead>`, `<th scope="col">`, and `aria-label` on `<table>`
+- Bottom tab bar items use `aria-label` and `aria-current="page"` for active item
+
+---
+
+## Installed Dependencies (unchanged)
 
 ```json
 {
@@ -718,44 +778,19 @@ cn("px-4 py-2", isActive && "bg-primary-500", className)
 
 ---
 
-## Development Scripts
+## Next Steps (updated priority order)
 
-```bash
-npm run dev      # Start dev server
-npm run build    # TypeScript check + Vite build
-npm run preview  # Preview production build
-npm run lint     # ESLint
-```
-
----
-
-## Next Steps
-
-1. **React Query + API service layer** — replace `mockUser` / `mockLedger` with real `useQuery` hooks
-2. **Zustand store** — auth/user session management
-3. **`LedgerDetailPage` routing** — read `useParams id`, fetch `GET /ledgers/:id` via React Query
-4. **Sidebar navigation** — wire nav items to routes using `NavLink`, derive active state from router
-5. **Transactions page** — filter by status, entryType, period; support installment grouping
-6. **Budgets page** — category spend vs budget with `BudgetProgressItem` + real data
-7. **Analytics page** — inflation-adjusted amounts using `baseCpiIndex` and `realMonthlyAmount`
-8. **Auth flow** — protect `/dashboard` and `/ledgers/:id`; redirect unauthenticated users to `/`
-9. **Language switcher UI** — a `<LanguageSwitcher>` atom (or `AppHeader` dropdown) calling `i18n.changeLanguage("es" | "en")` — the locale persists automatically in localStorage
-
----
-
-## Accessibility
-
-- `focus-visible` rings use `outline-primary-500` (keyboard only — not on mouse click)
-- Semantic HTML: `<nav>`, `<main>`, `<header>`, `<aside>`
-- `::selection` color matches brand palette
-- Color contrast: `slate-900` on `white` = 21:1, `income-600` on `white` ≥ 4.5:1
-- Icon-only interactive elements must have an `aria-label`
-- Color is never the sole conveyor of meaning — income/expense is always reinforced by sign (`+`/`-`) or label
-- Status messages (toasts, loading indicators) use `role="status"` or `role="alert"` with `aria-live`
-- Tables use `<thead>`, `<th scope="col">`, and a `<caption>` or `aria-label` on the `<table>` element
-
-## Deployment
-
-- Vercel or Netlify (zero-config for Vite)
-- Configure `VITE_*` environment variables for API base URLs
-- `.env.example` must be kept up to date whenever a new `VITE_*` variable is introduced
+1. **Design system foundation** — `tailwind.config.js` + `index.html` (Poppins) + `src/index.css` (new utility classes)
+2. **`AppShell` layout** — `BottomTabBar` on mobile, sidebar on `lg:`, cream background
+3. **`DashboardPage`** — `DashboardHeroCard` + ledger carousel + `RecentTransactionList`
+4. **`BudgetProgressItem`** — emoji signal + colored progress bar
+5. **`LedgerCard`** — carousel-ready, teal/stone palette, icon pill
+6. **`TransactionListRow`** — mobile list row pattern with icon pill
+7. **React Query + API service layer** — replace mocks with real `useQuery`
+8. **Zustand store** — auth/user session
+9. **Sidebar navigation** — wire nav items to routes via `NavLink`
+10. **Transactions page** — filter by status, entryType, period
+11. **Budgets page** — category spend vs budget
+12. **Analytics page** — inflation-adjusted with `baseCpiIndex` and `realMonthlyAmount`
+13. **Auth flow** — protect routes, redirect unauthenticated users
+14. **Language switcher** — `i18n.changeLanguage()` in header or profile
