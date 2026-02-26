@@ -8,6 +8,7 @@ import { CreateLedgerModal } from "./components/organisms/CreateLedgerModal";
 import { DashboardPage } from "./pages/DashboardPage";
 import { LedgerDetailPage } from "./pages/LedgerDetailPage";
 import { LandingPage } from "./pages/LandingPage";
+import { RegisterPage } from "./pages/RegisterPage";
 import { mockUser } from "./helpers/mocks/user-mocks";
 import type { CreateLedgerFormData } from "./schemas/ledger.schema";
 
@@ -61,6 +62,7 @@ const App = () => {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/register" element={<RegisterPage />} />
       <Route element={<AppShell />}>
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/ledgers/:id" element={<LedgerDetailPage />} />

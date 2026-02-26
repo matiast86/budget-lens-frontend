@@ -105,10 +105,10 @@ export const LandingPage = () => {
 
           {/* CTAs */}
           <div className="flex items-center gap-sm">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>
               {t("landing.nav.signIn")}
             </Button>
-            <Button size="sm" onClick={() => navigate("/dashboard")}>
+            <Button size="sm" onClick={() => navigate("/register")}>
               {t("landing.nav.getStarted")}
             </Button>
           </div>
@@ -143,7 +143,7 @@ export const LandingPage = () => {
 
           {/* CTA buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-sm mb-3xl">
-            <Button size="lg" onClick={() => navigate("/dashboard")}>
+            <Button size="lg" onClick={() => navigate("/register")}>
               {t("landing.hero.cta1")}
               <ArrowRight className="w-4 h-4 ml-xs" />
             </Button>
@@ -406,7 +406,7 @@ export const LandingPage = () => {
           </p>
 
           <button
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/register")}
             className="inline-flex items-center gap-sm px-xl py-md bg-white text-primary-700 font-semibold rounded-xl shadow-card hover:bg-primary-50 active:bg-primary-100 transition-colors text-base"
           >
             {t("landing.cta.button")}

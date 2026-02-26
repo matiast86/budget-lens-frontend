@@ -166,6 +166,47 @@ transactions.map((tx, i) => <TransactionRow key={i} transaction={tx} />)
 {transaction.totalAmount}
 ```
 
+### Forms — react-hook-form + Zod (never Formik)
+
+The project uses `react-hook-form ^7` + `@hookform/resolvers/zod` + `zod ^4`. Formik is not installed and must not be added.
+
+**Schema convention:**
+```typescript
+// src/schemas/feature.schema.ts
+// Zod error messages are i18n key strings — never raw English
+export const createLedgerSchema = z.object({
+  name: z.string().min(1, "create.error.nameRequired"),
+});
+export type CreateLedgerFormData = z.infer<typeof createLedgerSchema>;
+```
+
+**Component convention:**
+```tsx
+const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  resolver: zodResolver(schema),
+});
+// Translate error: t(errors.field?.message ?? "")
+```
+
+**Type coercion rules:**
+- Optional text → undefined: `z.preprocess((v) => (v === "" ? undefined : v), z.string().optional())`
+- Required number input: `register("field", { valueAsNumber: true })` + `z.number()`
+- Required select → number: `z.coerce.number().positive()`
+- Optional select → number: `z.preprocess((v) => (v === "" || v === "0" ? undefined : Number(v)), z.number().positive().optional())`
+- Password confirm: `.refine((d) => d.password === d.confirmPassword, { path: ["confirmPassword"] })`
+
+**Modal pattern** (`open` / `onClose` / `onSubmit` props):
+- `useEffect([open])` resets form to fresh defaults when opened
+- Escape key + overlay click both close
+- `autoFocus` on first field
+- Mobile: bottom sheet (`items-end`); sm+: centered card (`sm:items-center`)
+- Form layout: `flex flex-col` wrapper; `overflow-y-auto flex-1` body; `shrink-0` footer
+
+**Auth page pattern** (register, login):
+- Standalone page — no `AppShell`, no `BottomTabBar`
+- `min-h-screen bg-cream`, centered `max-w-sm` card
+- Route outside the `<AppShell>` outlet in `App.tsx`
+
 ---
 
 ## Design System
@@ -696,25 +737,32 @@ budget-lens-frontend/
 │   │   │   ├── TransactionRow.tsx     # @deprecated — kept until API wired
 │   │   │   └── BudgetProgressItem.tsx # updated: emoji signal + colored bar
 │   │   └── organisms/
-│   │       ├── AppHeader.tsx          # updated: slim mobile / full desktop
+│   │       ├── AppHeader.tsx          # updated: slim mobile / full desktop; onNewLedger prop
 │   │       ├── BottomTabBar.tsx       # NEW — mobile bottom navigation
 │   │       ├── BudgetOverview.tsx     # updated: uses new BudgetProgressItem
+│   │       ├── CreateLedgerModal.tsx  # NEW — modal form: name, description, currency, baseCpiIndex
+│   │       ├── CreateTransactionModal.tsx # NEW — modal form: all transaction fields; colored header
 │   │       ├── DashboardHeroCard.tsx  # NEW — teal gradient, monthly summary
 │   │       ├── LedgerDetailHeader.tsx
 │   │       ├── LedgerGrid.tsx         # updated: horizontal carousel on mobile
 │   │       ├── RecentTransactionList.tsx # NEW — list rows, not table
 │   │       ├── Sidebar.tsx            # updated: teal active state, stone neutrals; lg: only
 │   │       ├── TransactionList.tsx    # @deprecated
-│   │       └── TransactionTable.tsx   # kept for lg: desktop only; wrapped in overflow-x-auto
+│   │       └── TransactionTable.tsx   # kept for lg: desktop only; onAddIncome/onAddExpense props
 │   ├── helpers/
 │   │   └── mocks/
 │   │       ├── ledger-mocks.ts
 │   │       └── user-mocks.ts
 │   ├── hooks/
 │   ├── pages/
-│   │   ├── LandingPage.tsx
+│   │   ├── LandingPage.tsx            # nav: Sign in → /login, Get started → /register
+│   │   ├── RegisterPage.tsx           # NEW — standalone auth page at /register
 │   │   ├── DashboardPage.tsx          # updated: hero card + carousel + list rows
-│   │   └── LedgerDetailPage.tsx
+│   │   └── LedgerDetailPage.tsx       # owns CreateTransactionModal state
+│   ├── schemas/                       # NEW folder — Zod schemas (one file per domain)
+│   │   ├── auth.schema.ts             # registerSchema + RegisterFormData
+│   │   ├── ledger.schema.ts           # createLedgerSchema + CreateLedgerFormData
+│   │   └── transaction.schema.ts      # createTransactionSchema + CreateTransactionFormData
 │   ├── services/
 │   ├── types/
 │   │   ├── index.ts
@@ -780,17 +828,23 @@ budget-lens-frontend/
 
 ## Next Steps (updated priority order)
 
-1. **Design system foundation** — `tailwind.config.js` + `index.html` (Poppins) + `src/index.css` (new utility classes)
-2. **`AppShell` layout** — `BottomTabBar` on mobile, sidebar on `lg:`, cream background
-3. **`DashboardPage`** — `DashboardHeroCard` + ledger carousel + `RecentTransactionList`
-4. **`BudgetProgressItem`** — emoji signal + colored progress bar
-5. **`LedgerCard`** — carousel-ready, teal/stone palette, icon pill
-6. **`TransactionListRow`** — mobile list row pattern with icon pill
-7. **React Query + API service layer** — replace mocks with real `useQuery`
-8. **Zustand store** — auth/user session
-9. **Sidebar navigation** — wire nav items to routes via `NavLink`
-10. **Transactions page** — filter by status, entryType, period
-11. **Budgets page** — category spend vs budget
-12. **Analytics page** — inflation-adjusted with `baseCpiIndex` and `realMonthlyAmount`
-13. **Auth flow** — protect routes, redirect unauthenticated users
-14. **Language switcher** — `i18n.changeLanguage()` in header or profile
+### ✅ Completed
+1. ~~**Design system foundation**~~ — tailwind tokens, Poppins, index.css utility classes
+2. ~~**`AppShell` layout**~~ — BottomTabBar mobile / Sidebar lg:, cream background
+3. ~~**`DashboardPage`**~~ — DashboardHeroCard + ledger carousel + RecentTransactionList
+4. ~~**`BudgetProgressItem`**~~ — emoji signal + colored progress bar
+5. ~~**`LedgerCard`**~~ — carousel-ready, teal/stone palette
+6. ~~**`TransactionListRow`**~~ — mobile list row with icon pill
+7. ~~**Create Ledger form**~~ — `CreateLedgerModal` + `ledger.schema.ts`, wired to AppHeader
+8. ~~**Create Transaction form**~~ — `CreateTransactionModal` + `transaction.schema.ts`, wired to LedgerDetailPage
+9. ~~**Register page**~~ — `RegisterPage` + `auth.schema.ts` at `/register`; LandingPage CTAs wired to `/register` and `/login`
+
+### 🔜 Remaining (priority order)
+1. **Login page** — `LoginPage` + `loginSchema` at `/login`; email + password; link to `/register`
+2. **React Query + API service layer** — replace mocks with real `useQuery` / `useMutation`
+3. **Zustand store** — auth/user session (token storage, never localStorage)
+4. **`<RequireAuth>` guard** — protect `/dashboard` and `/ledgers/:id`; redirect to `/login`
+5. **Transactions page** — filter by status, entryType, period
+6. **Budgets page** — category spend vs budget
+7. **Analytics page** — inflation-adjusted with `baseCpiIndex` and `realMonthlyAmount`
+8. **Language switcher** — `i18n.changeLanguage()` in header or profile settings
