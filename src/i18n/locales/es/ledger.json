@@ -61,7 +61,8 @@
       "back": "Volver al panel"
     },
     "unavailable": {
-      "body": "Los datos detallados de este libro mayor aún no están disponibles. El historial completo de transacciones aparecerá aquí una vez que la API esté conectada.",
+      "title": "Algo salió mal",
+      "body": "No se pudo cargar este libro mayor. Por favor intentá de nuevo más tarde.",
       "back": "Volver al panel"
     },
     "tab": {
@@ -97,6 +98,7 @@
         "expense": "Agregar Gasto"
       },
       "field": {
+        "currency": "Moneda",
         "amount": "Monto Total",
         "installments": "Cuotas",
         "monthlyPreview": "≈ {{amount}} / mes",
@@ -106,12 +108,22 @@
         "selectCategory": "Seleccioná una categoría...",
         "paymentMethod": "Medio de Pago",
         "selectMethod": "Seleccioná un medio...",
-        "group": "Grupo (opcional)",
+        "group": "Grupo",
+        "selectGroup": "Seleccioná un grupo...",
         "status": "Estado",
         "comment": "Nota (opcional)",
         "commentPlaceholder": "Breve descripción...",
         "isPaid": "Marcar como pagado",
-        "impactsCashflow": "Impacta en flujo de caja"
+        "impactsCashflow": "Impacta en flujo de caja",
+        "debtOwners": "Asignaciones de deuda",
+        "addDebtOwner": "Agregar deudor",
+        "removeDebtOwner": "Quitar",
+        "ownerNamePlaceholder": "ej. Ana, vecino...",
+        "debtAmount": "Monto",
+        "direction": {
+          "OWED_TO_ME": "Me debe",
+          "OWED_BY_ME": "Le debo"
+        }
       },
       "error": {
         "dateRequired": "La fecha es obligatoria",
@@ -119,8 +131,11 @@
         "amountPositive": "El monto debe ser mayor a 0",
         "installmentsMin": "Se requiere al menos 1 cuota",
         "categoryRequired": "Por favor seleccioná una categoría",
+        "groupRequired": "Por favor seleccioná un grupo",
         "paymentMethodRequired": "Por favor seleccioná un medio de pago",
-        "commentTooLong": "La nota no puede superar los 500 caracteres"
+        "commentTooLong": "La nota no puede superar los 500 caracteres",
+        "debtOwnerRequired": "Seleccioná un colaborador",
+        "debtAmountPositive": "Ingresá un monto válido"
       },
       "action": {
         "submit": "Guardar Transacción"

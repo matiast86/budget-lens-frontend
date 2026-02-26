@@ -1,5 +1,16 @@
 import { z } from "zod";
 
+export const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, "auth.login.error.emailRequired")
+    .email("auth.login.error.emailInvalid"),
+
+  password: z.string().min(1, "auth.login.error.passwordRequired"),
+});
+
+export type LoginFormData = z.infer<typeof loginSchema>;
+
 export const registerSchema = z
   .object({
     name: z
@@ -11,6 +22,11 @@ export const registerSchema = z
       .string()
       .min(1, "auth.register.error.emailRequired")
       .email("auth.register.error.emailInvalid"),
+
+    birthDate: z
+      .string()
+      .min(1, "auth.register.error.birthDateRequired")
+      .refine((v) => !isNaN(Date.parse(v)), "auth.register.error.birthDateInvalid"),
 
     password: z
       .string()

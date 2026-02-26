@@ -61,7 +61,8 @@
       "back": "Back to dashboard"
     },
     "unavailable": {
-      "body": "Detailed data for this ledger isn't available yet. Full transaction history will appear here once the API is connected.",
+      "title": "Something went wrong",
+      "body": "Could not load this ledger. Please try again later.",
       "back": "Back to dashboard"
     },
     "tab": {
@@ -97,6 +98,7 @@
         "expense": "Add Expense"
       },
       "field": {
+        "currency": "Currency",
         "amount": "Total Amount",
         "installments": "Installments",
         "monthlyPreview": "≈ {{amount}} / month",
@@ -106,12 +108,22 @@
         "selectCategory": "Select category...",
         "paymentMethod": "Payment Method",
         "selectMethod": "Select method...",
-        "group": "Group (optional)",
+        "group": "Group",
+        "selectGroup": "Select group...",
         "status": "Status",
         "comment": "Note (optional)",
         "commentPlaceholder": "Brief description...",
         "isPaid": "Mark as paid",
-        "impactsCashflow": "Impacts cashflow"
+        "impactsCashflow": "Impacts cashflow",
+        "debtOwners": "Debt assignments",
+        "addDebtOwner": "Add debt owner",
+        "removeDebtOwner": "Remove",
+        "ownerNamePlaceholder": "e.g. Ana, neighbor...",
+        "debtAmount": "Amount",
+        "direction": {
+          "OWED_TO_ME": "Owes me",
+          "OWED_BY_ME": "I owe"
+        }
       },
       "error": {
         "dateRequired": "Date is required",
@@ -119,8 +131,11 @@
         "amountPositive": "Amount must be greater than 0",
         "installmentsMin": "At least 1 installment required",
         "categoryRequired": "Please select a category",
+        "groupRequired": "Please select a group",
         "paymentMethodRequired": "Please select a payment method",
-        "commentTooLong": "Note must be 500 characters or less"
+        "commentTooLong": "Note must be 500 characters or less",
+        "debtOwnerRequired": "Select a collaborator",
+        "debtAmountPositive": "Enter a valid amount"
       },
       "action": {
         "submit": "Save Transaction"

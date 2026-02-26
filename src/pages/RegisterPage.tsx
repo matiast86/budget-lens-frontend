@@ -1,6 +1,6 @@
 import type React from "react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
@@ -8,6 +8,8 @@ import { Eye, EyeOff } from "lucide-react";
 import { cn } from "../utils/cn";
 import { Button } from "../components/atoms/Button";
 import { registerSchema, type RegisterFormData } from "../schemas/auth.schema";
+import { signUp } from "../services/auth-service";
+import { ApiError } from "../services/api-client";
 
 const GENDER_OPTIONS: { value: "MALE" | "FEMALE"; labelKey: string }[] = [
   { value: "MALE",   labelKey: "auth.register.gender.MALE" },
@@ -23,8 +25,10 @@ const inputClass = (hasError: boolean) =>
 
 export const RegisterPage = () => {
   const { t } = useTranslation("common");
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const {
     register,
@@ -34,9 +38,25 @@ export const RegisterPage = () => {
     resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = (data: RegisterFormData) => {
-    // TODO: replace with React Query mutation once API is wired
-    console.log("Register:", data);
+  const onSubmit = async (data: RegisterFormData) => {
+    setServerError(null);
+    try {
+      await signUp({
+        name: data.name,
+        email: data.email,
+        birthDate: new Date(data.birthDate).toISOString(),
+        rawPassword: data.password,
+        repeatPassword: data.confirmPassword,
+        gender: data.gender,
+      });
+      navigate("/login", { state: { registered: true }, replace: true });
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setServerError(err.message);
+      } else {
+        setServerError(err instanceof Error ? err.message : String(err));
+      }
+    }
   };
 
   return (
@@ -55,6 +75,17 @@ export const RegisterPage = () => {
         {/* Card */}
         <div className="card">
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-md">
+
+            {/* Server error banner */}
+            {serverError && (
+              <div
+                className="rounded-lg bg-expense-50 border border-expense-100 px-sm py-xs text-sm text-expense-600"
+                role="alert"
+                aria-live="assertive"
+              >
+                {serverError}
+              </div>
+            )}
 
             {/* Name */}
             <div className="space-y-xs">
@@ -92,6 +123,24 @@ export const RegisterPage = () => {
               />
               {errors.email && (
                 <p className="text-xs text-expense-400" role="alert">{t(errors.email.message ?? "")}</p>
+              )}
+            </div>
+
+            {/* Birth date */}
+            <div className="space-y-xs">
+              <label htmlFor="reg-birthdate" className="block text-sm font-medium text-stone-700">
+                {t("auth.register.field.birthDate")}
+                <span className="text-expense-400 ml-xs" aria-hidden="true">*</span>
+              </label>
+              <input
+                id="reg-birthdate"
+                type="date"
+                autoComplete="bday"
+                className={inputClass(!!errors.birthDate)}
+                {...register("birthDate")}
+              />
+              {errors.birthDate && (
+                <p className="text-xs text-expense-400" role="alert">{t(errors.birthDate.message ?? "")}</p>
               )}
             </div>
 
@@ -187,7 +236,7 @@ export const RegisterPage = () => {
               className="w-full"
               disabled={isSubmitting}
             >
-              {t("auth.register.action.submit")}
+              {isSubmitting ? "…" : t("auth.register.action.submit")}
             </Button>
           </form>
         </div>

@@ -1,15 +1,20 @@
 import { useState } from "react";
 import { Routes, Route, Outlet, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { Sidebar } from "./components/organisms/Sidebar";
 import { AppHeader } from "./components/organisms/AppHeader";
 import { BottomTabBar } from "./components/organisms/BottomTabBar";
 import { CreateLedgerModal } from "./components/organisms/CreateLedgerModal";
+import { RequireAuth } from "./components/organisms/RequireAuth";
 import { DashboardPage } from "./pages/DashboardPage";
 import { LedgerDetailPage } from "./pages/LedgerDetailPage";
 import { LandingPage } from "./pages/LandingPage";
 import { RegisterPage } from "./pages/RegisterPage";
-import { mockUser } from "./helpers/mocks/user-mocks";
+import { LoginPage } from "./pages/LoginPage";
+import { useAuthStore } from "./stores/auth-store";
+import { useCurrentUser } from "./hooks/use-current-user";
+import { createLedger } from "./services/ledger-service";
 import type { CreateLedgerFormData } from "./schemas/ledger.schema";
 
 const AppShell = () => {
@@ -18,12 +23,19 @@ const AppShell = () => {
   const title =
     (location.state as { title?: string } | null)?.title ?? t("grid.title");
 
+  const queryClient = useQueryClient();
+  const token = useAuthStore((s) => s.token);
+  const currentUser = useCurrentUser();
+
   const [isCreateLedgerOpen, setIsCreateLedgerOpen] = useState(false);
 
-  const handleCreateLedger = (data: CreateLedgerFormData) => {
-    // TODO: replace with React Query mutation once API is wired
-    console.log("Create ledger:", data);
-  };
+  const createLedgerMutation = useMutation({
+    mutationFn: (data: CreateLedgerFormData) => createLedger(data, token!),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["ledgers"] });
+      setIsCreateLedgerOpen(false);
+    },
+  });
 
   return (
     <div className="flex h-screen bg-cream">
@@ -35,7 +47,7 @@ const AppShell = () => {
       {/* Main area */}
       <div className="flex-1 flex flex-col min-w-0">
         <AppHeader
-          userName={mockUser.name}
+          userName={currentUser?.name ?? ""}
           title={title}
           onNewLedger={() => setIsCreateLedgerOpen(true)}
         />
@@ -52,7 +64,7 @@ const AppShell = () => {
       <CreateLedgerModal
         open={isCreateLedgerOpen}
         onClose={() => setIsCreateLedgerOpen(false)}
-        onSubmit={handleCreateLedger}
+        onSubmit={(data) => createLedgerMutation.mutate(data)}
       />
     </div>
   );
@@ -63,9 +75,12 @@ const App = () => {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route element={<AppShell />}>
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/ledgers/:id" element={<LedgerDetailPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route element={<RequireAuth />}>
+        <Route element={<AppShell />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/ledgers/:id" element={<LedgerDetailPage />} />
+        </Route>
       </Route>
     </Routes>
   );

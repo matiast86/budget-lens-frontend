@@ -46,7 +46,45 @@
     "active": "Activo",
     "inactive": "Inactivo"
   },
+  "category": {
+    "names": {
+      "food": "Comida",
+      "dining_out": "Comer Afuera",
+      "transport": "Transporte",
+      "utilities": "Servicios",
+      "housing": "Vivienda",
+      "health": "Salud",
+      "personal_care": "Cuidado Personal",
+      "clothing": "Ropa",
+      "entertainment": "Entretenimiento",
+      "education": "Educación",
+      "savings": "Ahorros"
+    }
+  },
   "auth": {
+    "login": {
+      "title": "Bienvenido de nuevo",
+      "subtitle": "Iniciá sesión en tu cuenta",
+      "field": {
+        "email": "Email",
+        "emailPlaceholder": "vos@ejemplo.com",
+        "password": "Contraseña",
+        "passwordPlaceholder": "Tu contraseña",
+        "showPassword": "Mostrar contraseña",
+        "hidePassword": "Ocultar contraseña"
+      },
+      "error": {
+        "emailRequired": "El email es obligatorio",
+        "emailInvalid": "Por favor ingresá un email válido",
+        "passwordRequired": "La contraseña es obligatoria",
+        "invalidCredentials": "Email o contraseña incorrectos. Intentá de nuevo."
+      },
+      "action": {
+        "submit": "Iniciar Sesión",
+        "noAccount": "¿No tenés una cuenta?",
+        "register": "Creá una"
+      }
+    },
     "register": {
       "title": "Creá tu cuenta",
       "subtitle": "Empezá a seguir tus finanzas hoy",
@@ -59,6 +97,8 @@
         "passwordPlaceholder": "Al menos 8 caracteres",
         "confirmPassword": "Confirmar Contraseña",
         "confirmPasswordPlaceholder": "Repetí tu contraseña",
+        "birthDate": "Fecha de Nacimiento",
+        "birthDatePlaceholder": "AAAA-MM-DD",
         "gender": "Género",
         "showPassword": "Mostrar contraseña",
         "hidePassword": "Ocultar contraseña"
@@ -76,7 +116,9 @@
         "passwordTooLong": "La contraseña es demasiado larga",
         "confirmPasswordRequired": "Por favor confirmá tu contraseña",
         "passwordMismatch": "Las contraseñas no coinciden",
-        "genderRequired": "Por favor seleccioná un género"
+        "genderRequired": "Por favor seleccioná un género",
+        "birthDateRequired": "La fecha de nacimiento es obligatoria",
+        "birthDateInvalid": "Por favor ingresá una fecha válida"
       },
       "action": {
         "submit": "Crear Cuenta",

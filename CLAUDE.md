@@ -691,7 +691,10 @@ CategoryResponseDto           { id, name, description?, ledgerId, templateId? }
 GroupResponseDto              { id, name, ledgerId, userId }
 PaymentMethodResponseDto      { id, name, type, brand?, color?, icon?, currency?, isActive, userId }
 CollaborationResponseDto      { id, name, isActive, userId, ledgerId }
+DebtOwnerResponseDto          { id, name, ledgerId }
 ```
+
+> **Important:** `DebtOwnerResponseDto` is NOT related to `CollaborationResponseDto`. Debt owners are user-defined names (e.g. "Ana", "neighbor", "other") scoped to a ledger. They are managed via `POST /debt-owners/ledgers/:id` and have a unique constraint on `(ledgerId, name)`.
 
 ### `src/types/ui-only.ts`
 
@@ -764,6 +767,12 @@ budget-lens-frontend/
 │   │   ├── ledger.schema.ts           # createLedgerSchema + CreateLedgerFormData
 │   │   └── transaction.schema.ts      # createTransactionSchema + CreateTransactionFormData
 │   ├── services/
+│   │   ├── api-client.ts              # apiFetch<T> — throws ApiError(status, message)
+│   │   ├── auth-service.ts            # signIn, signUp
+│   │   ├── ledger-service.ts          # getLedgers, getLedger, createLedger
+│   │   ├── transaction-service.ts     # createTransaction — resolves debtAssignment names→IDs first
+│   │   ├── user-service.ts            # getUser (public)
+│   │   └── debt-owner-service.ts      # findOrCreateDebtOwner, createDebtOwner, getDebtOwnerByName
 │   ├── types/
 │   │   ├── index.ts
 │   │   ├── prisma-enums.ts
@@ -836,15 +845,13 @@ budget-lens-frontend/
 5. ~~**`LedgerCard`**~~ — carousel-ready, teal/stone palette
 6. ~~**`TransactionListRow`**~~ — mobile list row with icon pill
 7. ~~**Create Ledger form**~~ — `CreateLedgerModal` + `ledger.schema.ts`, wired to AppHeader
-8. ~~**Create Transaction form**~~ — `CreateTransactionModal` + `transaction.schema.ts`, wired to LedgerDetailPage
+8. ~~**Create Transaction form**~~ — `CreateTransactionModal` + `transaction.schema.ts`, wired to LedgerDetailPage; debt assignments use free-text name input resolved via `findOrCreateDebtOwner`
 9. ~~**Register page**~~ — `RegisterPage` + `auth.schema.ts` at `/register`; LandingPage CTAs wired to `/register` and `/login`
+10. ~~**Login page**~~ — `LoginPage` + `loginSchema` at `/login`; stores token via `setToken()`, navigates to `/dashboard`
+11. ~~**Auth guard + service layer**~~ — `RequireAuth`, `api-client`, all services wired; React Query in `main.tsx`
 
 ### 🔜 Remaining (priority order)
-1. **Login page** — `LoginPage` + `loginSchema` at `/login`; email + password; link to `/register`
-2. **React Query + API service layer** — replace mocks with real `useQuery` / `useMutation`
-3. **Zustand store** — auth/user session (token storage, never localStorage)
-4. **`<RequireAuth>` guard** — protect `/dashboard` and `/ledgers/:id`; redirect to `/login`
-5. **Transactions page** — filter by status, entryType, period
+1. **Transactions page** — filter by status, entryType, period
 6. **Budgets page** — category spend vs budget
 7. **Analytics page** — inflation-adjusted with `baseCpiIndex` and `realMonthlyAmount`
 8. **Language switcher** — `i18n.changeLanguage()` in header or profile settings

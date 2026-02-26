@@ -1,10 +1,10 @@
 import type React from "react";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import { X, TrendingUp, TrendingDown } from "lucide-react";
+import { X, TrendingUp, TrendingDown, Plus } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { Button } from "../atoms/Button";
 import { formatCurrency } from "../../utils/format-currency";
@@ -23,13 +23,18 @@ import type {
 interface CreateTransactionModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: CreateTransactionFormData) => void;
+  onSubmit: (data: CreateTransactionFormData) => Promise<void>;
   defaultEntryType?: EntryType;
   defaultCurrency: Currency;
   categories: CategoryResponseDto[];
   paymentMethods: PaymentMethodResponseDto[];
   groups: GroupResponseDto[];
 }
+
+const CURRENCY_OPTIONS: { value: string; key: string }[] = [
+  { value: "ARS", key: "create.currency.ARS" },
+  { value: "USD", key: "create.currency.USD" },
+];
 
 const STATUS_OPTIONS: { value: string; key: string }[] = [
   { value: "CURRENT", key: "transaction.status.current" },
@@ -56,19 +61,28 @@ export const CreateTransactionModal = ({
 }: CreateTransactionModalProps) => {
   const { t, i18n } = useTranslation("ledger");
 
+  const [serverError, setServerError] = useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
     watch,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<CreateTransactionFormData>({
     resolver: zodResolver(createTransactionSchema),
   });
 
-  // Reset to fresh defaults whenever the modal opens
+  const { fields: debtFields, append: appendDebt, remove: removeDebt } = useFieldArray({
+    control,
+    name: "debtAssignments",
+  });
+
+  // Reset to fresh defaults (and clear server error) whenever the modal opens
   useEffect(() => {
     if (open) {
+      setServerError(null);
       reset({
         entryType: defaultEntryType,
         status: "CURRENT",
@@ -97,9 +111,14 @@ export const CreateTransactionModal = ({
     onClose();
   };
 
-  const submit = (data: CreateTransactionFormData) => {
-    onSubmit(data);
-    handleClose();
+  const submit = async (data: CreateTransactionFormData) => {
+    setServerError(null);
+    try {
+      await onSubmit(data);
+      handleClose();
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : String(err));
+    }
   };
 
   const watchedEntryType = watch("entryType");
@@ -158,6 +177,17 @@ export const CreateTransactionModal = ({
         <form onSubmit={handleSubmit(submit)} noValidate className="flex flex-col flex-1 min-h-0">
           <div className="overflow-y-auto flex-1 p-lg space-y-md">
 
+            {/* Server error banner */}
+            {serverError && (
+              <div
+                className="rounded-lg bg-expense-50 border border-expense-100 px-sm py-xs text-sm text-expense-600"
+                role="alert"
+                aria-live="assertive"
+              >
+                {serverError}
+              </div>
+            )}
+
             {/* Entry type */}
             <div className="grid grid-cols-2 gap-sm">
               {(["INCOME", "EXPENSE"] as const).map((type) => {
@@ -189,8 +219,24 @@ export const CreateTransactionModal = ({
               })}
             </div>
 
-            {/* Amount + installments */}
-            <div className="grid grid-cols-2 gap-sm">
+            {/* Currency + Amount + Installments */}
+            <div className="grid grid-cols-3 gap-sm">
+              <div className="space-y-xs">
+                <label htmlFor="tx-currency" className="block text-sm font-medium text-stone-700">
+                  {t("transaction.create.field.currency")}
+                  <span className="text-expense-400 ml-xs" aria-hidden="true">*</span>
+                </label>
+                <select
+                  id="tx-currency"
+                  className={cn(inputClass(!!errors.currency), "cursor-pointer")}
+                  {...register("currency")}
+                >
+                  {CURRENCY_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{t(opt.key)}</option>
+                  ))}
+                </select>
+              </div>
+
               <div className="space-y-xs">
                 <label htmlFor="tx-amount" className="block text-sm font-medium text-stone-700">
                   {t("transaction.create.field.amount")}
@@ -333,18 +379,24 @@ export const CreateTransactionModal = ({
               <div className="space-y-xs">
                 <label htmlFor="tx-group" className="block text-sm font-medium text-stone-700">
                   {t("transaction.create.field.group")}
+                  <span className="text-expense-400 ml-xs" aria-hidden="true">*</span>
                 </label>
                 <select
                   id="tx-group"
-                  className={cn(inputClass(false), "cursor-pointer")}
+                  className={cn(inputClass(!!errors.groupId), "cursor-pointer")}
                   defaultValue=""
                   {...register("groupId")}
                 >
-                  <option value="">{t("transaction.create.noGroup")}</option>
+                  <option value="" disabled>{t("transaction.create.field.selectGroup")}</option>
                   {groups.map((g) => (
                     <option key={g.id} value={g.id}>{g.name}</option>
                   ))}
                 </select>
+                {errors.groupId && (
+                  <p className="text-xs text-expense-400" role="alert">
+                    {t(errors.groupId.message ?? "")}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-xs">
@@ -400,6 +452,87 @@ export const CreateTransactionModal = ({
                 />
                 <span className="text-sm text-stone-700">{t("transaction.create.field.impactsCashflow")}</span>
               </label>
+            </div>
+
+            {/* Debt assignments */}
+            <div className="space-y-sm">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-stone-700">
+                  {t("transaction.create.field.debtOwners")}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => appendDebt({ ownerName: "", amount: 0, direction: "OWED_TO_ME" })}
+                  className="flex items-center gap-xs text-xs font-medium text-primary-600 hover:text-primary-700 transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  {t("transaction.create.field.addDebtOwner")}
+                </button>
+              </div>
+
+              {debtFields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="rounded-lg border border-stone-200 bg-stone-50 p-sm space-y-xs"
+                >
+                  {/* Owner name + remove */}
+                  <div className="flex items-center gap-xs">
+                    <input
+                      type="text"
+                      placeholder={t("transaction.create.field.ownerNamePlaceholder")}
+                      className={cn(
+                        inputClass(!!errors.debtAssignments?.[index]?.ownerName),
+                        "flex-1",
+                      )}
+                      {...register(`debtAssignments.${index}.ownerName`)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeDebt(index)}
+                      className="p-xs rounded-md text-stone-400 hover:text-expense-500 hover:bg-expense-50 transition-colors"
+                      aria-label={t("transaction.create.field.removeDebtOwner")}
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  {errors.debtAssignments?.[index]?.ownerName && (
+                    <p className="text-xs text-expense-400" role="alert">
+                      {t(errors.debtAssignments[index].ownerName?.message ?? "")}
+                    </p>
+                  )}
+
+                  {/* Amount + direction */}
+                  <div className="flex items-center gap-xs">
+                    <input
+                      type="number"
+                      step="any"
+                      min="0"
+                      placeholder="0"
+                      className={cn(
+                        inputClass(!!errors.debtAssignments?.[index]?.amount),
+                        "w-28",
+                      )}
+                      {...register(`debtAssignments.${index}.amount`, { valueAsNumber: true })}
+                    />
+                    <select
+                      className={cn(inputClass(false), "flex-1 cursor-pointer")}
+                      {...register(`debtAssignments.${index}.direction`)}
+                    >
+                      <option value="OWED_TO_ME">
+                        {t("transaction.create.field.direction.OWED_TO_ME")}
+                      </option>
+                      <option value="OWED_BY_ME">
+                        {t("transaction.create.field.direction.OWED_BY_ME")}
+                      </option>
+                    </select>
+                  </div>
+                  {errors.debtAssignments?.[index]?.amount && (
+                    <p className="text-xs text-expense-400" role="alert">
+                      {t(errors.debtAssignments[index].amount?.message ?? "")}
+                    </p>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
 

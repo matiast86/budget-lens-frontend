@@ -28,10 +28,9 @@ export const createTransactionSchema = z.object({
     .number({ invalid_type_error: "transaction.create.error.categoryRequired" })
     .positive("transaction.create.error.categoryRequired"),
 
-  groupId: z.preprocess(
-    (val) => (val === "" || val === "0" || val === 0 ? undefined : Number(val)),
-    z.number().positive().optional(),
-  ),
+  groupId: z.coerce
+    .number({ invalid_type_error: "transaction.create.error.groupRequired" })
+    .positive("transaction.create.error.groupRequired"),
 
   paymentMethodId: z.coerce
     .number({ invalid_type_error: "transaction.create.error.paymentMethodRequired" })
@@ -41,6 +40,18 @@ export const createTransactionSchema = z.object({
     (val) => (val === "" ? undefined : val),
     z.string().max(500, "transaction.create.error.commentTooLong").optional(),
   ),
+
+  debtAssignments: z
+    .array(
+      z.object({
+        ownerName: z.string().min(1, "transaction.create.error.debtOwnerRequired"),
+        amount: z
+          .number({ invalid_type_error: "transaction.create.error.debtAmountPositive" })
+          .positive("transaction.create.error.debtAmountPositive"),
+        direction: z.enum(["OWED_TO_ME", "OWED_BY_ME"]),
+      }),
+    )
+    .default([]),
 });
 
 export type CreateTransactionFormData = z.infer<typeof createTransactionSchema>;

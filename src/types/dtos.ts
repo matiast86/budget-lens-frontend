@@ -39,6 +39,12 @@ export interface CollaborationResponseDto {
   ledgerId: number;
 }
 
+export interface DebtOwnerResponseDto {
+  id: number;
+  name: string;
+  ledgerId: number;
+}
+
 export interface DebtResponseDto {
   id: number;
   period: string;
@@ -117,15 +123,20 @@ export interface LedgerResponseDto {
   updatedAt: string;
 }
 
-export interface UserDashboardViewDto {
+/** Returned by GET /users/:id */
+export interface UserResponseDto {
   id: string;
   name: string;
   email: string;
   birthDate: string;
   gender: Gender;
   role: Role;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+/** Returned by POST /auth/signin — includes ledger list */
+export interface UserDashboardViewDto extends UserResponseDto {
   ledgers: LedgerDashboardResponseDto[];
-  isActive: boolean;
 }
