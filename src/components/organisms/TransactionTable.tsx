@@ -1,9 +1,22 @@
+import type React from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CheckCircle2, Circle, Zap, ZapOff, Plus } from "lucide-react";
+import {
+  CheckCircle2,
+  Circle,
+  Zap,
+  ZapOff,
+  Plus,
+  Pencil,
+  Trash2,
+  Check,
+  X,
+} from "lucide-react";
 import { Badge } from "../atoms/Badge";
 import { Button } from "../atoms/Button";
 import { formatCurrency } from "../../utils/format-currency";
 import { formatTransactionDate, formatPaymentMonth } from "../../utils/format-date";
+import { cn } from "../../utils/cn";
 import type { TransactionResponseDto, EntryType, Status, Currency } from "../../types";
 import type { TFunction } from "i18next";
 
@@ -39,8 +52,23 @@ const statusBadge = (status: Status, t: TFunction) => {
 // Row
 // ---------------------------------------------------------------------------
 
-const TransactionTableRow = ({ tx }: { tx: TransactionResponseDto }) => {
+interface TransactionTableRowProps {
+  tx: TransactionResponseDto;
+  onTogglePaid?: (tx: TransactionResponseDto) => void;
+  onToggleCashflow?: (tx: TransactionResponseDto) => void;
+  onEdit?: (tx: TransactionResponseDto) => void;
+  onDelete?: (tx: TransactionResponseDto) => void;
+}
+
+const TransactionTableRow = ({
+  tx,
+  onTogglePaid,
+  onToggleCashflow,
+  onEdit,
+  onDelete,
+}: TransactionTableRowProps) => {
   const { t, i18n } = useTranslation("ledger");
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const isIncome = tx.entryType === "INCOME";
   const hasInstallments = tx.installments > 1;
 
@@ -108,22 +136,96 @@ const TransactionTableRow = ({ tx }: { tx: TransactionResponseDto }) => {
         </div>
       </td>
 
-      {/* Paid */}
+      {/* Paid — clickable toggle */}
       <td className="px-md py-sm text-center">
-        {tx.isPaid ? (
-          <CheckCircle2 className="w-4 h-4 text-income-500 mx-auto" />
-        ) : (
-          <Circle className="w-4 h-4 text-stone-300 mx-auto" />
-        )}
+        <button
+          type="button"
+          onClick={() => onTogglePaid?.(tx)}
+          disabled={!onTogglePaid}
+          aria-label={t("transaction.action.togglePaid")}
+          className={cn(
+            "mx-auto block rounded-full transition-colors",
+            onTogglePaid ? "hover:bg-stone-100 p-0.5 cursor-pointer" : "cursor-default",
+          )}
+        >
+          {tx.isPaid ? (
+            <CheckCircle2 className="w-4 h-4 text-income-500" />
+          ) : (
+            <Circle className="w-4 h-4 text-stone-300" />
+          )}
+        </button>
       </td>
 
-      {/* Cashflow */}
+      {/* Cashflow — clickable toggle */}
       <td className="px-md py-sm text-center">
-        {tx.impactsCashflow ? (
-          <Zap className="w-4 h-4 text-warning-500 mx-auto" />
-        ) : (
-          <ZapOff className="w-4 h-4 text-stone-300 mx-auto" />
-        )}
+        <button
+          type="button"
+          onClick={() => onToggleCashflow?.(tx)}
+          disabled={!onToggleCashflow}
+          aria-label={t("transaction.action.toggleCashflow")}
+          className={cn(
+            "mx-auto block rounded-full transition-colors",
+            onToggleCashflow ? "hover:bg-stone-100 p-0.5 cursor-pointer" : "cursor-default",
+          )}
+        >
+          {tx.impactsCashflow ? (
+            <Zap className="w-4 h-4 text-warning-500" />
+          ) : (
+            <ZapOff className="w-4 h-4 text-stone-300" />
+          )}
+        </button>
+      </td>
+
+      {/* Actions */}
+      <td className="px-md py-sm text-center">
+        <div className="flex items-center justify-center gap-xs">
+          {/* Edit */}
+          <button
+            type="button"
+            onClick={() => onEdit?.(tx)}
+            aria-label={t("transaction.action.edit")}
+            className="p-xs rounded-md text-stone-400 hover:text-primary-600 hover:bg-primary-50 transition-colors"
+          >
+            <Pencil className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Delete — inline confirm */}
+          {confirmDelete ? (
+            <div className="flex items-center gap-xs">
+              <span className="text-xs text-stone-500 whitespace-nowrap">
+                {t("transaction.action.confirmDelete")}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setConfirmDelete(false);
+                  onDelete?.(tx);
+                }}
+                aria-label="Confirm delete"
+                className="p-xs rounded-md text-white bg-expense hover:bg-expense-600 transition-colors"
+              >
+                <Check className="w-3 h-3" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                aria-label={t("transaction.action.cancel")}
+                className="p-xs rounded-md text-stone-500 hover:bg-stone-100 transition-colors"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+              aria-label={t("transaction.action.delete")}
+              className="p-xs rounded-md text-stone-400 hover:text-expense-600 hover:bg-expense-50 transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
       </td>
     </tr>
   );
@@ -137,9 +239,21 @@ interface TransactionTableProps {
   transactions: TransactionResponseDto[];
   onAddIncome?: () => void;
   onAddExpense?: () => void;
+  onTogglePaid?: (tx: TransactionResponseDto) => void;
+  onToggleCashflow?: (tx: TransactionResponseDto) => void;
+  onEdit?: (tx: TransactionResponseDto) => void;
+  onDelete?: (tx: TransactionResponseDto) => void;
 }
 
-export const TransactionTable = ({ transactions, onAddIncome, onAddExpense }: TransactionTableProps) => {
+export const TransactionTable = ({
+  transactions,
+  onAddIncome,
+  onAddExpense,
+  onTogglePaid,
+  onToggleCashflow,
+  onEdit,
+  onDelete,
+}: TransactionTableProps) => {
   const { t } = useTranslation("ledger");
 
   if (transactions.length === 0) {
@@ -178,7 +292,7 @@ export const TransactionTable = ({ transactions, onAddIncome, onAddExpense }: Tr
 
       {/* Scrollable table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-left">
+        <table className="w-full text-left" aria-label={t("transaction.table.title")}>
           <thead>
             <tr className="bg-stone-50 border-b border-stone-200">
               <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide whitespace-nowrap">{t("transaction.table.col.date")}</th>
@@ -190,11 +304,19 @@ export const TransactionTable = ({ transactions, onAddIncome, onAddExpense }: Tr
               <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide">{t("transaction.table.col.method")}</th>
               <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide text-center" title={t("transaction.table.col.paid")}>{t("transaction.table.col.paid")}</th>
               <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide text-center" title={t("transaction.table.col.cashflowFull")}>{t("transaction.table.col.cashflow")}</th>
+              <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide text-center">{t("transaction.table.col.actions")}</th>
             </tr>
           </thead>
           <tbody>
             {transactions.map((tx) => (
-              <TransactionTableRow key={tx.id} tx={tx} />
+              <TransactionTableRow
+                key={tx.id}
+                tx={tx}
+                onTogglePaid={onTogglePaid}
+                onToggleCashflow={onToggleCashflow}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
             ))}
           </tbody>
         </table>

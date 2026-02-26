@@ -642,14 +642,15 @@ When implementing the redesign, follow this order to avoid cascading breakage:
 
 ## Deferred Conventions (unchanged)
 
-### Deferred until auth is wired
-- Token storage in Zustand `auth` slice (never localStorage)
-- `<RequireAuth>` guard component
-- `VITE_API_BASE_URL` in `.env.local`
+### ✅ Auth is wired — these are now implemented
+- Token stored in Zustand `auth-store.ts` → **sessionStorage** (never localStorage)
+- `<RequireAuth>` guard component at `src/components/organisms/RequireAuth.tsx`
+- `VITE_API_BASE_URL` in `.env.local`, default `http://localhost:3000`
+- All services use `apiFetch<T>(path, options, token)` from `api-client.ts`
+- React Query in `main.tsx` (staleTime 30s, retry 1)
 
-### Deferred until API layer exists
-- Zod schema validation at service boundary
-- `AppError` typed union
+### Deferred until API layer expanded
+- `AppError` typed union (currently using `ApiError` class directly)
 - React Query key factories
 
 ### Deferred until second developer or tests added
@@ -702,7 +703,8 @@ DebtOwnerResponseDto          { id, name, ledgerId }
 NavItem           // { icon: React.ElementType, label, active }
 StatCardData      // { label, value, change, trend: "up"|"down" }
 LedgerDetailTab   // "transactions" | "categories" | "paymentMethods" | "groups" | "collaborators"
-BottomTabItem     // { icon: React.ElementType, label: string, path: string } — NEW
+BottomTabItem     // { icon: React.ElementType, label: string, path: string }
+TransactionFilters // { status?, entryType?, categoryId?, groupId?, paymentMethodId?, paymentMonth?, isPaid?, skip?, take? }
 
 // @deprecated — replace with TransactionResponseDto once API is wired
 Transaction       // { name, category, amount, type: "income"|"expense" }
@@ -736,22 +738,24 @@ budget-lens-frontend/
 │   │   │   ├── PaymentMethodsTable.tsx
 │   │   │   ├── LedgerCard.tsx         # updated: min-w-[280px], teal/stone, icon pill
 │   │   │   ├── StatCard.tsx           # kept for desktop fallback; not used in mobile hero
-│   │   │   ├── TransactionListRow.tsx # NEW — mobile-first list row pattern
+│   │   │   ├── TransactionFilters.tsx # NEW — month picker, entryType/status pills, relation selects, isPaid
+│   │   │   ├── TransactionListRow.tsx # mobile-first list row pattern
 │   │   │   ├── TransactionRow.tsx     # @deprecated — kept until API wired
 │   │   │   └── BudgetProgressItem.tsx # updated: emoji signal + colored bar
 │   │   └── organisms/
 │   │       ├── AppHeader.tsx          # updated: slim mobile / full desktop; onNewLedger prop
-│   │       ├── BottomTabBar.tsx       # NEW — mobile bottom navigation
+│   │       ├── BottomTabBar.tsx       # mobile bottom navigation
 │   │       ├── BudgetOverview.tsx     # updated: uses new BudgetProgressItem
-│   │       ├── CreateLedgerModal.tsx  # NEW — modal form: name, description, currency, baseCpiIndex
-│   │       ├── CreateTransactionModal.tsx # NEW — modal form: all transaction fields; colored header
-│   │       ├── DashboardHeroCard.tsx  # NEW — teal gradient, monthly summary
+│   │       ├── CreateLedgerModal.tsx  # modal form: name, description, currency, baseCpiIndex
+│   │       ├── CreateTransactionModal.tsx # modal form: all transaction fields; colored header
+│   │       ├── EditTransactionModal.tsx   # NEW — pre-fills from TransactionResponseDto; currency/entryType locked
+│   │       ├── DashboardHeroCard.tsx  # teal gradient, monthly summary
 │   │       ├── LedgerDetailHeader.tsx
 │   │       ├── LedgerGrid.tsx         # updated: horizontal carousel on mobile
-│   │       ├── RecentTransactionList.tsx # NEW — list rows, not table
+│   │       ├── RecentTransactionList.tsx # list rows, not table
 │   │       ├── Sidebar.tsx            # updated: teal active state, stone neutrals; lg: only
 │   │       ├── TransactionList.tsx    # @deprecated
-│   │       └── TransactionTable.tsx   # kept for lg: desktop only; onAddIncome/onAddExpense props
+│   │       └── TransactionTable.tsx   # clickable isPaid/impactsCashflow toggles; edit+delete actions
 │   ├── helpers/
 │   │   └── mocks/
 │   │       ├── ledger-mocks.ts
@@ -759,25 +763,26 @@ budget-lens-frontend/
 │   ├── hooks/
 │   ├── pages/
 │   │   ├── LandingPage.tsx            # nav: Sign in → /login, Get started → /register
-│   │   ├── RegisterPage.tsx           # NEW — standalone auth page at /register
-│   │   ├── DashboardPage.tsx          # updated: hero card + carousel + list rows
-│   │   └── LedgerDetailPage.tsx       # owns CreateTransactionModal state
-│   ├── schemas/                       # NEW folder — Zod schemas (one file per domain)
+│   │   ├── RegisterPage.tsx           # standalone auth page at /register
+│   │   ├── LoginPage.tsx              # standalone auth page at /login
+│   │   ├── DashboardPage.tsx          # hero card + carousel + list rows
+│   │   └── LedgerDetailPage.tsx       # two queries (ledger + transactions); CreateTransactionModal + EditTransactionModal; TransactionFilters
+│   ├── schemas/                       # Zod schemas (one file per domain)
 │   │   ├── auth.schema.ts             # registerSchema + RegisterFormData
 │   │   ├── ledger.schema.ts           # createLedgerSchema + CreateLedgerFormData
-│   │   └── transaction.schema.ts      # createTransactionSchema + CreateTransactionFormData
+│   │   └── transaction.schema.ts      # createTransactionSchema, editTransactionSchema + form data types
 │   ├── services/
-│   │   ├── api-client.ts              # apiFetch<T> — throws ApiError(status, message)
+│   │   ├── api-client.ts              # apiFetch<T> — throws ApiError(status, message); 204→undefined as T
 │   │   ├── auth-service.ts            # signIn, signUp
 │   │   ├── ledger-service.ts          # getLedgers, getLedger, createLedger
-│   │   ├── transaction-service.ts     # createTransaction — resolves debtAssignment names→IDs first
+│   │   ├── transaction-service.ts     # createTransaction, getTransactions, updateTransactionFlags, updateTransaction, deleteTransaction
 │   │   ├── user-service.ts            # getUser (public)
 │   │   └── debt-owner-service.ts      # findOrCreateDebtOwner, createDebtOwner, getDebtOwnerByName
 │   ├── types/
 │   │   ├── index.ts
 │   │   ├── prisma-enums.ts
 │   │   ├── dtos.ts
-│   │   └── ui-only.ts                 # updated: added BottomTabItem
+│   │   └── ui-only.ts                 # BottomTabItem, TransactionFilters, LedgerDetailTab, NavItem, etc.
 │   ├── utils/
 │   │   ├── cn.ts
 │   │   ├── category-colors.ts         # NEW — icon pill color map per category
@@ -849,9 +854,9 @@ budget-lens-frontend/
 9. ~~**Register page**~~ — `RegisterPage` + `auth.schema.ts` at `/register`; LandingPage CTAs wired to `/register` and `/login`
 10. ~~**Login page**~~ — `LoginPage` + `loginSchema` at `/login`; stores token via `setToken()`, navigates to `/dashboard`
 11. ~~**Auth guard + service layer**~~ — `RequireAuth`, `api-client`, all services wired; React Query in `main.tsx`
+12. ~~**Transactions view — filters, edit, delete, flag toggles**~~ — per-ledger only; `TransactionFilters` molecule; `EditTransactionModal` organism; `TransactionTable` updated with clickable flags + inline delete confirm; `LedgerDetailPage` has two queries (`["ledger", id]` metadata + `["transactions", id, filters]` filterable); backend: `GET /transactions/ledgers/:id?filters`, `PATCH :id/flags`, `PATCH :id`, `DELETE :id`
 
 ### 🔜 Remaining (priority order)
-1. **Transactions page** — filter by status, entryType, period
-6. **Budgets page** — category spend vs budget
-7. **Analytics page** — inflation-adjusted with `baseCpiIndex` and `realMonthlyAmount`
-8. **Language switcher** — `i18n.changeLanguage()` in header or profile settings
+1. **Budgets page** — category spend vs budget
+2. **Analytics page** — inflation-adjusted with `baseCpiIndex` and `realMonthlyAmount`
+3. **Language switcher** — `i18n.changeLanguage()` in header or profile settings

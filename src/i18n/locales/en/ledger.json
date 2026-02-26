@@ -151,6 +151,54 @@
       "closed": "Closed",
       "future": "Future"
     },
+    "filter": {
+      "title": "Filters",
+      "month": "Payment month",
+      "status": "Status",
+      "entryType": "Type",
+      "category": "Category",
+      "group": "Group",
+      "paymentMethod": "Payment method",
+      "isPaid": "Paid only",
+      "all": "All",
+      "clearAll": "Clear filters",
+      "results_one": "{{count}} transaction",
+      "results_other": "{{count}} transactions"
+    },
+    "action": {
+      "edit": "Edit transaction",
+      "delete": "Delete transaction",
+      "confirmDelete": "Sure?",
+      "cancel": "Cancel",
+      "togglePaid": "Toggle paid",
+      "toggleCashflow": "Toggle cashflow impact"
+    },
+    "edit": {
+      "title": "Edit Transaction",
+      "field": {
+        "amount": "Amount",
+        "date": "Date",
+        "paymentMonth": "Payment Month",
+        "category": "Category",
+        "group": "Group",
+        "paymentMethod": "Payment Method",
+        "comment": "Note (optional)",
+        "commentPlaceholder": "Brief description..."
+      },
+      "error": {
+        "amountPositive": "Amount must be greater than 0",
+        "dateRequired": "Date is required",
+        "paymentMonthRequired": "Payment month is required",
+        "categoryRequired": "Please select a category",
+        "groupRequired": "Please select a group",
+        "paymentMethodRequired": "Please select a payment method",
+        "commentTooLong": "Note must be 500 characters or less"
+      },
+      "action": {
+        "submit": "Save Changes",
+        "cancel": "Cancel"
+      }
+    },
     "table": {
       "title": "Transactions",
       "addIncome": "Income",
@@ -166,7 +214,8 @@
         "method": "Method",
         "paid": "Paid",
         "cashflow": "CF",
-        "cashflowFull": "Impacts Cashflow"
+        "cashflowFull": "Impacts Cashflow",
+        "actions": "Actions"
       },
       "empty": {
         "title": "No transactions yet",

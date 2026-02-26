@@ -44,3 +44,16 @@ export interface BottomTabItem {
   label: string;
   path: string;
 }
+
+export interface TransactionFilters {
+  status?: "CLOSED" | "CURRENT" | "FUTURE";
+  entryType?: "INCOME" | "EXPENSE";
+  categoryId?: number;
+  groupId?: number;
+  paymentMethodId?: number;
+  /** YYYY-MM format */
+  paymentMonth?: string;
+  isPaid?: boolean;
+  skip?: number;
+  take?: number;
+}

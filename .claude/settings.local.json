@@ -16,7 +16,8 @@
       "Bash(node -e \"const pkg = require\\(''./node_modules/date-fns/package.json''\\); console.log\\(''date-fns version:'', pkg.version\\)\")",
       "Bash(npx tsc --noEmit)",
       "Bash(test -f \"c:/desarrollo/budget-lens-project/budget-lens-frontend/.env.local\")",
-      "Bash(ls -la c:/desarrollo/budget-lens-project/budget-lens-backend/src/modules/*/)"
+      "Bash(ls -la c:/desarrollo/budget-lens-project/budget-lens-backend/src/modules/*/)",
+      "Bash(xargs grep -l \"LedgerFrom\")"
     ]
   }
 }

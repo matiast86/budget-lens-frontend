@@ -151,6 +151,54 @@
       "closed": "Cerrado",
       "future": "Futuro"
     },
+    "filter": {
+      "title": "Filtros",
+      "month": "Mes de pago",
+      "status": "Estado",
+      "entryType": "Tipo",
+      "category": "Categoría",
+      "group": "Grupo",
+      "paymentMethod": "Medio de pago",
+      "isPaid": "Solo pagados",
+      "all": "Todos",
+      "clearAll": "Limpiar filtros",
+      "results_one": "{{count}} transacción",
+      "results_other": "{{count}} transacciones"
+    },
+    "action": {
+      "edit": "Editar transacción",
+      "delete": "Eliminar transacción",
+      "confirmDelete": "¿Seguro?",
+      "cancel": "Cancelar",
+      "togglePaid": "Cambiar estado de pago",
+      "toggleCashflow": "Cambiar impacto en flujo de caja"
+    },
+    "edit": {
+      "title": "Editar Transacción",
+      "field": {
+        "amount": "Monto",
+        "date": "Fecha",
+        "paymentMonth": "Mes de Pago",
+        "category": "Categoría",
+        "group": "Grupo",
+        "paymentMethod": "Medio de Pago",
+        "comment": "Nota (opcional)",
+        "commentPlaceholder": "Breve descripción..."
+      },
+      "error": {
+        "amountPositive": "El monto debe ser mayor a 0",
+        "dateRequired": "La fecha es obligatoria",
+        "paymentMonthRequired": "El mes de pago es obligatorio",
+        "categoryRequired": "Por favor seleccioná una categoría",
+        "groupRequired": "Por favor seleccioná un grupo",
+        "paymentMethodRequired": "Por favor seleccioná un medio de pago",
+        "commentTooLong": "La nota no puede superar los 500 caracteres"
+      },
+      "action": {
+        "submit": "Guardar Cambios",
+        "cancel": "Cancelar"
+      }
+    },
     "table": {
       "title": "Transacciones",
       "addIncome": "Ingreso",
@@ -166,7 +214,8 @@
         "method": "Medio",
         "paid": "Pagado",
         "cashflow": "CF",
-        "cashflowFull": "Impacta en Flujo de Caja"
+        "cashflowFull": "Impacta en Flujo de Caja",
+        "actions": "Acciones"
       },
       "empty": {
         "title": "Aún no hay transacciones",

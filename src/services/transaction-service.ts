@@ -1,7 +1,14 @@
 import { apiFetch } from "./api-client";
 import { findOrCreateDebtOwner } from "./debt-owner-service";
-import type { TransactionResponseDto } from "../types";
-import type { CreateTransactionFormData } from "../schemas/transaction.schema";
+import type { TransactionResponseDto, TransactionFilters } from "../types";
+import type {
+  CreateTransactionFormData,
+  EditTransactionFormData,
+} from "../schemas/transaction.schema";
+
+// ---------------------------------------------------------------------------
+// Create
+// ---------------------------------------------------------------------------
 
 export const createTransaction = async (
   ledgerId: string,
@@ -41,6 +48,95 @@ export const createTransaction = async (
   return apiFetch<TransactionResponseDto | TransactionResponseDto[]>(
     endpoint,
     { method: "POST", body: JSON.stringify(body) },
+    token,
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Read (filtered list)
+// ---------------------------------------------------------------------------
+
+export const getTransactions = async (
+  ledgerId: string,
+  filters: TransactionFilters,
+  token: string,
+): Promise<TransactionResponseDto[]> => {
+  const params = new URLSearchParams();
+
+  if (filters.status) params.set("status", filters.status);
+  if (filters.entryType) params.set("entryType", filters.entryType);
+  if (filters.categoryId) params.set("categoryId", String(filters.categoryId));
+  if (filters.groupId) params.set("groupId", String(filters.groupId));
+  if (filters.paymentMethodId)
+    params.set("paymentMethodId", String(filters.paymentMethodId));
+  if (filters.paymentMonth) params.set("paymentMonth", filters.paymentMonth);
+  if (filters.isPaid !== undefined) params.set("isPaid", String(filters.isPaid));
+  if (filters.skip !== undefined) params.set("skip", String(filters.skip));
+  if (filters.take !== undefined) params.set("take", String(filters.take));
+
+  const qs = params.toString();
+  const endpoint = `/transactions/ledgers/${ledgerId}${qs ? `?${qs}` : ""}`;
+
+  return apiFetch<TransactionResponseDto[]>(
+    endpoint,
+    { method: "GET" },
+    token,
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Update flags (isPaid / impactsCashflow)
+// ---------------------------------------------------------------------------
+
+export const updateTransactionFlags = async (
+  txId: number,
+  flags: { isPaid?: boolean; impactsCashflow?: boolean },
+  token: string,
+): Promise<TransactionResponseDto> => {
+  return apiFetch<TransactionResponseDto>(
+    `/transactions/${txId}/flags`,
+    { method: "PATCH", body: JSON.stringify(flags) },
+    token,
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Update core fields (amount, date, comment, relations)
+// ---------------------------------------------------------------------------
+
+export const updateTransaction = async (
+  txId: number,
+  data: EditTransactionFormData,
+  token: string,
+): Promise<TransactionResponseDto> => {
+  const body: Record<string, unknown> = {
+    totalProvidedAmount: data.totalAmount,
+    transactionDate: data.transactionDate,
+    paymentMonthValue: data.paymentMonth,
+    categoryId: data.categoryId,
+    groupId: data.groupId,
+    paymentMethodId: data.paymentMethodId,
+    comment: data.comment ?? "",
+  };
+
+  return apiFetch<TransactionResponseDto>(
+    `/transactions/${txId}`,
+    { method: "PATCH", body: JSON.stringify(body) },
+    token,
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Delete
+// ---------------------------------------------------------------------------
+
+export const deleteTransaction = async (
+  txId: number,
+  token: string,
+): Promise<void> => {
+  return apiFetch<void>(
+    `/transactions/${txId}`,
+    { method: "DELETE" },
     token,
   );
 };

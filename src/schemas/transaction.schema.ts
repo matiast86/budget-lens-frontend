@@ -55,3 +55,36 @@ export const createTransactionSchema = z.object({
 });
 
 export type CreateTransactionFormData = z.infer<typeof createTransactionSchema>;
+
+// ---------------------------------------------------------------------------
+// Edit transaction schema
+// ---------------------------------------------------------------------------
+
+export const editTransactionSchema = z.object({
+  comment: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.string().max(500, "transaction.edit.error.commentTooLong").optional(),
+  ),
+
+  totalAmount: z
+    .number({ invalid_type_error: "transaction.edit.error.amountPositive" })
+    .positive("transaction.edit.error.amountPositive"),
+
+  transactionDate: z.string().min(1, "transaction.edit.error.dateRequired"),
+
+  paymentMonth: z.string().min(1, "transaction.edit.error.paymentMonthRequired"),
+
+  categoryId: z.coerce
+    .number({ invalid_type_error: "transaction.edit.error.categoryRequired" })
+    .positive("transaction.edit.error.categoryRequired"),
+
+  groupId: z.coerce
+    .number({ invalid_type_error: "transaction.edit.error.groupRequired" })
+    .positive("transaction.edit.error.groupRequired"),
+
+  paymentMethodId: z.coerce
+    .number({ invalid_type_error: "transaction.edit.error.paymentMethodRequired" })
+    .positive("transaction.edit.error.paymentMethodRequired"),
+});
+
+export type EditTransactionFormData = z.infer<typeof editTransactionSchema>;

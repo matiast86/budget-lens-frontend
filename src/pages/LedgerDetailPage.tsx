@@ -7,16 +7,33 @@ import { CategoriesTable } from "../components/molecules/CategoriesTable";
 import { CollaboratorsTable } from "../components/molecules/CollaboratorsTable";
 import { GroupsTable } from "../components/molecules/GroupsTable";
 import { PaymentMethodsTable } from "../components/molecules/PaymentMethodsTable";
+import { TransactionFilters } from "../components/molecules/TransactionFilters";
 import { LedgerDetailHeader } from "../components/organisms/LedgerDetailHeader";
 import { TransactionTable } from "../components/organisms/TransactionTable";
 import { CreateTransactionModal } from "../components/organisms/CreateTransactionModal";
+import { EditTransactionModal } from "../components/organisms/EditTransactionModal";
 import { useAuthStore } from "../stores/auth-store";
 import { getLedger } from "../services/ledger-service";
-import { createTransaction } from "../services/transaction-service";
+import {
+  createTransaction,
+  getTransactions,
+  updateTransactionFlags,
+  updateTransaction,
+  deleteTransaction,
+} from "../services/transaction-service";
 import { ApiError } from "../services/api-client";
 import { cn } from "../utils/cn";
-import type { LedgerDetailTab, LedgerResponseDto, EntryType } from "../types";
-import type { CreateTransactionFormData } from "../schemas/transaction.schema";
+import type {
+  LedgerDetailTab,
+  LedgerResponseDto,
+  EntryType,
+  TransactionResponseDto,
+  TransactionFilters as TxFilters,
+} from "../types";
+import type {
+  CreateTransactionFormData,
+  EditTransactionFormData,
+} from "../schemas/transaction.schema";
 
 // ---------------------------------------------------------------------------
 // Tab config
@@ -49,10 +66,13 @@ export const LedgerDetailPage = () => {
     open: false,
     entryType: "EXPENSE",
   });
+  const [filters, setFilters] = useState<TxFilters>({});
+  const [editTarget, setEditTarget] = useState<TransactionResponseDto | null>(null);
 
   const openTxModal = (entryType: EntryType) =>
     setTxModal({ open: true, entryType });
 
+  // Ledger query — metadata, categories, groups, etc.
   const {
     data: ledger,
     isLoading,
@@ -64,16 +84,64 @@ export const LedgerDetailPage = () => {
     enabled: !!id && !!token,
   });
 
+  // Separate transactions query — filterable, independent from ledger query
+  const { data: transactions = [], isLoading: txLoading } = useQuery({
+    queryKey: ["transactions", id, filters],
+    queryFn: () => getTransactions(id!, filters, token!),
+    enabled: !!id && !!token,
+  });
+
+  // ---------------------------------------------------------------------------
+  // Mutations
+  // ---------------------------------------------------------------------------
+
   const createTransactionMutation = useMutation({
     mutationFn: (data: CreateTransactionFormData) =>
       createTransaction(id!, data, token!),
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["transactions", id] });
       void queryClient.invalidateQueries({ queryKey: ["ledger", id] });
-      // Modal closes itself after the awaited onSubmit resolves
     },
   });
 
-  // Loading state
+  const togglePaidMutation = useMutation({
+    mutationFn: (tx: TransactionResponseDto) =>
+      updateTransactionFlags(tx.id, { isPaid: !tx.isPaid }, token!),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["transactions", id] });
+    },
+  });
+
+  const toggleCashflowMutation = useMutation({
+    mutationFn: (tx: TransactionResponseDto) =>
+      updateTransactionFlags(tx.id, { impactsCashflow: !tx.impactsCashflow }, token!),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["transactions", id] });
+    },
+  });
+
+  const editTransactionMutation = useMutation({
+    mutationFn: (data: EditTransactionFormData) =>
+      updateTransaction(editTarget!.id, data, token!),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["transactions", id] });
+      setEditTarget(null);
+    },
+  });
+
+  const deleteTransactionMutation = useMutation({
+    mutationFn: (tx: TransactionResponseDto) =>
+      deleteTransaction(tx.id, token!),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["transactions", id] });
+      void queryClient.invalidateQueries({ queryKey: ["ledger", id] });
+    },
+  });
+
+  // ---------------------------------------------------------------------------
+  // Loading / error states
+  // ---------------------------------------------------------------------------
+
   if (isLoading) {
     return (
       <main className="flex-1 overflow-y-auto p-lg">
@@ -84,7 +152,6 @@ export const LedgerDetailPage = () => {
     );
   }
 
-  // Not found or server error
   if (isError) {
     const isNotFound = error instanceof ApiError && error.status === 404;
     return (
@@ -122,6 +189,8 @@ export const LedgerDetailPage = () => {
         <nav className="flex gap-xs -mb-px min-w-max">
           {TAB_CONFIG.map((tab) => {
             const isActive = activeTab === tab.id;
+            const count =
+              tab.id === "transactions" ? transactions.length : tab.count(ledger);
             return (
               <button
                 key={tab.id}
@@ -142,7 +211,7 @@ export const LedgerDetailPage = () => {
                       : "bg-stone-100 text-stone-500",
                   )}
                 >
-                  {tab.count(ledger)}
+                  {count}
                 </span>
               </button>
             );
@@ -153,11 +222,31 @@ export const LedgerDetailPage = () => {
       {/* Tab content */}
       <div className="p-lg">
         {activeTab === "transactions" && (
-          <TransactionTable
-            transactions={ledger.transactions}
-            onAddIncome={() => openTxModal("INCOME")}
-            onAddExpense={() => openTxModal("EXPENSE")}
-          />
+          <>
+            <TransactionFilters
+              filters={filters}
+              onChange={setFilters}
+              categories={ledger.categories}
+              groups={ledger.groups}
+              paymentMethods={ledger.paymentMethods}
+              totalCount={transactions.length}
+            />
+            {txLoading ? (
+              <div className="flex justify-center py-xl">
+                <div className="w-8 h-8 rounded-full border-4 border-primary-200 border-t-primary-600 animate-spin" />
+              </div>
+            ) : (
+              <TransactionTable
+                transactions={transactions}
+                onAddIncome={() => openTxModal("INCOME")}
+                onAddExpense={() => openTxModal("EXPENSE")}
+                onTogglePaid={(tx) => togglePaidMutation.mutate(tx)}
+                onToggleCashflow={(tx) => toggleCashflowMutation.mutate(tx)}
+                onEdit={setEditTarget}
+                onDelete={(tx) => deleteTransactionMutation.mutate(tx)}
+              />
+            )}
+          </>
         )}
         {activeTab === "categories" && (
           <CategoriesTable categories={ledger.categories} />
@@ -171,12 +260,24 @@ export const LedgerDetailPage = () => {
         )}
       </div>
 
+      {/* Create transaction modal */}
       <CreateTransactionModal
         open={txModal.open}
         onClose={() => setTxModal((s) => ({ ...s, open: false }))}
         onSubmit={(data) => createTransactionMutation.mutateAsync(data)}
         defaultEntryType={txModal.entryType}
         defaultCurrency={ledger.currency}
+        categories={ledger.categories}
+        paymentMethods={ledger.paymentMethods}
+        groups={ledger.groups}
+      />
+
+      {/* Edit transaction modal */}
+      <EditTransactionModal
+        open={!!editTarget}
+        transaction={editTarget}
+        onClose={() => setEditTarget(null)}
+        onSubmit={(data) => editTransactionMutation.mutateAsync(data)}
         categories={ledger.categories}
         paymentMethods={ledger.paymentMethods}
         groups={ledger.groups}
