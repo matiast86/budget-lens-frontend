@@ -2,6 +2,7 @@ import type React from "react";
 import { useTranslation } from "react-i18next";
 import { Bell, Search } from "lucide-react";
 import { Button } from "../atoms/Button";
+import { LanguageSwitcher } from "../atoms/LanguageSwitcher";
 
 interface AppHeaderProps {
   userName: string;
@@ -64,6 +65,9 @@ export const AppHeader = ({ userName, title, onNewLedger }: AppHeaderProps) => {
         <div className="hidden md:block">
           <Button variant="default" size="sm" onClick={onNewLedger}>{t("header.newLedger")}</Button>
         </div>
+
+        {/* Language switcher — always visible */}
+        <LanguageSwitcher />
 
         {/* Avatar — always visible */}
         <button

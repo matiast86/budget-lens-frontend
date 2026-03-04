@@ -2,9 +2,15 @@
   "app": {
     "name": "Budget Lens"
   },
+  "lang": {
+    "selector": "Idioma",
+    "en": "Inglés",
+    "es": "Español"
+  },
   "nav": {
     "dashboard": "Panel",
     "transactions": "Transacciones",
+    "cashflow": "Cashflow",
     "budgets": "Presupuestos",
     "analytics": "Análisis",
     "settings": "Configuración",
@@ -12,6 +18,27 @@
     "profile": "Perfil",
     "bottomBar": "Navegación principal",
     "sidebar": "Navegación lateral"
+  },
+  "cashflow": {
+    "title": "Cashflow",
+    "planned": "Planeado",
+    "balance": "Saldo",
+    "income": "Ingresos",
+    "expense": "Gastos",
+    "grandTotal": "Saldo Neto",
+    "noData": "Sin datos de cashflow para este período.",
+    "legend": "Planeado / Saldo",
+    "period": {
+      "from": "Desde",
+      "to": "Hasta",
+      "last3": "−3 meses",
+      "last6": "−6 meses",
+      "thisYear": "Este año"
+    },
+    "noLedger": {
+      "title": "Sin libros mayores",
+      "body": "Creá un libro mayor primero para ver el reporte de cashflow."
+    }
   },
   "header": {
     "searchPlaceholder": "Buscar libros mayores...",
@@ -38,6 +65,17 @@
     "viewAll": "Ver Todas",
     "income": "Ingresos",
     "expenses": "Gastos"
+  },
+  "transactions": {
+    "noLedgers": {
+      "title": "Sin libros mayores",
+      "body": "Creá un libro mayor primero para comenzar a registrar tus transacciones."
+    },
+    "pickLedger": "Seleccioná un libro mayor",
+    "pickLedgerBody": "Elegí un libro mayor para ver sus transacciones.",
+    "summary": {
+      "balance": "Saldo"
+    }
   },
   "stat": {
     "vsLastMonth": "vs mes anterior"

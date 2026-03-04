@@ -14,6 +14,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Button } from "../components/atoms/Button";
+import { LanguageSwitcher } from "../components/atoms/LanguageSwitcher";
 
 // Static (non-translatable) structural data stays at module level
 
@@ -105,6 +106,7 @@ export const LandingPage = () => {
 
           {/* CTAs */}
           <div className="flex items-center gap-sm">
+            <LanguageSwitcher />
             <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>
               {t("landing.nav.signIn")}
             </Button>

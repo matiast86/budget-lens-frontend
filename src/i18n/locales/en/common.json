@@ -2,9 +2,15 @@
   "app": {
     "name": "Budget Lens"
   },
+  "lang": {
+    "selector": "Language",
+    "en": "English",
+    "es": "Spanish"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "transactions": "Transactions",
+    "cashflow": "Cashflow",
     "budgets": "Budgets",
     "analytics": "Analytics",
     "settings": "Settings",
@@ -12,6 +18,27 @@
     "profile": "Profile",
     "bottomBar": "Main navigation",
     "sidebar": "Sidebar navigation"
+  },
+  "cashflow": {
+    "title": "Cashflow",
+    "planned": "Planned",
+    "balance": "Balance",
+    "income": "Income",
+    "expense": "Expenses",
+    "grandTotal": "Net Total",
+    "noData": "No cashflow data for this period.",
+    "legend": "Planned / Balance",
+    "period": {
+      "from": "From",
+      "to": "To",
+      "last3": "−3 months",
+      "last6": "−6 months",
+      "thisYear": "This year"
+    },
+    "noLedger": {
+      "title": "No ledgers yet",
+      "body": "Create a ledger first to view the cashflow report."
+    }
   },
   "header": {
     "searchPlaceholder": "Search ledgers...",
@@ -38,6 +65,17 @@
     "viewAll": "View All",
     "income": "Income",
     "expenses": "Expenses"
+  },
+  "transactions": {
+    "noLedgers": {
+      "title": "No ledgers yet",
+      "body": "Create a ledger first to start tracking your transactions."
+    },
+    "pickLedger": "Select a ledger",
+    "pickLedgerBody": "Choose a ledger above to view its transactions.",
+    "summary": {
+      "balance": "Balance"
+    }
   },
   "stat": {
     "vsLastMonth": "vs last month"

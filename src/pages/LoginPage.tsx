@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { Eye, EyeOff } from "lucide-react";
 import { cn } from "../utils/cn";
 import { Button } from "../components/atoms/Button";
+import { LanguageSwitcher } from "../components/atoms/LanguageSwitcher";
 import { loginSchema, type LoginFormData } from "../schemas/auth.schema";
 import { signIn } from "../services/auth-service";
 import { useAuthStore } from "../stores/auth-store";
@@ -50,7 +51,11 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col items-center justify-center p-md">
+    <div className="min-h-screen bg-cream flex flex-col items-center justify-center p-md relative">
+      {/* Language switcher — top right corner */}
+      <div className="absolute top-md right-md">
+        <LanguageSwitcher />
+      </div>
       <div className="w-full max-w-sm">
 
         {/* Logo + title */}

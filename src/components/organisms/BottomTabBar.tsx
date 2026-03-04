@@ -1,15 +1,16 @@
 import type React from "react";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, Wallet, Plus, User } from "lucide-react";
+import { LayoutDashboard, Wallet, Plus, Banknote, User } from "lucide-react";
 import type { BottomTabItem } from "../../types";
 import { cn } from "../../utils/cn";
 
 const BOTTOM_TAB_CONFIG: { icon: React.ElementType; labelKey: string; path: string; isFab?: boolean }[] = [
-  { icon: LayoutDashboard, labelKey: "nav.dashboard", path: "/dashboard" },
+  { icon: LayoutDashboard, labelKey: "nav.dashboard",    path: "/dashboard" },
   { icon: Wallet,          labelKey: "nav.transactions", path: "/transactions" },
-  { icon: Plus,            labelKey: "nav.add", path: "/add", isFab: true },
-  { icon: User,            labelKey: "nav.profile", path: "/profile" },
+  { icon: Plus,            labelKey: "nav.add",          path: "/add", isFab: true },
+  { icon: Banknote,        labelKey: "nav.cashflow",     path: "/cashflow" },
+  { icon: User,            labelKey: "nav.profile",      path: "/profile" },
 ];
 
 export const BottomTabBar = () => {

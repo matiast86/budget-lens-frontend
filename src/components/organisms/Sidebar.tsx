@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import {
   LayoutDashboard,
   Wallet,
+  Banknote,
   PieChart,
   TrendingUp,
   Settings,
@@ -15,6 +16,7 @@ import { useCurrentUser } from "../../hooks/use-current-user";
 const NAV_ITEM_CONFIG: { icon: React.ElementType; key: string; to: string }[] = [
   { icon: LayoutDashboard, key: "dashboard",    to: "/dashboard" },
   { icon: Wallet,          key: "transactions", to: "/transactions" },
+  { icon: Banknote,        key: "cashflow",     to: "/cashflow" },
   { icon: PieChart,        key: "budgets",      to: "/budgets" },
   { icon: TrendingUp,      key: "analytics",    to: "/analytics" },
   { icon: Settings,        key: "settings",     to: "/settings" },

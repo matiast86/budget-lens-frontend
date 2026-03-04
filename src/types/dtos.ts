@@ -140,3 +140,53 @@ export interface UserResponseDto {
 export interface UserDashboardViewDto extends UserResponseDto {
   ledgers: LedgerDashboardResponseDto[];
 }
+
+// ---------------------------------------------------------------------------
+// Cashflow report DTOs — mirrors backend reports module
+// ---------------------------------------------------------------------------
+
+export interface CashflowPeriodAmountDto {
+  period: string;
+  planned: number;
+  balance: number;
+}
+
+export interface CashflowGroupDto {
+  id: number;
+  name: string;
+  amounts: CashflowPeriodAmountDto[];
+}
+
+export interface CashflowCategoryDto {
+  id: number;
+  name: string;
+  total: CashflowPeriodAmountDto[];
+  groups: CashflowGroupDto[];
+}
+
+export interface CashflowPaymentMethodDto {
+  id: number;
+  name: string;
+  total: CashflowPeriodAmountDto[];
+  categories: CashflowCategoryDto[];
+}
+
+export interface CashflowEntryTypeDto {
+  total: CashflowPeriodAmountDto[];
+  paymentMethods: CashflowPaymentMethodDto[];
+}
+
+export interface CashflowMetaDto {
+  periods: string[];
+  currentWeek: number;
+  currency: Currency;
+  from: string;
+  to: string;
+}
+
+export interface CashflowReportDto {
+  meta: CashflowMetaDto;
+  income: CashflowEntryTypeDto;
+  expense: CashflowEntryTypeDto;
+  grandTotal: CashflowPeriodAmountDto[];
+}

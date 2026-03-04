@@ -766,6 +766,7 @@ budget-lens-frontend/
 │   │   ├── RegisterPage.tsx           # standalone auth page at /register
 │   │   ├── LoginPage.tsx              # standalone auth page at /login
 │   │   ├── DashboardPage.tsx          # hero card + carousel + list rows
+│   │   ├── TransactionsPage.tsx       # /transactions: ledger selector pills + summary cards + filters + full table
 │   │   └── LedgerDetailPage.tsx       # two queries (ledger + transactions); CreateTransactionModal + EditTransactionModal; TransactionFilters
 │   ├── schemas/                       # Zod schemas (one file per domain)
 │   │   ├── auth.schema.ts             # registerSchema + RegisterFormData
@@ -855,6 +856,7 @@ budget-lens-frontend/
 10. ~~**Login page**~~ — `LoginPage` + `loginSchema` at `/login`; stores token via `setToken()`, navigates to `/dashboard`
 11. ~~**Auth guard + service layer**~~ — `RequireAuth`, `api-client`, all services wired; React Query in `main.tsx`
 12. ~~**Transactions view — filters, edit, delete, flag toggles**~~ — per-ledger only; `TransactionFilters` molecule; `EditTransactionModal` organism; `TransactionTable` updated with clickable flags + inline delete confirm; `LedgerDetailPage` has two queries (`["ledger", id]` metadata + `["transactions", id, filters]` filterable); backend: `GET /transactions/ledgers/:id?filters`, `PATCH :id/flags`, `PATCH :id`, `DELETE :id`
+13. ~~**Transactions page (`/transactions`)**~~ — dedicated full-page view at the sidebar route; ledger selector pills (auto-selects first); Income / Expenses / Balance summary cards computed from filtered results; reuses `TransactionFilters` + `TransactionTable` + both modals; i18n keys added to `common` namespace
 
 ### 🔜 Remaining (priority order)
 1. **Budgets page** — category spend vs budget
