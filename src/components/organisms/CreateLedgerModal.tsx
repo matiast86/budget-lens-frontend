@@ -1,4 +1,3 @@
-import type React from "react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -168,27 +167,6 @@ export const CreateLedgerModal = ({ open, onClose, onSubmit }: CreateLedgerModal
               )}
             </fieldset>
 
-            {/* Base CPI Index */}
-            <div className="space-y-xs">
-              <label htmlFor="ledger-cpi" className="block text-sm font-medium text-stone-700">
-                {t("create.field.baseCpiIndex")}
-              </label>
-              <input
-                id="ledger-cpi"
-                type="number"
-                step="any"
-                min="0"
-                placeholder={t("create.field.baseCpiIndexPlaceholder")}
-                className={inputClass(!!errors.baseCpiIndex)}
-                {...register("baseCpiIndex", { valueAsNumber: true })}
-              />
-              <p className="text-xs text-stone-400">{t("create.field.baseCpiIndexHint")}</p>
-              {errors.baseCpiIndex && (
-                <p className="text-xs text-expense-400" role="alert">
-                  {t(errors.baseCpiIndex.message ?? "")}
-                </p>
-              )}
-            </div>
           </div>
 
           {/* Footer */}
