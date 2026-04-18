@@ -140,7 +140,14 @@
       "action": {
         "submit": "Save Transaction"
       },
-      "noGroup": "No group"
+      "noGroup": "No group",
+      "quickCreate": {
+        "trigger": "Add new",
+        "namePlaceholder": "Name...",
+        "emptyCategory": "No categories yet",
+        "emptyGroup": "No groups yet",
+        "emptyPaymentMethod": "No payment methods yet"
+      }
     },
     "entryType": {
       "income": "Income",
@@ -226,23 +233,93 @@
     }
   },
   "category": {
+    "modal": {
+      "createTitle": "New Category",
+      "editTitle": "Edit Category",
+      "field": {
+        "name": "Name",
+        "namePlaceholder": "e.g. Groceries",
+        "description": "Description (optional)",
+        "descriptionPlaceholder": "Brief description..."
+      },
+      "action": {
+        "create": "Create Category",
+        "save": "Save Changes",
+        "cancel": "Cancel"
+      },
+      "error": {
+        "nameRequired": "Name is required"
+      }
+    },
     "table": {
       "col": {
         "number": "#",
         "name": "Name",
-        "description": "Description"
+        "description": "Description",
+        "actions": "Actions"
+      },
+      "addNew": "New Category",
+      "action": {
+        "edit": "Edit",
+        "delete": "Delete",
+        "confirmDelete": "Sure?",
+        "cancel": "Cancel"
       }
     }
   },
   "group": {
+    "modal": {
+      "createTitle": "New Group",
+      "editTitle": "Edit Group",
+      "field": {
+        "name": "Name",
+        "namePlaceholder": "e.g. Fixed expenses"
+      },
+      "action": {
+        "create": "Create Group",
+        "save": "Save Changes",
+        "cancel": "Cancel"
+      },
+      "error": {
+        "nameRequired": "Name is required"
+      }
+    },
     "table": {
       "col": {
         "number": "#",
-        "name": "Name"
+        "name": "Name",
+        "actions": "Actions"
+      },
+      "addNew": "New Group",
+      "action": {
+        "edit": "Edit",
+        "delete": "Delete",
+        "confirmDelete": "Sure?",
+        "cancel": "Cancel"
       }
     }
   },
   "paymentMethod": {
+    "modal": {
+      "createTitle": "New Payment Method",
+      "editTitle": "Edit Payment Method",
+      "field": {
+        "name": "Name",
+        "namePlaceholder": "e.g. My Visa Card",
+        "type": "Type",
+        "brand": "Brand",
+        "currency": "Currency (optional)",
+        "color": "Color"
+      },
+      "action": {
+        "create": "Create Method",
+        "save": "Save Changes",
+        "cancel": "Cancel"
+      },
+      "error": {
+        "nameRequired": "Name is required"
+      }
+    },
     "type": {
       "CASH": "Cash",
       "BANK": "Bank",
@@ -256,7 +333,15 @@
         "type": "Type",
         "brand": "Brand",
         "currency": "Currency",
-        "active": "Active"
+        "active": "Active",
+        "actions": "Actions"
+      },
+      "addNew": "New Payment Method",
+      "action": {
+        "edit": "Edit",
+        "delete": "Delete",
+        "confirmDelete": "Sure?",
+        "cancel": "Cancel"
       }
     }
   },

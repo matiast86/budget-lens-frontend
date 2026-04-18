@@ -1,10 +1,10 @@
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import { X, TrendingUp, TrendingDown, Plus } from "lucide-react";
+import { X, TrendingUp, TrendingDown, Plus, Check } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { Button } from "../atoms/Button";
 import { formatCurrency } from "../../utils/format-currency";
@@ -18,18 +18,108 @@ import type {
   GroupResponseDto,
   Currency,
   EntryType,
+  PaymentType,
 } from "../../types";
 
 interface CreateTransactionModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: CreateTransactionFormData) => Promise<void>;
+  onSubmit: (data: CreateTransactionFormData) => Promise<unknown>;
   defaultEntryType?: EntryType;
   defaultCurrency: Currency;
   categories: CategoryResponseDto[];
   paymentMethods: PaymentMethodResponseDto[];
   groups: GroupResponseDto[];
+  onCreateCategory?: (name: string) => Promise<CategoryResponseDto>;
+  onCreateGroup?: (name: string) => Promise<GroupResponseDto>;
+  onCreatePaymentMethod?: (name: string, type: PaymentType) => Promise<PaymentMethodResponseDto>;
 }
+
+// ---------------------------------------------------------------------------
+// Inline quick-create row — appears below an empty select
+// ---------------------------------------------------------------------------
+
+const PAYMENT_TYPES: { value: PaymentType; key: string }[] = [
+  { value: "CASH",        key: "paymentMethod.type.CASH" },
+  { value: "BANK",        key: "paymentMethod.type.BANK" },
+  { value: "WALLET",      key: "paymentMethod.type.WALLET" },
+  { value: "CREDIT_CARD", key: "paymentMethod.type.CREDIT_CARD" },
+  { value: "OTHER",       key: "paymentMethod.type.OTHER" },
+];
+
+interface QuickCreateProps {
+  onConfirm: (name: string, pmType?: PaymentType) => Promise<void>;
+  onCancel: () => void;
+  showTypeSelect?: boolean;
+}
+
+const QuickCreate = ({ onConfirm, onCancel, showTypeSelect }: QuickCreateProps) => {
+  const { t } = useTranslation("ledger");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [name, setName] = useState("");
+  const [pmType, setPmType] = useState<PaymentType>("CASH");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  const handleConfirm = async () => {
+    if (!name.trim()) return;
+    setSaving(true);
+    try {
+      await onConfirm(name.trim(), showTypeSelect ? pmType : undefined);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") { e.preventDefault(); void handleConfirm(); }
+    if (e.key === "Escape") onCancel();
+  };
+
+  return (
+    <div className="flex items-center gap-xs mt-xs">
+      <input
+        ref={inputRef}
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={t("transaction.create.quickCreate.namePlaceholder")}
+        className={cn(
+          "flex-1 rounded-md border border-primary-300 bg-primary-50 px-sm py-xs text-xs text-stone-900",
+          "placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent",
+        )}
+      />
+      {showTypeSelect && (
+        <select
+          value={pmType}
+          onChange={(e) => setPmType(e.target.value as PaymentType)}
+          className="rounded-md border border-primary-300 bg-primary-50 px-xs py-xs text-xs text-stone-700 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+        >
+          {PAYMENT_TYPES.map((pt) => (
+            <option key={pt.value} value={pt.value}>{t(pt.key)}</option>
+          ))}
+        </select>
+      )}
+      <button
+        type="button"
+        onClick={() => void handleConfirm()}
+        disabled={!name.trim() || saving}
+        className="p-xs rounded text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-40 transition-colors"
+      >
+        <Check className="w-3 h-3" />
+      </button>
+      <button
+        type="button"
+        onClick={onCancel}
+        className="p-xs rounded text-stone-400 hover:bg-stone-100 transition-colors"
+      >
+        <X className="w-3 h-3" />
+      </button>
+    </div>
+  );
+};
 
 const CURRENCY_OPTIONS: { value: string; key: string }[] = [
   { value: "ARS", key: "create.currency.ARS" },
@@ -58,20 +148,26 @@ export const CreateTransactionModal = ({
   categories,
   paymentMethods,
   groups,
+  onCreateCategory,
+  onCreateGroup,
+  onCreatePaymentMethod,
 }: CreateTransactionModalProps) => {
   const { t, i18n } = useTranslation("ledger");
 
   const [serverError, setServerError] = useState<string | null>(null);
+  const [inlineCreate, setInlineCreate] = useState<"category" | "group" | "paymentMethod" | null>(null);
 
   const {
     register,
     handleSubmit,
     watch,
     reset,
+    setValue,
     control,
     formState: { errors, isSubmitting },
   } = useForm<CreateTransactionFormData>({
-    resolver: zodResolver(createTransactionSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(createTransactionSchema) as any,
   });
 
   const { fields: debtFields, append: appendDebt, remove: removeDebt } = useFieldArray({
@@ -108,6 +204,7 @@ export const CreateTransactionModal = ({
 
   const handleClose = () => {
     reset();
+    setInlineCreate(null);
     onClose();
   };
 
@@ -336,9 +433,14 @@ export const CreateTransactionModal = ({
                   id="tx-category"
                   className={cn(inputClass(!!errors.categoryId), "cursor-pointer")}
                   defaultValue=""
+                  disabled={categories.length === 0}
                   {...register("categoryId")}
                 >
-                  <option value="" disabled>{t("transaction.create.field.selectCategory")}</option>
+                  <option value="" disabled>
+                    {categories.length === 0
+                      ? t("transaction.create.quickCreate.emptyCategory")
+                      : t("transaction.create.field.selectCategory")}
+                  </option>
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
@@ -347,6 +449,27 @@ export const CreateTransactionModal = ({
                   <p className="text-xs text-expense-400" role="alert">
                     {t(errors.categoryId.message ?? "")}
                   </p>
+                )}
+                {onCreateCategory && (
+                  inlineCreate === "category" ? (
+                    <QuickCreate
+                      onConfirm={async (name) => {
+                        const created = await onCreateCategory(name);
+                        setValue("categoryId", created.id, { shouldValidate: true });
+                        setInlineCreate(null);
+                      }}
+                      onCancel={() => setInlineCreate(null)}
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setInlineCreate("category")}
+                      className="flex items-center gap-xs text-xs font-medium text-primary-600 hover:text-primary-700 transition-colors mt-xs"
+                    >
+                      <Plus className="w-3 h-3" />
+                      {t("transaction.create.quickCreate.trigger")}
+                    </button>
+                  )
                 )}
               </div>
 
@@ -359,9 +482,14 @@ export const CreateTransactionModal = ({
                   id="tx-method"
                   className={cn(inputClass(!!errors.paymentMethodId), "cursor-pointer")}
                   defaultValue=""
+                  disabled={paymentMethods.filter((pm) => pm.isActive).length === 0}
                   {...register("paymentMethodId")}
                 >
-                  <option value="" disabled>{t("transaction.create.field.selectMethod")}</option>
+                  <option value="" disabled>
+                    {paymentMethods.filter((pm) => pm.isActive).length === 0
+                      ? t("transaction.create.quickCreate.emptyPaymentMethod")
+                      : t("transaction.create.field.selectMethod")}
+                  </option>
                   {paymentMethods.filter((pm) => pm.isActive).map((pm) => (
                     <option key={pm.id} value={pm.id}>{pm.name}</option>
                   ))}
@@ -371,10 +499,32 @@ export const CreateTransactionModal = ({
                     {t(errors.paymentMethodId.message ?? "")}
                   </p>
                 )}
+                {onCreatePaymentMethod && (
+                  inlineCreate === "paymentMethod" ? (
+                    <QuickCreate
+                      showTypeSelect
+                      onConfirm={async (name, pmType) => {
+                        const created = await onCreatePaymentMethod(name, pmType ?? "CASH");
+                        setValue("paymentMethodId", created.id, { shouldValidate: true });
+                        setInlineCreate(null);
+                      }}
+                      onCancel={() => setInlineCreate(null)}
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setInlineCreate("paymentMethod")}
+                      className="flex items-center gap-xs text-xs font-medium text-primary-600 hover:text-primary-700 transition-colors mt-xs"
+                    >
+                      <Plus className="w-3 h-3" />
+                      {t("transaction.create.quickCreate.trigger")}
+                    </button>
+                  )
+                )}
               </div>
             </div>
 
-            {/* Group + Currency */}
+            {/* Group + Status */}
             <div className="grid grid-cols-2 gap-sm">
               <div className="space-y-xs">
                 <label htmlFor="tx-group" className="block text-sm font-medium text-stone-700">
@@ -385,9 +535,14 @@ export const CreateTransactionModal = ({
                   id="tx-group"
                   className={cn(inputClass(!!errors.groupId), "cursor-pointer")}
                   defaultValue=""
+                  disabled={groups.length === 0}
                   {...register("groupId")}
                 >
-                  <option value="" disabled>{t("transaction.create.field.selectGroup")}</option>
+                  <option value="" disabled>
+                    {groups.length === 0
+                      ? t("transaction.create.quickCreate.emptyGroup")
+                      : t("transaction.create.field.selectGroup")}
+                  </option>
                   {groups.map((g) => (
                     <option key={g.id} value={g.id}>{g.name}</option>
                   ))}
@@ -396,6 +551,27 @@ export const CreateTransactionModal = ({
                   <p className="text-xs text-expense-400" role="alert">
                     {t(errors.groupId.message ?? "")}
                   </p>
+                )}
+                {onCreateGroup && (
+                  inlineCreate === "group" ? (
+                    <QuickCreate
+                      onConfirm={async (name) => {
+                        const created = await onCreateGroup(name);
+                        setValue("groupId", created.id, { shouldValidate: true });
+                        setInlineCreate(null);
+                      }}
+                      onCancel={() => setInlineCreate(null)}
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setInlineCreate("group")}
+                      className="flex items-center gap-xs text-xs font-medium text-primary-600 hover:text-primary-700 transition-colors mt-xs"
+                    >
+                      <Plus className="w-3 h-3" />
+                      {t("transaction.create.quickCreate.trigger")}
+                    </button>
+                  )
                 )}
               </div>
 

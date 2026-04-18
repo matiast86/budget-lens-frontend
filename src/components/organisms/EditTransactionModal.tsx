@@ -27,7 +27,7 @@ interface EditTransactionModalProps {
   open: boolean;
   transaction: TransactionResponseDto | null;
   onClose: () => void;
-  onSubmit: (data: EditTransactionFormData) => Promise<void>;
+  onSubmit: (data: EditTransactionFormData) => Promise<unknown>;
   categories: CategoryResponseDto[];
   paymentMethods: PaymentMethodResponseDto[];
   groups: GroupResponseDto[];
@@ -73,7 +73,8 @@ export const EditTransactionModal = ({
     reset,
     formState: { errors, isSubmitting },
   } = useForm<EditTransactionFormData>({
-    resolver: zodResolver(editTransactionSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(editTransactionSchema) as any,
   });
 
   // Pre-fill from the transaction whenever the modal opens

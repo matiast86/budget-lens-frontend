@@ -12,6 +12,9 @@ import { LedgerDetailHeader } from "../components/organisms/LedgerDetailHeader";
 import { TransactionTable } from "../components/organisms/TransactionTable";
 import { CreateTransactionModal } from "../components/organisms/CreateTransactionModal";
 import { EditTransactionModal } from "../components/organisms/EditTransactionModal";
+import { CategoryModal } from "../components/organisms/CategoryModal";
+import { GroupModal } from "../components/organisms/GroupModal";
+import { PaymentMethodModal } from "../components/organisms/PaymentMethodModal";
 import { useAuthStore } from "../stores/auth-store";
 import { getLedger } from "../services/ledger-service";
 import {
@@ -21,6 +24,21 @@ import {
   updateTransaction,
   deleteTransaction,
 } from "../services/transaction-service";
+import {
+  createCategory,
+  updateCategory,
+  deleteCategory,
+} from "../services/category-service";
+import {
+  createGroup,
+  updateGroup,
+  deleteGroup,
+} from "../services/group-service";
+import {
+  createPaymentMethod,
+  updatePaymentMethod,
+  deletePaymentMethod,
+} from "../services/payment-method-service";
 import { ApiError } from "../services/api-client";
 import { cn } from "../utils/cn";
 import type {
@@ -29,11 +47,15 @@ import type {
   EntryType,
   TransactionResponseDto,
   TransactionFilters as TxFilters,
+  CategoryResponseDto,
+  GroupResponseDto,
+  PaymentMethodResponseDto,
 } from "../types";
 import type {
   CreateTransactionFormData,
   EditTransactionFormData,
 } from "../schemas/transaction.schema";
+import type { CreatePaymentMethodData } from "../services/payment-method-service";
 
 // ---------------------------------------------------------------------------
 // Tab config
@@ -69,6 +91,24 @@ export const LedgerDetailPage = () => {
   const [filters, setFilters] = useState<TxFilters>({});
   const [editTarget, setEditTarget] = useState<TransactionResponseDto | null>(null);
 
+  // Category modal state
+  const [categoryModal, setCategoryModal] = useState<{
+    open: boolean;
+    editTarget: CategoryResponseDto | null;
+  }>({ open: false, editTarget: null });
+
+  // Group modal state
+  const [groupModal, setGroupModal] = useState<{
+    open: boolean;
+    editTarget: GroupResponseDto | null;
+  }>({ open: false, editTarget: null });
+
+  // Payment method modal state
+  const [pmModal, setPmModal] = useState<{
+    open: boolean;
+    editTarget: PaymentMethodResponseDto | null;
+  }>({ open: false, editTarget: null });
+
   const openTxModal = (entryType: EntryType) =>
     setTxModal({ open: true, entryType });
 
@@ -91,8 +131,11 @@ export const LedgerDetailPage = () => {
     enabled: !!id && !!token,
   });
 
+  const invalidateLedger = () =>
+    queryClient.invalidateQueries({ queryKey: ["ledger", id] });
+
   // ---------------------------------------------------------------------------
-  // Mutations
+  // Transaction mutations
   // ---------------------------------------------------------------------------
 
   const createTransactionMutation = useMutation({
@@ -100,7 +143,7 @@ export const LedgerDetailPage = () => {
       createTransaction(id!, data, token!),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["transactions", id] });
-      void queryClient.invalidateQueries({ queryKey: ["ledger", id] });
+      void invalidateLedger();
     },
   });
 
@@ -134,8 +177,71 @@ export const LedgerDetailPage = () => {
       deleteTransaction(tx.id, token!),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["transactions", id] });
-      void queryClient.invalidateQueries({ queryKey: ["ledger", id] });
+      void invalidateLedger();
     },
+  });
+
+  // ---------------------------------------------------------------------------
+  // Category mutations
+  // ---------------------------------------------------------------------------
+
+  const createCategoryMutation = useMutation({
+    mutationFn: (data: { name: string; description?: string }) =>
+      createCategory(id!, data, token!),
+    onSuccess: () => void invalidateLedger(),
+  });
+
+  const updateCategoryMutation = useMutation({
+    mutationFn: ({ catId, data }: { catId: number; data: { name?: string; description?: string } }) =>
+      updateCategory(catId, data, token!),
+    onSuccess: () => void invalidateLedger(),
+  });
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: (cat: CategoryResponseDto) => deleteCategory(cat.id, token!),
+    onSuccess: () => void invalidateLedger(),
+  });
+
+  // ---------------------------------------------------------------------------
+  // Group mutations
+  // ---------------------------------------------------------------------------
+
+  const createGroupMutation = useMutation({
+    mutationFn: (data: { name: string }) => createGroup(id!, data, token!),
+    onSuccess: () => void invalidateLedger(),
+  });
+
+  const updateGroupMutation = useMutation({
+    mutationFn: ({ groupId, data }: { groupId: number; data: { name?: string } }) =>
+      updateGroup(groupId, data, token!),
+    onSuccess: () => void invalidateLedger(),
+  });
+
+  const deleteGroupMutation = useMutation({
+    mutationFn: (group: GroupResponseDto) => deleteGroup(group.id, token!),
+    onSuccess: () => void invalidateLedger(),
+  });
+
+  // ---------------------------------------------------------------------------
+  // Payment method mutations
+  // ---------------------------------------------------------------------------
+
+  const createPaymentMethodMutation = useMutation({
+    mutationFn: (data: CreatePaymentMethodData) =>
+      createPaymentMethod(data, token!),
+    onSuccess: () => void invalidateLedger(),
+  });
+
+  const updatePaymentMethodMutation = useMutation({
+    mutationFn: ({ pmId, data }: { pmId: number; data: Partial<CreatePaymentMethodData> }) =>
+      updatePaymentMethod(pmId, data, token!),
+    onSuccess: () => void invalidateLedger(),
+  });
+
+  const deletePaymentMethodMutation = useMutation({
+    mutationFn: (pm: PaymentMethodResponseDto) =>
+      deletePaymentMethod(pm.id, token!),
+    onSuccess: () => void invalidateLedger(),
   });
 
   // ---------------------------------------------------------------------------
@@ -248,19 +354,40 @@ export const LedgerDetailPage = () => {
             )}
           </>
         )}
+
         {activeTab === "categories" && (
-          <CategoriesTable categories={ledger.categories} />
+          <CategoriesTable
+            categories={ledger.categories}
+            onAdd={() => setCategoryModal({ open: true, editTarget: null })}
+            onEdit={(cat) => setCategoryModal({ open: true, editTarget: cat })}
+            onDelete={(cat) => deleteCategoryMutation.mutate(cat)}
+          />
         )}
+
         {activeTab === "paymentMethods" && (
-          <PaymentMethodsTable methods={ledger.paymentMethods} />
+          <PaymentMethodsTable
+            methods={ledger.paymentMethods}
+            onAdd={() => setPmModal({ open: true, editTarget: null })}
+            onEdit={(pm) => setPmModal({ open: true, editTarget: pm })}
+            onDelete={(pm) => deletePaymentMethodMutation.mutate(pm)}
+          />
         )}
-        {activeTab === "groups" && <GroupsTable groups={ledger.groups} />}
+
+        {activeTab === "groups" && (
+          <GroupsTable
+            groups={ledger.groups}
+            onAdd={() => setGroupModal({ open: true, editTarget: null })}
+            onEdit={(g) => setGroupModal({ open: true, editTarget: g })}
+            onDelete={(g) => deleteGroupMutation.mutate(g)}
+          />
+        )}
+
         {activeTab === "collaborators" && (
           <CollaboratorsTable collaborations={ledger.collaborations} />
         )}
       </div>
 
-      {/* Create transaction modal */}
+      {/* Transaction modals */}
       <CreateTransactionModal
         open={txModal.open}
         onClose={() => setTxModal((s) => ({ ...s, open: false }))}
@@ -270,9 +397,12 @@ export const LedgerDetailPage = () => {
         categories={ledger.categories}
         paymentMethods={ledger.paymentMethods}
         groups={ledger.groups}
+        onCreateCategory={(name) => createCategoryMutation.mutateAsync({ name })}
+        onCreateGroup={(name) => createGroupMutation.mutateAsync({ name })}
+        onCreatePaymentMethod={(name, type) =>
+          createPaymentMethodMutation.mutateAsync({ name, type })
+        }
       />
-
-      {/* Edit transaction modal */}
       <EditTransactionModal
         open={!!editTarget}
         transaction={editTarget}
@@ -281,6 +411,54 @@ export const LedgerDetailPage = () => {
         categories={ledger.categories}
         paymentMethods={ledger.paymentMethods}
         groups={ledger.groups}
+      />
+
+      {/* Category modal */}
+      <CategoryModal
+        open={categoryModal.open}
+        onClose={() => setCategoryModal({ open: false, editTarget: null })}
+        initialData={categoryModal.editTarget ?? undefined}
+        onSubmit={(data) => {
+          if (categoryModal.editTarget) {
+            return updateCategoryMutation.mutateAsync({
+              catId: categoryModal.editTarget.id,
+              data,
+            });
+          }
+          return createCategoryMutation.mutateAsync(data);
+        }}
+      />
+
+      {/* Group modal */}
+      <GroupModal
+        open={groupModal.open}
+        onClose={() => setGroupModal({ open: false, editTarget: null })}
+        initialData={groupModal.editTarget ?? undefined}
+        onSubmit={(data) => {
+          if (groupModal.editTarget) {
+            return updateGroupMutation.mutateAsync({
+              groupId: groupModal.editTarget.id,
+              data,
+            });
+          }
+          return createGroupMutation.mutateAsync(data);
+        }}
+      />
+
+      {/* Payment method modal */}
+      <PaymentMethodModal
+        open={pmModal.open}
+        onClose={() => setPmModal({ open: false, editTarget: null })}
+        initialData={pmModal.editTarget ?? undefined}
+        onSubmit={(data) => {
+          if (pmModal.editTarget) {
+            return updatePaymentMethodMutation.mutateAsync({
+              pmId: pmModal.editTarget.id,
+              data,
+            });
+          }
+          return createPaymentMethodMutation.mutateAsync(data);
+        }}
       />
     </main>
   );

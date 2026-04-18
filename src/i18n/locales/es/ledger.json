@@ -140,7 +140,14 @@
       "action": {
         "submit": "Guardar Transacción"
       },
-      "noGroup": "Sin grupo"
+      "noGroup": "Sin grupo",
+      "quickCreate": {
+        "trigger": "Agregar nuevo",
+        "namePlaceholder": "Nombre...",
+        "emptyCategory": "Sin categorías",
+        "emptyGroup": "Sin grupos",
+        "emptyPaymentMethod": "Sin medios de pago"
+      }
     },
     "entryType": {
       "income": "Ingreso",
@@ -226,23 +233,93 @@
     }
   },
   "category": {
+    "modal": {
+      "createTitle": "Nueva Categoría",
+      "editTitle": "Editar Categoría",
+      "field": {
+        "name": "Nombre",
+        "namePlaceholder": "ej. Supermercado",
+        "description": "Descripción (opcional)",
+        "descriptionPlaceholder": "Breve descripción..."
+      },
+      "action": {
+        "create": "Crear Categoría",
+        "save": "Guardar Cambios",
+        "cancel": "Cancelar"
+      },
+      "error": {
+        "nameRequired": "El nombre es obligatorio"
+      }
+    },
     "table": {
       "col": {
         "number": "#",
         "name": "Nombre",
-        "description": "Descripción"
+        "description": "Descripción",
+        "actions": "Acciones"
+      },
+      "addNew": "Nueva Categoría",
+      "action": {
+        "edit": "Editar",
+        "delete": "Eliminar",
+        "confirmDelete": "¿Seguro?",
+        "cancel": "Cancelar"
       }
     }
   },
   "group": {
+    "modal": {
+      "createTitle": "Nuevo Grupo",
+      "editTitle": "Editar Grupo",
+      "field": {
+        "name": "Nombre",
+        "namePlaceholder": "ej. Gastos fijos"
+      },
+      "action": {
+        "create": "Crear Grupo",
+        "save": "Guardar Cambios",
+        "cancel": "Cancelar"
+      },
+      "error": {
+        "nameRequired": "El nombre es obligatorio"
+      }
+    },
     "table": {
       "col": {
         "number": "#",
-        "name": "Nombre"
+        "name": "Nombre",
+        "actions": "Acciones"
+      },
+      "addNew": "Nuevo Grupo",
+      "action": {
+        "edit": "Editar",
+        "delete": "Eliminar",
+        "confirmDelete": "¿Seguro?",
+        "cancel": "Cancelar"
       }
     }
   },
   "paymentMethod": {
+    "modal": {
+      "createTitle": "Nuevo Medio de Pago",
+      "editTitle": "Editar Medio de Pago",
+      "field": {
+        "name": "Nombre",
+        "namePlaceholder": "ej. Mi Visa",
+        "type": "Tipo",
+        "brand": "Marca",
+        "currency": "Moneda (opcional)",
+        "color": "Color"
+      },
+      "action": {
+        "create": "Crear Medio",
+        "save": "Guardar Cambios",
+        "cancel": "Cancelar"
+      },
+      "error": {
+        "nameRequired": "El nombre es obligatorio"
+      }
+    },
     "type": {
       "CASH": "Efectivo",
       "BANK": "Banco",
@@ -256,7 +333,15 @@
         "type": "Tipo",
         "brand": "Marca",
         "currency": "Moneda",
-        "active": "Activo"
+        "active": "Activo",
+        "actions": "Acciones"
+      },
+      "addNew": "Nuevo Medio de Pago",
+      "action": {
+        "edit": "Editar",
+        "delete": "Eliminar",
+        "confirmDelete": "¿Seguro?",
+        "cancel": "Cancelar"
       }
     }
   },

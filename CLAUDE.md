@@ -188,6 +188,13 @@ const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
 // Translate error: t(errors.field?.message ?? "")
 ```
 
+**Resolver cast** — when a schema uses `z.preprocess` or `.default()`, zod's *input* type diverges from its *output* type (`z.infer`). This causes a TypeScript error on the `resolver` prop. Fix with:
+```tsx
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+resolver: zodResolver(schema) as any,
+```
+Runtime behaviour is unaffected — zod still validates and coerces correctly. Applied in `CreateTransactionModal` and `EditTransactionModal`.
+
 **Type coercion rules:**
 - Optional text → undefined: `z.preprocess((v) => (v === "" ? undefined : v), z.string().optional())`
 - Required number input: `register("field", { valueAsNumber: true })` + `z.number()`
@@ -732,10 +739,10 @@ budget-lens-frontend/
 │   │   │   ├── Badge.tsx              # updated to teal/stone palette
 │   │   │   └── Button.tsx             # updated: default → teal, softer expense/income
 │   │   ├── molecules/
-│   │   │   ├── CategoriesTable.tsx
+│   │   │   ├── CategoriesTable.tsx    # CRUD-enabled: onAdd/onEdit/onDelete props; inline delete confirm
 │   │   │   ├── CollaboratorsTable.tsx
-│   │   │   ├── GroupsTable.tsx
-│   │   │   ├── PaymentMethodsTable.tsx
+│   │   │   ├── GroupsTable.tsx        # CRUD-enabled: onAdd/onEdit/onDelete props; inline delete confirm
+│   │   │   ├── PaymentMethodsTable.tsx # CRUD-enabled: onAdd/onEdit/onDelete props; inline delete confirm
 │   │   │   ├── LedgerCard.tsx         # updated: min-w-[280px], teal/stone, icon pill
 │   │   │   ├── StatCard.tsx           # kept for desktop fallback; not used in mobile hero
 │   │   │   ├── TransactionFilters.tsx # NEW — month picker, entryType/status pills, relation selects, isPaid
@@ -746,9 +753,16 @@ budget-lens-frontend/
 │   │       ├── AppHeader.tsx          # updated: slim mobile / full desktop; onNewLedger prop
 │   │       ├── BottomTabBar.tsx       # mobile bottom navigation
 │   │       ├── BudgetOverview.tsx     # updated: uses new BudgetProgressItem
+│   │       ├── CategoryModal.tsx      # create/edit category (name + optional description); open/onClose/onSubmit/initialData?
 │   │       ├── CreateLedgerModal.tsx  # modal form: name, description, currency, baseCpiIndex
 │   │       ├── CreateTransactionModal.tsx # modal form: all transaction fields; colored header
-│   │       ├── EditTransactionModal.tsx   # NEW — pre-fills from TransactionResponseDto; currency/entryType locked
+│   │       │                              # QuickCreate inline sub-component: appears below each select (category/group/PM)
+│   │       │                              # always visible; onCreateCategory/Group/PaymentMethod optional props
+│   │       │                              # resolver cast: zodResolver(...) as any (zod input/output type mismatch with RHF)
+│   │       ├── EditTransactionModal.tsx   # pre-fills from TransactionResponseDto; currency/entryType locked
+│   │       │                              # resolver cast: same as above
+│   │       ├── GroupModal.tsx         # create/edit group (name only); open/onClose/onSubmit/initialData?
+│   │       ├── PaymentMethodModal.tsx # create/edit PM (name, type, brand conditional on CREDIT_CARD, currency, color picker)
 │   │       ├── DashboardHeroCard.tsx  # teal gradient, monthly summary
 │   │       ├── LedgerDetailHeader.tsx
 │   │       ├── LedgerGrid.tsx         # updated: horizontal carousel on mobile
@@ -767,7 +781,9 @@ budget-lens-frontend/
 │   │   ├── LoginPage.tsx              # standalone auth page at /login
 │   │   ├── DashboardPage.tsx          # hero card + carousel + list rows
 │   │   ├── TransactionsPage.tsx       # /transactions: ledger selector pills + summary cards + filters + full table
-│   │   └── LedgerDetailPage.tsx       # two queries (ledger + transactions); CreateTransactionModal + EditTransactionModal; TransactionFilters
+│   │   └── LedgerDetailPage.tsx       # two queries (ledger + transactions); full CRUD for transactions, categories, groups, PMs
+│   │                                  # modals: CreateTransaction, EditTransaction, CategoryModal, GroupModal, PaymentMethodModal
+│   │                                  # mutations invalidate ["ledger", id]; onCreateCategory/Group/PM passed to CreateTransactionModal for QuickCreate
 │   ├── schemas/                       # Zod schemas (one file per domain)
 │   │   ├── auth.schema.ts             # registerSchema + RegisterFormData
 │   │   ├── ledger.schema.ts           # createLedgerSchema + CreateLedgerFormData
@@ -777,6 +793,9 @@ budget-lens-frontend/
 │   │   ├── auth-service.ts            # signIn, signUp
 │   │   ├── ledger-service.ts          # getLedgers, getLedger, createLedger
 │   │   ├── transaction-service.ts     # createTransaction, getTransactions, updateTransactionFlags, updateTransaction, deleteTransaction
+│   │   ├── category-service.ts        # createCategory, updateCategory, deleteCategory
+│   │   ├── group-service.ts           # createGroup, updateGroup, deleteGroup
+│   │   ├── payment-method-service.ts  # createPaymentMethod, updatePaymentMethod, deletePaymentMethod, assignPaymentMethodToLedger (unused — backend auto-assigns)
 │   │   ├── user-service.ts            # getUser (public)
 │   │   └── debt-owner-service.ts      # findOrCreateDebtOwner, createDebtOwner, getDebtOwnerByName
 │   ├── types/
@@ -857,6 +876,7 @@ budget-lens-frontend/
 11. ~~**Auth guard + service layer**~~ — `RequireAuth`, `api-client`, all services wired; React Query in `main.tsx`
 12. ~~**Transactions view — filters, edit, delete, flag toggles**~~ — per-ledger only; `TransactionFilters` molecule; `EditTransactionModal` organism; `TransactionTable` updated with clickable flags + inline delete confirm; `LedgerDetailPage` has two queries (`["ledger", id]` metadata + `["transactions", id, filters]` filterable); backend: `GET /transactions/ledgers/:id?filters`, `PATCH :id/flags`, `PATCH :id`, `DELETE :id`
 13. ~~**Transactions page (`/transactions`)**~~ — dedicated full-page view at the sidebar route; ledger selector pills (auto-selects first); Income / Expenses / Balance summary cards computed from filtered results; reuses `TransactionFilters` + `TransactionTable` + both modals; i18n keys added to `common` namespace
+14. ~~**CRUD for categories, groups, payment methods**~~ — `CategoryModal`, `GroupModal`, `PaymentMethodModal` organisms; tables updated with `onAdd/onEdit/onDelete` props + inline delete confirm; full mutations in `LedgerDetailPage`; `QuickCreate` inline sub-component in `CreateTransactionModal` (always visible below each select, auto-selects newly created item via `setValue`)
 
 ### 🔜 Remaining (priority order)
 1. **Budgets page** — category spend vs budget
