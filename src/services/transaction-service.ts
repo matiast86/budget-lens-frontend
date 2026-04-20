@@ -127,6 +127,22 @@ export const updateTransaction = async (
 };
 
 // ---------------------------------------------------------------------------
+// Breakdown (W1-W4)
+// ---------------------------------------------------------------------------
+
+export const updateTransactionBreakdown = async (
+  txId: number,
+  amounts: { amountOne?: number; amountTwo?: number; amountThree?: number; amountFour?: number },
+  token: string,
+): Promise<TransactionResponseDto> => {
+  return apiFetch<TransactionResponseDto>(
+    `/transactions/${txId}/breakdown`,
+    { method: "PATCH", body: JSON.stringify(amounts) },
+    token,
+  );
+};
+
+// ---------------------------------------------------------------------------
 // Delete
 // ---------------------------------------------------------------------------
 

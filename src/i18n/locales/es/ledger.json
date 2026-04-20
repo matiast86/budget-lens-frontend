@@ -180,6 +180,15 @@
       "togglePaid": "Cambiar estado de pago",
       "toggleCashflow": "Cambiar impacto en flujo de caja"
     },
+    "breakdown": {
+      "title": "Desglose Semanal",
+      "toggle": "Editar desglose semanal",
+      "save": "Guardar",
+      "distributeEvenly": "Distribuir equitativamente",
+      "unallocated": "{{amount}} sin asignar",
+      "overallocated": "{{amount}} excedido",
+      "saveError": "No se pudo guardar el desglose. Intente nuevamente."
+    },
     "edit": {
       "title": "Editar Transacción",
       "field": {
@@ -222,6 +231,8 @@
         "paid": "Pagado",
         "cashflow": "CF",
         "cashflowFull": "Impacta en Flujo de Caja",
+        "weeks": "Semanas",
+        "weeksFull": "Desglose Semanal",
         "actions": "Acciones"
       },
       "empty": {

@@ -748,6 +748,9 @@ budget-lens-frontend/
 │   │   │   ├── TransactionFilters.tsx # NEW — month picker, entryType/status pills, relation selects, isPaid
 │   │   │   ├── TransactionListRow.tsx # mobile-first list row pattern
 │   │   │   ├── TransactionRow.tsx     # @deprecated — kept until API wired
+│   │   │   ├── TransactionBreakdownPanel.tsx # inline W1-W4 editor row; self-contained useMutation; no modal
+│   │   │   │                                 # reads token from useAuthStore; invalidates ["transactions", ledgerId]
+│   │   │   │                                 # props: tx, colSpan, onClose
 │   │   │   └── BudgetProgressItem.tsx # updated: emoji signal + colored bar
 │   │   └── organisms/
 │   │       ├── AppHeader.tsx          # updated: slim mobile / full desktop; onNewLedger prop
@@ -755,7 +758,7 @@ budget-lens-frontend/
 │   │       ├── BudgetOverview.tsx     # updated: uses new BudgetProgressItem
 │   │       ├── CategoryModal.tsx      # create/edit category (name + optional description); open/onClose/onSubmit/initialData?
 │   │       ├── CreateLedgerModal.tsx  # modal form: name, description, currency, baseCpiIndex
-│   │       ├── CreateTransactionModal.tsx # modal form: all transaction fields; colored header
+│   │       ├── CreateTransactionModal.tsx # modal form: all transaction fields; colored header; no status field (backend auto-derives from paymentMonth)
 │   │       │                              # QuickCreate inline sub-component: appears below each select (category/group/PM)
 │   │       │                              # always visible; onCreateCategory/Group/PaymentMethod optional props
 │   │       │                              # resolver cast: zodResolver(...) as any (zod input/output type mismatch with RHF)
@@ -770,6 +773,10 @@ budget-lens-frontend/
 │   │       ├── Sidebar.tsx            # updated: teal active state, stone neutrals; lg: only
 │   │       ├── TransactionList.tsx    # @deprecated
 │   │       └── TransactionTable.tsx   # clickable isPaid/impactsCashflow toggles; edit+delete actions
+│   │                                  # Weeks column: BreakdownMiniBar sparkline (4 proportional bars, primary-400/stone-200)
+│   │                                  # click Weeks cell → toggles TransactionBreakdownPanel expansion row inline
+│   │                                  # TransactionTableRow returns React.Fragment (main <tr> + optional breakdown <tr>)
+│   │                                  # COL_COUNT = 11 (add 1 when adding columns — used for breakdown colSpan)
 │   ├── helpers/
 │   │   └── mocks/
 │   │       ├── ledger-mocks.ts
@@ -787,12 +794,13 @@ budget-lens-frontend/
 │   ├── schemas/                       # Zod schemas (one file per domain)
 │   │   ├── auth.schema.ts             # registerSchema + RegisterFormData
 │   │   ├── ledger.schema.ts           # createLedgerSchema + CreateLedgerFormData
-│   │   └── transaction.schema.ts      # createTransactionSchema, editTransactionSchema + form data types
+│   │   └── transaction.schema.ts      # createTransactionSchema (no `status` — backend derives from paymentMonth), editTransactionSchema + form data types
 │   ├── services/
 │   │   ├── api-client.ts              # apiFetch<T> — throws ApiError(status, message); 204→undefined as T
 │   │   ├── auth-service.ts            # signIn, signUp
 │   │   ├── ledger-service.ts          # getLedgers, getLedger, createLedger
 │   │   ├── transaction-service.ts     # createTransaction, getTransactions, updateTransactionFlags, updateTransaction, deleteTransaction
+│   │   │                              # updateTransactionBreakdown(txId, {amountOne?,amountTwo?,amountThree?,amountFour?}, token) → PATCH /transactions/:id/breakdown
 │   │   ├── category-service.ts        # createCategory, updateCategory, deleteCategory
 │   │   ├── group-service.ts           # createGroup, updateGroup, deleteGroup
 │   │   ├── payment-method-service.ts  # createPaymentMethod, updatePaymentMethod, deletePaymentMethod, assignPaymentMethodToLedger (unused — backend auto-assigns)
@@ -877,6 +885,7 @@ budget-lens-frontend/
 12. ~~**Transactions view — filters, edit, delete, flag toggles**~~ — per-ledger only; `TransactionFilters` molecule; `EditTransactionModal` organism; `TransactionTable` updated with clickable flags + inline delete confirm; `LedgerDetailPage` has two queries (`["ledger", id]` metadata + `["transactions", id, filters]` filterable); backend: `GET /transactions/ledgers/:id?filters`, `PATCH :id/flags`, `PATCH :id`, `DELETE :id`
 13. ~~**Transactions page (`/transactions`)**~~ — dedicated full-page view at the sidebar route; ledger selector pills (auto-selects first); Income / Expenses / Balance summary cards computed from filtered results; reuses `TransactionFilters` + `TransactionTable` + both modals; i18n keys added to `common` namespace
 14. ~~**CRUD for categories, groups, payment methods**~~ — `CategoryModal`, `GroupModal`, `PaymentMethodModal` organisms; tables updated with `onAdd/onEdit/onDelete` props + inline delete confirm; full mutations in `LedgerDetailPage`; `QuickCreate` inline sub-component in `CreateTransactionModal` (always visible below each select, auto-selects newly created item via `setValue`)
+15. ~~**Weekly breakdown (W1-W4) in transaction table**~~ — new "Weeks" column with `BreakdownMiniBar` sparkline (4 proportional bars); click to toggle `TransactionBreakdownPanel` inline below the row; panel has 4 number inputs + live sum badge + segmented progress bar + "Distribute evenly" + Save/Cancel; `updateTransactionBreakdown` added to `transaction-service.ts`; i18n keys `transaction.breakdown.*` + `transaction.table.col.weeks` added to EN + ES
 
 ### 🔜 Remaining (priority order)
 1. **Budgets page** — category spend vs budget

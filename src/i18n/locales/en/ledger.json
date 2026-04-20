@@ -180,6 +180,15 @@
       "togglePaid": "Toggle paid",
       "toggleCashflow": "Toggle cashflow impact"
     },
+    "breakdown": {
+      "title": "Weekly Breakdown",
+      "toggle": "Edit weekly breakdown",
+      "save": "Save",
+      "distributeEvenly": "Distribute evenly",
+      "unallocated": "{{amount}} unallocated",
+      "overallocated": "{{amount}} over budget",
+      "saveError": "Could not save breakdown. Please try again."
+    },
     "edit": {
       "title": "Edit Transaction",
       "field": {
@@ -222,6 +231,8 @@
         "paid": "Paid",
         "cashflow": "CF",
         "cashflowFull": "Impacts Cashflow",
+        "weeks": "Weeks",
+        "weeksFull": "Weekly Breakdown",
         "actions": "Actions"
       },
       "empty": {

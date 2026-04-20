@@ -11,13 +11,21 @@ import {
   Trash2,
   Check,
   X,
+  BarChart2,
 } from "lucide-react";
 import { Badge } from "../atoms/Badge";
 import { Button } from "../atoms/Button";
+import { TransactionBreakdownPanel } from "../molecules/TransactionBreakdownPanel";
 import { formatCurrency } from "../../utils/format-currency";
 import { formatTransactionDate, formatPaymentMonth } from "../../utils/format-date";
 import { cn } from "../../utils/cn";
-import type { TransactionResponseDto, EntryType, Status, Currency } from "../../types";
+import type {
+  TransactionResponseDto,
+  TransactionBreakDownResponseDto,
+  EntryType,
+  Status,
+  Currency,
+} from "../../types";
 import type { TFunction } from "i18next";
 
 // ---------------------------------------------------------------------------
@@ -49,8 +57,50 @@ const statusBadge = (status: Status, t: TFunction) => {
 };
 
 // ---------------------------------------------------------------------------
+// BreakdownMiniBar — compact 4-bar sparkline showing W1-W4 distribution
+// ---------------------------------------------------------------------------
+
+const BreakdownMiniBar = ({
+  breakdowns,
+}: {
+  breakdowns: TransactionBreakDownResponseDto[];
+}) => {
+  const sorted = [...breakdowns].sort((a, b) => a.weekNumber - b.weekNumber);
+  const max = Math.max(...sorted.map((b) => b.amount), 0);
+  const hasAny = max > 0;
+
+  return (
+    <div
+      className="flex items-end gap-[2px]"
+      style={{ height: "18px", width: "40px" }}
+      aria-hidden
+    >
+      {sorted.map((b) => {
+        const h = hasAny
+          ? b.amount > 0
+            ? Math.max(Math.round((b.amount / max) * 16), 4)
+            : 3
+          : 3;
+        return (
+          <div
+            key={b.id}
+            className={cn(
+              "flex-1 rounded-[1px] transition-all",
+              b.amount > 0 ? "bg-primary-400" : "bg-stone-200",
+            )}
+            style={{ height: `${h}px` }}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
 // Row
 // ---------------------------------------------------------------------------
+
+const COL_COUNT = 11; // Date + Category + Type + Status + Amount + Quota + Method + Paid + CF + Weeks + Actions
 
 interface TransactionTableRowProps {
   tx: TransactionResponseDto;
@@ -69,165 +119,213 @@ const TransactionTableRow = ({
 }: TransactionTableRowProps) => {
   const { t, i18n } = useTranslation("ledger");
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
   const isIncome = tx.entryType === "INCOME";
   const hasInstallments = tx.installments > 1;
+  const breakdowns = tx.transactionsBreakDown ?? [];
+  const hasBreakdownData = breakdowns.some((b) => b.amount > 0);
 
   return (
-    <tr className="border-b border-stone-100 hover:bg-stone-50 transition-colors">
-      {/* Date */}
-      <td className="px-md py-sm whitespace-nowrap">
-        <p className="text-sm text-stone-900 tabular-nums">
-          {formatTransactionDate(tx.transactionDate, i18n.language)}
-        </p>
-        <p className="text-xs text-stone-400 tabular-nums">
-          {formatPaymentMonth(tx.paymentMonth, i18n.language)}
-        </p>
-      </td>
-
-      {/* Category / Comment */}
-      <td className="px-md py-sm max-w-[200px]">
-        <p className="text-sm font-medium text-stone-900 truncate">
-          {tx.category.name}
-        </p>
-        {tx.comment && (
-          <p className="text-xs text-stone-400 truncate">{tx.comment}</p>
-        )}
-        {tx.group && (
-          <p className="text-xs text-stone-400 truncate">↳ {tx.group.name}</p>
-        )}
-      </td>
-
-      {/* Type */}
-      <td className="px-md py-sm">{entryTypeBadge(tx.entryType, t)}</td>
-
-      {/* Status */}
-      <td className="px-md py-sm">{statusBadge(tx.status, t)}</td>
-
-      {/* Amount */}
-      <td className="px-md py-sm text-right">
-        <p className={`text-sm financial-amount ${isIncome ? "amount-positive" : "amount-negative"}`}>
-          {isIncome ? "+" : "-"}{formatCurrency(tx.monthlyAmount, tx.currency as Currency, i18n.language)}
-        </p>
-        {tx.realMonthlyAmount != null && (
-          <p className="text-xs text-stone-400 tabular-nums">
-            ≈ {formatCurrency(tx.realMonthlyAmount, tx.currency as Currency, i18n.language)} {t("transaction.table.real")}
+    <>
+      <tr className="border-b border-stone-100 hover:bg-stone-50 transition-colors">
+        {/* Date */}
+        <td className="px-md py-sm whitespace-nowrap">
+          <p className="text-sm text-stone-900 tabular-nums">
+            {formatTransactionDate(tx.transactionDate, i18n.language)}
           </p>
-        )}
-      </td>
+          <p className="text-xs text-stone-400 tabular-nums">
+            {formatPaymentMonth(tx.paymentMonth, i18n.language)}
+          </p>
+        </td>
 
-      {/* Installments */}
-      <td className="px-md py-sm text-center">
-        {hasInstallments ? (
-          <Badge variant="default" size="sm">
-            {tx.installment}/{tx.installments}
-          </Badge>
-        ) : (
-          <span className="text-stone-300 text-xs">—</span>
-        )}
-      </td>
-
-      {/* Payment method */}
-      <td className="px-md py-sm">
-        <div className="flex items-center gap-xs">
-          <span>{PAYMENT_TYPE_ICONS[tx.paymentMethod.type] ?? "💰"}</span>
-          <span className="text-sm text-stone-700 truncate max-w-[100px]">
-            {tx.paymentMethod.name}
-          </span>
-        </div>
-      </td>
-
-      {/* Paid — clickable toggle */}
-      <td className="px-md py-sm text-center">
-        <button
-          type="button"
-          onClick={() => onTogglePaid?.(tx)}
-          disabled={!onTogglePaid}
-          aria-label={t("transaction.action.togglePaid")}
-          className={cn(
-            "mx-auto block rounded-full transition-colors",
-            onTogglePaid ? "hover:bg-stone-100 p-0.5 cursor-pointer" : "cursor-default",
+        {/* Category / Comment */}
+        <td className="px-md py-sm max-w-[200px]">
+          <p className="text-sm font-medium text-stone-900 truncate">
+            {tx.category.name}
+          </p>
+          {tx.comment && (
+            <p className="text-xs text-stone-400 truncate">{tx.comment}</p>
           )}
-        >
-          {tx.isPaid ? (
-            <CheckCircle2 className="w-4 h-4 text-income-500" />
+          {tx.group && (
+            <p className="text-xs text-stone-400 truncate">↳ {tx.group.name}</p>
+          )}
+        </td>
+
+        {/* Type */}
+        <td className="px-md py-sm">{entryTypeBadge(tx.entryType, t)}</td>
+
+        {/* Status */}
+        <td className="px-md py-sm">{statusBadge(tx.status, t)}</td>
+
+        {/* Amount */}
+        <td className="px-md py-sm text-right">
+          <p className={`text-sm financial-amount ${isIncome ? "amount-positive" : "amount-negative"}`}>
+            {isIncome ? "+" : "-"}{formatCurrency(tx.monthlyAmount, tx.currency as Currency, i18n.language)}
+          </p>
+          {tx.realMonthlyAmount != null && (
+            <p className="text-xs text-stone-400 tabular-nums">
+              ≈ {formatCurrency(tx.realMonthlyAmount, tx.currency as Currency, i18n.language)} {t("transaction.table.real")}
+            </p>
+          )}
+        </td>
+
+        {/* Installments */}
+        <td className="px-md py-sm text-center">
+          {hasInstallments ? (
+            <Badge variant="default" size="sm">
+              {tx.installment}/{tx.installments}
+            </Badge>
           ) : (
-            <Circle className="w-4 h-4 text-stone-300" />
+            <span className="text-stone-300 text-xs">—</span>
           )}
-        </button>
-      </td>
+        </td>
 
-      {/* Cashflow — clickable toggle */}
-      <td className="px-md py-sm text-center">
-        <button
-          type="button"
-          onClick={() => onToggleCashflow?.(tx)}
-          disabled={!onToggleCashflow}
-          aria-label={t("transaction.action.toggleCashflow")}
-          className={cn(
-            "mx-auto block rounded-full transition-colors",
-            onToggleCashflow ? "hover:bg-stone-100 p-0.5 cursor-pointer" : "cursor-default",
-          )}
-        >
-          {tx.impactsCashflow ? (
-            <Zap className="w-4 h-4 text-warning-500" />
-          ) : (
-            <ZapOff className="w-4 h-4 text-stone-300" />
-          )}
-        </button>
-      </td>
+        {/* Payment method */}
+        <td className="px-md py-sm">
+          <div className="flex items-center gap-xs">
+            <span>{PAYMENT_TYPE_ICONS[tx.paymentMethod.type] ?? "💰"}</span>
+            <span className="text-sm text-stone-700 truncate max-w-[100px]">
+              {tx.paymentMethod.name}
+            </span>
+          </div>
+        </td>
 
-      {/* Actions */}
-      <td className="px-md py-sm text-center">
-        <div className="flex items-center justify-center gap-xs">
-          {/* Edit */}
+        {/* Paid */}
+        <td className="px-md py-sm text-center">
           <button
             type="button"
-            onClick={() => onEdit?.(tx)}
-            aria-label={t("transaction.action.edit")}
-            className="p-xs rounded-md text-stone-400 hover:text-primary-600 hover:bg-primary-50 transition-colors"
+            onClick={() => onTogglePaid?.(tx)}
+            disabled={!onTogglePaid}
+            aria-label={t("transaction.action.togglePaid")}
+            className={cn(
+              "mx-auto block rounded-full transition-colors",
+              onTogglePaid ? "hover:bg-stone-100 p-0.5 cursor-pointer" : "cursor-default",
+            )}
           >
-            <Pencil className="w-3.5 h-3.5" />
+            {tx.isPaid ? (
+              <CheckCircle2 className="w-4 h-4 text-income-500" />
+            ) : (
+              <Circle className="w-4 h-4 text-stone-300" />
+            )}
           </button>
+        </td>
 
-          {/* Delete — inline confirm */}
-          {confirmDelete ? (
-            <div className="flex items-center gap-xs">
-              <span className="text-xs text-stone-500 whitespace-nowrap">
-                {t("transaction.action.confirmDelete")}
+        {/* Cashflow */}
+        <td className="px-md py-sm text-center">
+          <button
+            type="button"
+            onClick={() => onToggleCashflow?.(tx)}
+            disabled={!onToggleCashflow}
+            aria-label={t("transaction.action.toggleCashflow")}
+            className={cn(
+              "mx-auto block rounded-full transition-colors",
+              onToggleCashflow ? "hover:bg-stone-100 p-0.5 cursor-pointer" : "cursor-default",
+            )}
+          >
+            {tx.impactsCashflow ? (
+              <Zap className="w-4 h-4 text-warning-500" />
+            ) : (
+              <ZapOff className="w-4 h-4 text-stone-300" />
+            )}
+          </button>
+        </td>
+
+        {/* Weeks breakdown mini-viz */}
+        <td className="px-md py-sm text-center">
+          <button
+            type="button"
+            onClick={() => setBreakdownOpen((v) => !v)}
+            aria-label={t("transaction.breakdown.toggle")}
+            title={t("transaction.breakdown.toggle")}
+            className={cn(
+              "mx-auto flex flex-col items-center gap-0.5 rounded-md p-xs transition-colors group",
+              breakdownOpen
+                ? "bg-primary-100 text-primary-700"
+                : "hover:bg-stone-100 text-stone-400 hover:text-stone-600",
+            )}
+          >
+            {breakdowns.length > 0 ? (
+              <BreakdownMiniBar breakdowns={breakdowns} />
+            ) : (
+              <BarChart2
+                className={cn(
+                  "w-4 h-4",
+                  breakdownOpen ? "text-primary-600" : "text-stone-300 group-hover:text-stone-400",
+                )}
+              />
+            )}
+            {hasBreakdownData && (
+              <span className="text-[9px] font-medium tabular-nums text-stone-400 leading-none">
+                {formatCurrency(
+                  breakdowns.reduce((s, b) => s + b.amount, 0),
+                  tx.currency as Currency,
+                  i18n.language,
+                )}
               </span>
-              <button
-                type="button"
-                onClick={() => {
-                  setConfirmDelete(false);
-                  onDelete?.(tx);
-                }}
-                aria-label="Confirm delete"
-                className="p-xs rounded-md text-white bg-expense hover:bg-expense-600 transition-colors"
-              >
-                <Check className="w-3 h-3" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfirmDelete(false)}
-                aria-label={t("transaction.action.cancel")}
-                className="p-xs rounded-md text-stone-500 hover:bg-stone-100 transition-colors"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </div>
-          ) : (
+            )}
+          </button>
+        </td>
+
+        {/* Actions */}
+        <td className="px-md py-sm text-center">
+          <div className="flex items-center justify-center gap-xs">
             <button
               type="button"
-              onClick={() => setConfirmDelete(true)}
-              aria-label={t("transaction.action.delete")}
-              className="p-xs rounded-md text-stone-400 hover:text-expense-600 hover:bg-expense-50 transition-colors"
+              onClick={() => onEdit?.(tx)}
+              aria-label={t("transaction.action.edit")}
+              className="p-xs rounded-md text-stone-400 hover:text-primary-600 hover:bg-primary-50 transition-colors"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Pencil className="w-3.5 h-3.5" />
             </button>
-          )}
-        </div>
-      </td>
-    </tr>
+
+            {confirmDelete ? (
+              <div className="flex items-center gap-xs">
+                <span className="text-xs text-stone-500 whitespace-nowrap">
+                  {t("transaction.action.confirmDelete")}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setConfirmDelete(false);
+                    onDelete?.(tx);
+                  }}
+                  aria-label="Confirm delete"
+                  className="p-xs rounded-md text-white bg-expense hover:bg-expense-600 transition-colors"
+                >
+                  <Check className="w-3 h-3" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(false)}
+                  aria-label={t("transaction.action.cancel")}
+                  className="p-xs rounded-md text-stone-500 hover:bg-stone-100 transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(true)}
+                aria-label={t("transaction.action.delete")}
+                className="p-xs rounded-md text-stone-400 hover:text-expense-600 hover:bg-expense-50 transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </td>
+      </tr>
+
+      {/* Inline breakdown editor */}
+      {breakdownOpen && (
+        <TransactionBreakdownPanel
+          tx={tx}
+          colSpan={COL_COUNT}
+          onClose={() => setBreakdownOpen(false)}
+        />
+      )}
+    </>
   );
 };
 
@@ -277,7 +375,7 @@ export const TransactionTable = ({
 
   return (
     <div className="card p-0 overflow-hidden">
-      {/* Table header actions */}
+      {/* Table header */}
       <div className="flex items-center justify-between px-md py-sm border-b border-stone-100">
         <h2 className="section-title">{t("transaction.table.title")}</h2>
         <div className="flex gap-sm">
@@ -304,6 +402,7 @@ export const TransactionTable = ({
               <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide">{t("transaction.table.col.method")}</th>
               <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide text-center" title={t("transaction.table.col.paid")}>{t("transaction.table.col.paid")}</th>
               <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide text-center" title={t("transaction.table.col.cashflowFull")}>{t("transaction.table.col.cashflow")}</th>
+              <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide text-center" title={t("transaction.table.col.weeksFull")}>{t("transaction.table.col.weeks")}</th>
               <th className="px-md py-sm text-xs font-semibold text-stone-500 uppercase tracking-wide text-center">{t("transaction.table.col.actions")}</th>
             </tr>
           </thead>
