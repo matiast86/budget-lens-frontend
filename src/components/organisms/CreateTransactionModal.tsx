@@ -126,11 +126,6 @@ const CURRENCY_OPTIONS: { value: string; key: string }[] = [
   { value: "USD", key: "create.currency.USD" },
 ];
 
-const STATUS_OPTIONS: { value: string; key: string }[] = [
-  { value: "CURRENT", key: "transaction.status.current" },
-  { value: "FUTURE",  key: "transaction.status.future" },
-  { value: "CLOSED",  key: "transaction.status.closed" },
-];
 
 const inputClass = (hasError: boolean) =>
   cn(
@@ -181,7 +176,7 @@ export const CreateTransactionModal = ({
       setServerError(null);
       reset({
         entryType: defaultEntryType,
-        status: "CURRENT",
+
         currency: defaultCurrency,
         installments: 1,
         isPaid: false,
@@ -524,8 +519,8 @@ export const CreateTransactionModal = ({
               </div>
             </div>
 
-            {/* Group + Status */}
-            <div className="grid grid-cols-2 gap-sm">
+            {/* Group */}
+            <div>
               <div className="space-y-xs">
                 <label htmlFor="tx-group" className="block text-sm font-medium text-stone-700">
                   {t("transaction.create.field.group")}
@@ -575,20 +570,6 @@ export const CreateTransactionModal = ({
                 )}
               </div>
 
-              <div className="space-y-xs">
-                <label htmlFor="tx-status" className="block text-sm font-medium text-stone-700">
-                  {t("transaction.create.field.status")}
-                </label>
-                <select
-                  id="tx-status"
-                  className={cn(inputClass(false), "cursor-pointer")}
-                  {...register("status")}
-                >
-                  {STATUS_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{t(opt.key)}</option>
-                  ))}
-                </select>
-              </div>
             </div>
 
             {/* Comment */}

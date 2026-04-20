@@ -3,8 +3,6 @@ import { z } from "zod";
 export const createTransactionSchema = z.object({
   entryType: z.enum(["INCOME", "EXPENSE"]),
 
-  status: z.enum(["CURRENT", "FUTURE", "CLOSED"]),
-
   transactionDate: z.string().min(1, "transaction.create.error.dateRequired"),
 
   paymentMonth: z.string().min(1, "transaction.create.error.paymentMonthRequired"),
