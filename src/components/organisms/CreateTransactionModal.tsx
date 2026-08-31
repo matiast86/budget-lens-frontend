@@ -176,6 +176,7 @@ export const CreateTransactionModal = ({
       setServerError(null);
       reset({
         entryType: defaultEntryType,
+        transactionType: "VARIABLE",
 
         currency: defaultCurrency,
         installments: 1,
@@ -214,15 +215,31 @@ export const CreateTransactionModal = ({
   };
 
   const watchedEntryType = watch("entryType");
+  const watchedType      = watch("transactionType") ?? "VARIABLE";
   const watchedAmount    = watch("totalAmount");
   const watchedInstall   = watch("installments") ?? 1;
   const watchedCurrency  = watch("currency") ?? defaultCurrency;
+  const watchedPayMonth  = watch("paymentMonth");
+  const watchedBundleTo  = watch("bundleTo");
 
   const isIncome = watchedEntryType === "INCOME";
+  const isFixed = watchedType === "FIXED";
   const showMonthlyPreview =
+    !isFixed &&
     !isNaN(watchedAmount) &&
     watchedAmount > 0 &&
     watchedInstall > 1;
+
+  // Number of transactions a FIXED bundle will create: one per month from the
+  // month after paymentMonth through bundleTo (inclusive). Mirrors the backend.
+  const monthsBetween = (from?: string, to?: string): number => {
+    if (!from || !to) return 0;
+    const [fy, fm] = from.split("-").map(Number);
+    const [ty, tm] = to.split("-").map(Number);
+    if ([fy, fm, ty, tm].some(Number.isNaN)) return 0;
+    return (ty - fy) * 12 + (tm - fm);
+  };
+  const bundleCount = isFixed ? monthsBetween(watchedPayMonth, watchedBundleTo) : 0;
 
   if (!open) return null;
 
@@ -311,8 +328,29 @@ export const CreateTransactionModal = ({
               })}
             </div>
 
+            {/* Transaction type — one-off vs recurring bundle */}
+            <div className="grid grid-cols-2 gap-sm">
+              {(["VARIABLE", "FIXED"] as const).map((type) => {
+                const isType = watchedType === type;
+                return (
+                  <label
+                    key={type}
+                    className={cn(
+                      "flex items-center gap-sm p-sm border rounded-lg cursor-pointer transition-colors",
+                      "has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 border-stone-200",
+                    )}
+                  >
+                    <input type="radio" value={type} className="sr-only" {...register("transactionType")} />
+                    <span className={cn("text-sm font-medium", isType ? "text-primary-700" : "text-stone-500")}>
+                      {t(`transaction.create.type.${type}`)}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+
             {/* Currency + Amount + Installments */}
-            <div className="grid grid-cols-3 gap-sm">
+            <div className={cn("grid gap-sm", isFixed ? "grid-cols-2" : "grid-cols-3")}>
               <div className="space-y-xs">
                 <label htmlFor="tx-currency" className="block text-sm font-medium text-stone-700">
                   {t("transaction.create.field.currency")}
@@ -351,31 +389,33 @@ export const CreateTransactionModal = ({
                 )}
               </div>
 
-              <div className="space-y-xs">
-                <label htmlFor="tx-installments" className="block text-sm font-medium text-stone-700">
-                  {t("transaction.create.field.installments")}
-                </label>
-                <input
-                  id="tx-installments"
-                  type="number"
-                  min="1"
-                  step="1"
-                  className={inputClass(!!errors.installments)}
-                  {...register("installments", { valueAsNumber: true })}
-                />
-                {showMonthlyPreview && (
-                  <p className="text-xs text-stone-400">
-                    {t("transaction.create.field.monthlyPreview", {
-                      amount: formatCurrency(watchedAmount / watchedInstall, watchedCurrency as Currency, i18n.language),
-                    })}
-                  </p>
-                )}
-                {errors.installments && (
-                  <p className="text-xs text-expense-400" role="alert">
-                    {t(errors.installments.message ?? "")}
-                  </p>
-                )}
-              </div>
+              {!isFixed && (
+                <div className="space-y-xs">
+                  <label htmlFor="tx-installments" className="block text-sm font-medium text-stone-700">
+                    {t("transaction.create.field.installments")}
+                  </label>
+                  <input
+                    id="tx-installments"
+                    type="number"
+                    min="1"
+                    step="1"
+                    className={inputClass(!!errors.installments)}
+                    {...register("installments", { valueAsNumber: true })}
+                  />
+                  {showMonthlyPreview && (
+                    <p className="text-xs text-stone-400">
+                      {t("transaction.create.field.monthlyPreview", {
+                        amount: formatCurrency(watchedAmount / watchedInstall, watchedCurrency as Currency, i18n.language),
+                      })}
+                    </p>
+                  )}
+                  {errors.installments && (
+                    <p className="text-xs text-expense-400" role="alert">
+                      {t(errors.installments.message ?? "")}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Dates */}
@@ -416,6 +456,78 @@ export const CreateTransactionModal = ({
                 )}
               </div>
             </div>
+
+            {/* Recurrence — FIXED bundle settings */}
+            {isFixed && (
+              <div className="rounded-lg border border-primary-100 bg-primary-50/50 p-sm space-y-sm">
+                <p className="text-sm font-medium text-stone-700">
+                  {t("transaction.create.field.recurrence")}
+                </p>
+
+                <div className="grid grid-cols-3 gap-sm">
+                  <div className="space-y-xs">
+                    <label htmlFor="tx-bundle-to" className="block text-xs font-medium text-stone-600">
+                      {t("transaction.create.field.bundleTo")}
+                      <span className="text-expense-400 ml-xs" aria-hidden="true">*</span>
+                    </label>
+                    <input
+                      id="tx-bundle-to"
+                      type="month"
+                      min={watchedPayMonth}
+                      className={inputClass(!!errors.bundleTo)}
+                      {...register("bundleTo")}
+                    />
+                  </div>
+
+                  <div className="space-y-xs">
+                    <label htmlFor="tx-increase-rate" className="block text-xs font-medium text-stone-600">
+                      {t("transaction.create.field.increaseRate")}
+                    </label>
+                    <input
+                      id="tx-increase-rate"
+                      type="number"
+                      step="any"
+                      min="0"
+                      placeholder="0"
+                      className={inputClass(!!errors.increaseRate)}
+                      {...register("increaseRate", { valueAsNumber: true })}
+                    />
+                  </div>
+
+                  <div className="space-y-xs">
+                    <label htmlFor="tx-increase-every" className="block text-xs font-medium text-stone-600">
+                      {t("transaction.create.field.increaseEveryMonths")}
+                    </label>
+                    <input
+                      id="tx-increase-every"
+                      type="number"
+                      step="1"
+                      min="1"
+                      placeholder="1"
+                      className={inputClass(!!errors.increaseEveryMonths)}
+                      {...register("increaseEveryMonths", { valueAsNumber: true })}
+                    />
+                  </div>
+                </div>
+
+                {(errors.bundleTo || errors.increaseRate || errors.increaseEveryMonths) && (
+                  <p className="text-xs text-expense-400" role="alert">
+                    {t(
+                      errors.bundleTo?.message ??
+                        errors.increaseRate?.message ??
+                        errors.increaseEveryMonths?.message ??
+                        "",
+                    )}
+                  </p>
+                )}
+
+                {bundleCount > 0 && (
+                  <p className="text-xs text-stone-500">
+                    {t("transaction.create.field.bundlePreview", { count: bundleCount })}
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Category + Payment method */}
             <div className="grid grid-cols-2 gap-sm">

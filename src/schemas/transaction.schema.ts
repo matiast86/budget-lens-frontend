@@ -1,7 +1,24 @@
 import { z } from "zod";
 
-export const createTransactionSchema = z.object({
+// Empty inputs from RHF arrive as "" or NaN (when valueAsNumber is set).
+// Normalise those to undefined so `.optional()` fields stay optional.
+const optionalNumber = (schema: z.ZodType<number | undefined>) =>
+  z.preprocess(
+    (v) =>
+      v === "" || v === null || v === undefined || (typeof v === "number" && Number.isNaN(v))
+        ? undefined
+        : v,
+    schema,
+  );
+
+export const createTransactionSchema = z
+  .object({
   entryType: z.enum(["INCOME", "EXPENSE"]),
+
+  // VARIABLE = single one-off transaction.
+  // FIXED = recurring "bundle": one transaction per month from paymentMonth+1
+  // through `bundleTo`, optionally compounding by `increaseRate`.
+  transactionType: z.enum(["VARIABLE", "FIXED"]).default("VARIABLE"),
 
   transactionDate: z.string().min(1, "transaction.create.error.dateRequired"),
 
@@ -50,7 +67,52 @@ export const createTransactionSchema = z.object({
       }),
     )
     .default([]),
-});
+
+  // --- Recurring "bundle" params — only used when transactionType === "FIXED" ---
+
+  // End period (inclusive) for the recurring bundle, as "YYYY-MM".
+  bundleTo: z.preprocess(
+    (v) => (v === "" ? undefined : v),
+    z.string().optional(),
+  ),
+
+  // Percentage increase applied every `increaseEveryMonths` (e.g. 10 = +10%).
+  // Converted to a fraction before hitting the API.
+  increaseRate: optionalNumber(
+    z
+      .number({ invalid_type_error: "transaction.create.error.increaseRateInvalid" })
+      .min(0, "transaction.create.error.increaseRateInvalid")
+      .optional(),
+  ),
+
+  increaseEveryMonths: optionalNumber(
+    z
+      .number({ invalid_type_error: "transaction.create.error.increaseEveryMonthsInvalid" })
+      .int("transaction.create.error.increaseEveryMonthsInvalid")
+      .min(1, "transaction.create.error.increaseEveryMonthsInvalid")
+      .optional(),
+  ),
+  })
+  .superRefine((data, ctx) => {
+    if (data.transactionType !== "FIXED") return;
+    if (!data.bundleTo) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["bundleTo"],
+        message: "transaction.create.error.bundleToRequired",
+      });
+      return;
+    }
+    // Both values come from <input type="month"> ("YYYY-MM"), so lexical
+    // comparison is chronological. The bundle must span at least one month.
+    if (data.paymentMonth && data.bundleTo <= data.paymentMonth) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["bundleTo"],
+        message: "transaction.create.error.bundleToAfter",
+      });
+    }
+  });
 
 export type CreateTransactionFormData = z.infer<typeof createTransactionSchema>;
 

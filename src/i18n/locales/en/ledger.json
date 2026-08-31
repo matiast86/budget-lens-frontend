@@ -97,6 +97,10 @@
         "income": "Add Income",
         "expense": "Add Expense"
       },
+      "type": {
+        "VARIABLE": "One-time",
+        "FIXED": "Recurring"
+      },
       "field": {
         "currency": "Currency",
         "amount": "Total Amount",
@@ -104,6 +108,11 @@
         "monthlyPreview": "≈ {{amount}} / month",
         "date": "Date",
         "paymentMonth": "Payment Month",
+        "recurrence": "Recurrence",
+        "bundleTo": "Repeat until",
+        "increaseRate": "Increase %",
+        "increaseEveryMonths": "Every (months)",
+        "bundlePreview": "Creates {{count}} monthly transactions",
         "category": "Category",
         "selectCategory": "Select category...",
         "paymentMethod": "Payment Method",
@@ -135,7 +144,11 @@
         "paymentMethodRequired": "Please select a payment method",
         "commentTooLong": "Note must be 500 characters or less",
         "debtOwnerRequired": "Select a collaborator",
-        "debtAmountPositive": "Enter a valid amount"
+        "debtAmountPositive": "Enter a valid amount",
+        "bundleToRequired": "Choose an end month for the recurrence",
+        "bundleToAfter": "End month must be after the payment month",
+        "increaseRateInvalid": "Increase % must be 0 or greater",
+        "increaseEveryMonthsInvalid": "Enter a whole number of months (1 or more)"
       },
       "action": {
         "submit": "Save Transaction"

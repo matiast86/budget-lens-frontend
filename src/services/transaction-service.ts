@@ -28,6 +28,8 @@ export const createTransaction = async (
     }),
   );
 
+  const isBundle = data.transactionType === "FIXED";
+
   const body: Record<string, unknown> = {
     categoryId: data.categoryId,
     groupId: data.groupId,
@@ -35,6 +37,7 @@ export const createTransaction = async (
     transactionDate: data.transactionDate,
     paymentMonthValue: data.paymentMonth,
     currency: data.currency,
+    transactionTypeEntry: data.transactionType,
     totalProvidedAmount: data.totalAmount,
     impactsCashflow: data.impactsCashflow,
     debtAssignments: resolvedDebtAssignments,
@@ -42,7 +45,21 @@ export const createTransaction = async (
   };
 
   if (data.entryType === "EXPENSE") {
-    body.installments = data.installments;
+    // Installments and recurring bundles are mutually exclusive on the backend.
+    body.installments = isBundle ? 1 : data.installments;
+  }
+
+  if (isBundle) {
+    // `bundleTo` is a "YYYY-MM" period string; the backend expands the bundle
+    // to one transaction per month up to and including it.
+    body.bundleTo = data.bundleTo;
+    // UI collects a whole-number percentage; the API expects a fraction.
+    if (data.increaseRate !== undefined) {
+      body.increaseRate = data.increaseRate / 100;
+    }
+    if (data.increaseEveryMonths !== undefined) {
+      body.increaseEveryMonths = data.increaseEveryMonths;
+    }
   }
 
   return apiFetch<TransactionResponseDto | TransactionResponseDto[]>(

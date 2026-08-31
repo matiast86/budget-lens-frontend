@@ -97,6 +97,10 @@
         "income": "Agregar Ingreso",
         "expense": "Agregar Gasto"
       },
+      "type": {
+        "VARIABLE": "Única",
+        "FIXED": "Recurrente"
+      },
       "field": {
         "currency": "Moneda",
         "amount": "Monto Total",
@@ -104,6 +108,11 @@
         "monthlyPreview": "≈ {{amount}} / mes",
         "date": "Fecha",
         "paymentMonth": "Mes de Pago",
+        "recurrence": "Recurrencia",
+        "bundleTo": "Repetir hasta",
+        "increaseRate": "Aumento %",
+        "increaseEveryMonths": "Cada (meses)",
+        "bundlePreview": "Crea {{count}} transacciones mensuales",
         "category": "Categoría",
         "selectCategory": "Seleccioná una categoría...",
         "paymentMethod": "Medio de Pago",
@@ -135,7 +144,11 @@
         "paymentMethodRequired": "Por favor seleccioná un medio de pago",
         "commentTooLong": "La nota no puede superar los 500 caracteres",
         "debtOwnerRequired": "Seleccioná un colaborador",
-        "debtAmountPositive": "Ingresá un monto válido"
+        "debtAmountPositive": "Ingresá un monto válido",
+        "bundleToRequired": "Elegí un mes de fin para la recurrencia",
+        "bundleToAfter": "El mes de fin debe ser posterior al mes de pago",
+        "increaseRateInvalid": "El aumento % debe ser 0 o mayor",
+        "increaseEveryMonthsInvalid": "Ingresá una cantidad entera de meses (1 o más)"
       },
       "action": {
         "submit": "Guardar Transacción"
