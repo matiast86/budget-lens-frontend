@@ -16,8 +16,8 @@ export const createTransactionSchema = z
   entryType: z.enum(["INCOME", "EXPENSE"]),
 
   // VARIABLE = single one-off transaction.
-  // FIXED = recurring "bundle": one transaction per month from paymentMonth+1
-  // through `bundleTo`, optionally compounding by `increaseRate`.
+  // FIXED = recurring "bundle": one transaction per month from `paymentMonth`
+  // through `bundleTo` (both inclusive), optionally compounding by `increaseRate`.
   transactionType: z.enum(["VARIABLE", "FIXED"]).default("VARIABLE"),
 
   transactionDate: z.string().min(1, "transaction.create.error.dateRequired"),
@@ -27,11 +27,11 @@ export const createTransactionSchema = z
   currency: z.enum(["ARS", "USD"]),
 
   totalAmount: z
-    .number({ invalid_type_error: "transaction.create.error.amountPositive" })
+    .number({ error: "transaction.create.error.amountPositive" })
     .positive("transaction.create.error.amountPositive"),
 
   installments: z
-    .number({ invalid_type_error: "transaction.create.error.installmentsMin" })
+    .number({ error: "transaction.create.error.installmentsMin" })
     .int()
     .min(1, "transaction.create.error.installmentsMin"),
 
@@ -40,15 +40,15 @@ export const createTransactionSchema = z
   impactsCashflow: z.boolean(),
 
   categoryId: z.coerce
-    .number({ invalid_type_error: "transaction.create.error.categoryRequired" })
+    .number({ error: "transaction.create.error.categoryRequired" })
     .positive("transaction.create.error.categoryRequired"),
 
   groupId: z.coerce
-    .number({ invalid_type_error: "transaction.create.error.groupRequired" })
+    .number({ error: "transaction.create.error.groupRequired" })
     .positive("transaction.create.error.groupRequired"),
 
   paymentMethodId: z.coerce
-    .number({ invalid_type_error: "transaction.create.error.paymentMethodRequired" })
+    .number({ error: "transaction.create.error.paymentMethodRequired" })
     .positive("transaction.create.error.paymentMethodRequired"),
 
   comment: z.preprocess(
@@ -61,7 +61,7 @@ export const createTransactionSchema = z
       z.object({
         ownerName: z.string().min(1, "transaction.create.error.debtOwnerRequired"),
         amount: z
-          .number({ invalid_type_error: "transaction.create.error.debtAmountPositive" })
+          .number({ error: "transaction.create.error.debtAmountPositive" })
           .positive("transaction.create.error.debtAmountPositive"),
         direction: z.enum(["OWED_TO_ME", "OWED_BY_ME"]),
       }),
@@ -80,14 +80,14 @@ export const createTransactionSchema = z
   // Converted to a fraction before hitting the API.
   increaseRate: optionalNumber(
     z
-      .number({ invalid_type_error: "transaction.create.error.increaseRateInvalid" })
+      .number({ error: "transaction.create.error.increaseRateInvalid" })
       .min(0, "transaction.create.error.increaseRateInvalid")
       .optional(),
   ),
 
   increaseEveryMonths: optionalNumber(
     z
-      .number({ invalid_type_error: "transaction.create.error.increaseEveryMonthsInvalid" })
+      .number({ error: "transaction.create.error.increaseEveryMonthsInvalid" })
       .int("transaction.create.error.increaseEveryMonthsInvalid")
       .min(1, "transaction.create.error.increaseEveryMonthsInvalid")
       .optional(),
@@ -127,7 +127,7 @@ export const editTransactionSchema = z.object({
   ),
 
   totalAmount: z
-    .number({ invalid_type_error: "transaction.edit.error.amountPositive" })
+    .number({ error: "transaction.edit.error.amountPositive" })
     .positive("transaction.edit.error.amountPositive"),
 
   transactionDate: z.string().min(1, "transaction.edit.error.dateRequired"),
@@ -135,15 +135,15 @@ export const editTransactionSchema = z.object({
   paymentMonth: z.string().min(1, "transaction.edit.error.paymentMonthRequired"),
 
   categoryId: z.coerce
-    .number({ invalid_type_error: "transaction.edit.error.categoryRequired" })
+    .number({ error: "transaction.edit.error.categoryRequired" })
     .positive("transaction.edit.error.categoryRequired"),
 
   groupId: z.coerce
-    .number({ invalid_type_error: "transaction.edit.error.groupRequired" })
+    .number({ error: "transaction.edit.error.groupRequired" })
     .positive("transaction.edit.error.groupRequired"),
 
   paymentMethodId: z.coerce
-    .number({ invalid_type_error: "transaction.edit.error.paymentMethodRequired" })
+    .number({ error: "transaction.edit.error.paymentMethodRequired" })
     .positive("transaction.edit.error.paymentMethodRequired"),
 });
 

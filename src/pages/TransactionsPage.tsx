@@ -1,5 +1,4 @@
-import type React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Wallet } from "lucide-react";
@@ -40,7 +39,7 @@ export const TransactionsPage = () => {
   const queryClient = useQueryClient();
   const token = useAuthStore((s) => s.token);
 
-  const [selectedLedgerId, setSelectedLedgerId] = useState<string | null>(null);
+  const [pickedLedgerId, setPickedLedgerId] = useState<string | null>(null);
   const [filters, setFilters] = useState<TxFilters>({});
   const [txModal, setTxModal] = useState<{ open: boolean; entryType: EntryType }>({
     open: false,
@@ -58,12 +57,10 @@ export const TransactionsPage = () => {
     enabled: !!token,
   });
 
-  // Auto-select the first ledger once the list loads
-  useEffect(() => {
-    if (ledgers.length > 0 && !selectedLedgerId) {
-      setSelectedLedgerId(String(ledgers[0].id));
-    }
-  }, [ledgers, selectedLedgerId]);
+  // Effective selection: the user's explicit pick, else the first ledger once
+  // the list loads. Derived during render — no effect, no cascading re-render.
+  const selectedLedgerId =
+    pickedLedgerId ?? (ledgers[0] ? String(ledgers[0].id) : null);
 
   const { data: ledger } = useQuery({
     queryKey: ["ledger", selectedLedgerId],
@@ -177,7 +174,7 @@ export const TransactionsPage = () => {
               key={l.id}
               type="button"
               onClick={() => {
-                setSelectedLedgerId(String(l.id));
+                setPickedLedgerId(String(l.id));
                 setFilters({});
               }}
               className={cn(

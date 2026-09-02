@@ -1,4 +1,3 @@
-import type React from "react";
 import { useTranslation } from "react-i18next";
 import { Bell, Search } from "lucide-react";
 import { Button } from "../atoms/Button";

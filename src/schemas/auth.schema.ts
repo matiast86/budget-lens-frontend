@@ -36,7 +36,7 @@ export const registerSchema = z
     confirmPassword: z.string().min(1, "auth.register.error.confirmPasswordRequired"),
 
     gender: z.enum(["MALE", "FEMALE"], {
-      required_error: "auth.register.error.genderRequired",
+      error: "auth.register.error.genderRequired",
     }),
   })
   .refine((data) => data.password === data.confirmPassword, {

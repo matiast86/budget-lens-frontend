@@ -230,14 +230,15 @@ export const CreateTransactionModal = ({
     watchedAmount > 0 &&
     watchedInstall > 1;
 
-  // Number of transactions a FIXED bundle will create: one per month from the
-  // month after paymentMonth through bundleTo (inclusive). Mirrors the backend.
+  // Number of transactions a FIXED bundle will create: one per month from
+  // paymentMonth through bundleTo, both inclusive. Mirrors the backend's
+  // monthRange() helper.
   const monthsBetween = (from?: string, to?: string): number => {
     if (!from || !to) return 0;
     const [fy, fm] = from.split("-").map(Number);
     const [ty, tm] = to.split("-").map(Number);
     if ([fy, fm, ty, tm].some(Number.isNaN)) return 0;
-    return (ty - fy) * 12 + (tm - fm);
+    return (ty - fy) * 12 + (tm - fm) + 1;
   };
   const bundleCount = isFixed ? monthsBetween(watchedPayMonth, watchedBundleTo) : 0;
 

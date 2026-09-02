@@ -68,8 +68,10 @@ import type { LedgerResponseDto } from "../../types/dtos";
 
 ### React import
 
+`jsx: "react-jsx"` is set, so JSX does **not** require a React import. Only import it when the file actually references a `React.*` type, and use a named type import — never a bare `import type React`, which `noUnusedLocals` rejects when unused:
+
 ```typescript
-import type React from "react";  // always first in the file
+import type { ReactNode, ElementType } from "react";
 ```
 
 ### Atomic design — component levels

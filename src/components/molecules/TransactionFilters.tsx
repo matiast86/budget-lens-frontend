@@ -1,4 +1,3 @@
-import type React from "react";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import { cn } from "../../utils/cn";
@@ -6,7 +5,7 @@ import type {
   CategoryResponseDto,
   GroupResponseDto,
   PaymentMethodResponseDto,
-  TransactionFilters,
+  TransactionFilters as TransactionFiltersState,
 } from "../../types";
 
 // ---------------------------------------------------------------------------
@@ -14,8 +13,8 @@ import type {
 // ---------------------------------------------------------------------------
 
 interface TransactionFiltersProps {
-  filters: TransactionFilters;
-  onChange: (filters: TransactionFilters) => void;
+  filters: TransactionFiltersState;
+  onChange: (filters: TransactionFiltersState) => void;
   categories: CategoryResponseDto[];
   groups: GroupResponseDto[];
   paymentMethods: PaymentMethodResponseDto[];
@@ -29,7 +28,7 @@ interface TransactionFiltersProps {
 const STATUS_OPTIONS = ["CURRENT", "CLOSED", "FUTURE"] as const;
 const ENTRY_TYPE_OPTIONS = ["INCOME", "EXPENSE"] as const;
 
-const hasActiveFilters = (f: TransactionFilters): boolean =>
+const hasActiveFilters = (f: TransactionFiltersState): boolean =>
   !!(
     f.status ||
     f.entryType ||
@@ -54,7 +53,7 @@ export const TransactionFilters = ({
 }: TransactionFiltersProps) => {
   const { t } = useTranslation("ledger");
 
-  const set = (patch: Partial<TransactionFilters>) =>
+  const set = (patch: Partial<TransactionFiltersState>) =>
     onChange({ ...filters, ...patch });
 
   const clear = () => onChange({});

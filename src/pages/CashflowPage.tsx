@@ -1,5 +1,4 @@
-import type React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { Banknote } from "lucide-react";
@@ -67,24 +66,21 @@ export const CashflowPage = () => {
     enabled: !!token,
   });
 
-  // Auto-select first ledger
-  useEffect(() => {
-    if (ledgers.length > 0 && selectedLedgerId === null) {
-      setSelectedLedgerId(ledgers[0].id);
-    }
-  }, [ledgers, selectedLedgerId]);
+  // Effective selection: the user's explicit pick, else the first ledger once
+  // loaded. Derived during render — no effect, no cascading re-render.
+  const activeLedgerId = selectedLedgerId ?? ledgers[0]?.id ?? null;
 
   const { data: report, isLoading: reportLoading, isError } = useQuery({
-    queryKey: ["cashflow", selectedLedgerId, from, to],
-    queryFn: () => getCashflow(selectedLedgerId!, from, to, token!),
-    enabled: !!token && !!selectedLedgerId && !!from && !!to && from <= to,
+    queryKey: ["cashflow", activeLedgerId, from, to],
+    queryFn: () => getCashflow(activeLedgerId!, from, to, token!),
+    enabled: !!token && !!activeLedgerId && !!from && !!to && from <= to,
   });
 
   // -------------------------------------------------------------------------
   // Render
   // -------------------------------------------------------------------------
 
-  const selectedLedger = ledgers.find((l) => l.id === selectedLedgerId);
+  const selectedLedger = ledgers.find((l) => l.id === activeLedgerId);
 
   const applyPreset = (preset: (typeof PRESETS)[number]) => {
     setFrom(preset.from);
@@ -117,7 +113,7 @@ export const CashflowPage = () => {
               onClick={() => setSelectedLedgerId(l.id)}
               className={cn(
                 "flex-shrink-0 px-md py-xs rounded-full text-sm font-medium border transition-colors whitespace-nowrap",
-                l.id === selectedLedgerId
+                l.id === activeLedgerId
                   ? "bg-primary-600 text-white border-primary-600"
                   : "bg-white text-stone-600 border-stone-200 hover:border-primary-400 hover:text-primary-600",
               )}
@@ -178,7 +174,7 @@ export const CashflowPage = () => {
       )}
 
       {/* Report */}
-      {selectedLedgerId && (
+      {activeLedgerId && (
         <>
           {reportLoading && (
             <div className="space-y-xs">

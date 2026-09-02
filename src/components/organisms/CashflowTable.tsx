@@ -1,4 +1,3 @@
-import type React from "react";
 import { useState, Fragment } from "react";
 import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
