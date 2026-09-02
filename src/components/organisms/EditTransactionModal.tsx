@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
-import { X, Pencil } from "lucide-react";
+import { X, Pencil, Plus, Minus } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { Button } from "../atoms/Button";
 import { formatCurrency } from "../../utils/format-currency";
@@ -64,6 +64,9 @@ export const EditTransactionModal = ({
 }: EditTransactionModalProps) => {
   const { t, i18n } = useTranslation("ledger");
   const [serverError, setServerError] = useState<string | null>(null);
+  // Progressive disclosure: Level 1 (amount + category) always visible; the
+  // rest sits behind this toggle.
+  const [showDetail, setShowDetail] = useState(false);
 
   const {
     register,
@@ -80,6 +83,7 @@ export const EditTransactionModal = ({
   useEffect(() => {
     if (open && transaction) {
       setServerError(null);
+      setShowDetail(false);
       reset({
         totalAmount: transaction.totalAmount,
         transactionDate: toDateValue(transaction.transactionDate),
@@ -104,7 +108,17 @@ export const EditTransactionModal = ({
 
   const handleClose = () => {
     reset();
+    setShowDetail(false);
     onClose();
+  };
+
+  // Open the collapsed detail section if a submit fails validation on a
+  // field that lives inside it.
+  const LEVEL_1_FIELDS = ["totalAmount", "categoryId"];
+  const revealDetailOnError = (formErrors: FieldErrors<EditTransactionFormData>) => {
+    if (Object.keys(formErrors).some((k) => !LEVEL_1_FIELDS.includes(k))) {
+      setShowDetail(true);
+    }
   };
 
   const submit = async (data: EditTransactionFormData) => {
@@ -190,7 +204,7 @@ export const EditTransactionModal = ({
 
         {/* Scrollable body */}
         <form
-          onSubmit={handleSubmit(submit)}
+          onSubmit={handleSubmit(submit, revealDetailOnError)}
           noValidate
           className="flex flex-col flex-1 min-h-0"
         >
@@ -244,6 +258,54 @@ export const EditTransactionModal = ({
               )}
             </div>
 
+            {/* Category — Level 1 */}
+            <div className="space-y-xs">
+              <label
+                htmlFor="edit-tx-category"
+                className="block text-sm font-medium text-stone-700"
+              >
+                {t("transaction.edit.field.category")}
+                <span className="text-expense-400 ml-xs" aria-hidden="true">
+                  *
+                </span>
+              </label>
+              <select
+                id="edit-tx-category"
+                className={cn(inputClass(!!errors.categoryId), "cursor-pointer")}
+                {...register("categoryId")}
+              >
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              {errors.categoryId && (
+                <p className="text-xs text-expense-400" role="alert">
+                  {t(errors.categoryId.message ?? "")}
+                </p>
+              )}
+            </div>
+
+            {/* Progressive disclosure toggle */}
+            <button
+              type="button"
+              onClick={() => setShowDetail((v) => !v)}
+              aria-expanded={showDetail}
+              className="flex w-full items-center justify-between rounded-lg border border-stone-200 px-sm py-xs text-sm font-medium text-primary-600 hover:bg-primary-50 transition-colors"
+            >
+              <span className="flex items-center gap-xs">
+                {showDetail ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                {t(showDetail ? "transaction.moreFields.hide" : "transaction.moreFields.show")}
+              </span>
+              <span className="text-xs font-normal text-stone-400">
+                {t("transaction.moreFields.optional")}
+              </span>
+            </button>
+
+            {/* Level 2 — optional detail, kept mounted so RHF state persists */}
+            <div className={cn("space-y-md", !showDetail && "hidden")}>
+
             {/* Dates */}
             <div className="grid grid-cols-2 gap-sm">
               <div className="space-y-xs">
@@ -293,63 +355,33 @@ export const EditTransactionModal = ({
               </div>
             </div>
 
-            {/* Category + Payment method */}
-            <div className="grid grid-cols-2 gap-sm">
-              <div className="space-y-xs">
-                <label
-                  htmlFor="edit-tx-category"
-                  className="block text-sm font-medium text-stone-700"
-                >
-                  {t("transaction.edit.field.category")}
-                  <span className="text-expense-400 ml-xs" aria-hidden="true">
-                    *
-                  </span>
-                </label>
-                <select
-                  id="edit-tx-category"
-                  className={cn(inputClass(!!errors.categoryId), "cursor-pointer")}
-                  {...register("categoryId")}
-                >
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.categoryId && (
-                  <p className="text-xs text-expense-400" role="alert">
-                    {t(errors.categoryId.message ?? "")}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-xs">
-                <label
-                  htmlFor="edit-tx-method"
-                  className="block text-sm font-medium text-stone-700"
-                >
-                  {t("transaction.edit.field.paymentMethod")}
-                  <span className="text-expense-400 ml-xs" aria-hidden="true">
-                    *
-                  </span>
-                </label>
-                <select
-                  id="edit-tx-method"
-                  className={cn(inputClass(!!errors.paymentMethodId), "cursor-pointer")}
-                  {...register("paymentMethodId")}
-                >
-                  {paymentMethods.filter((pm) => pm.isActive).map((pm) => (
-                    <option key={pm.id} value={pm.id}>
-                      {pm.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.paymentMethodId && (
-                  <p className="text-xs text-expense-400" role="alert">
-                    {t(errors.paymentMethodId.message ?? "")}
-                  </p>
-                )}
-              </div>
+            {/* Payment method */}
+            <div className="space-y-xs">
+              <label
+                htmlFor="edit-tx-method"
+                className="block text-sm font-medium text-stone-700"
+              >
+                {t("transaction.edit.field.paymentMethod")}
+                <span className="text-expense-400 ml-xs" aria-hidden="true">
+                  *
+                </span>
+              </label>
+              <select
+                id="edit-tx-method"
+                className={cn(inputClass(!!errors.paymentMethodId), "cursor-pointer")}
+                {...register("paymentMethodId")}
+              >
+                {paymentMethods.filter((pm) => pm.isActive).map((pm) => (
+                  <option key={pm.id} value={pm.id}>
+                    {pm.name}
+                  </option>
+                ))}
+              </select>
+              {errors.paymentMethodId && (
+                <p className="text-xs text-expense-400" role="alert">
+                  {t(errors.paymentMethodId.message ?? "")}
+                </p>
+              )}
             </div>
 
             {/* Group */}
@@ -402,6 +434,9 @@ export const EditTransactionModal = ({
                 </p>
               )}
             </div>
+
+            </div>
+            {/* end Level 2 */}
           </div>
 
           {/* Footer */}

@@ -203,9 +203,9 @@ See `CLAUDE.md § Budget progress — pace-based signal`.
   spent: number;
   budget: number;
   color: string;
-  // pace inputs — from the dashboard's selected month
-  dayOfMonth: number;
-  daysInMonth: number;
+  // pace inputs — default to today when omitted
+  dayOfMonth?: number;
+  daysInMonth?: number;
 }
 ```
 

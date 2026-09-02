@@ -1,10 +1,10 @@
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
-import { X, TrendingUp, TrendingDown, Plus, Check } from "lucide-react";
+import { X, TrendingUp, TrendingDown, Plus, Minus, Check } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { Button } from "../atoms/Button";
 import { formatCurrency } from "../../utils/format-currency";
@@ -151,6 +151,9 @@ export const CreateTransactionModal = ({
 
   const [serverError, setServerError] = useState<string | null>(null);
   const [inlineCreate, setInlineCreate] = useState<"category" | "group" | "paymentMethod" | null>(null);
+  // Progressive disclosure: Level 1 (amount + category) is always visible;
+  // everything else lives behind this toggle.
+  const [showDetail, setShowDetail] = useState(false);
 
   const {
     register,
@@ -174,6 +177,7 @@ export const CreateTransactionModal = ({
   useEffect(() => {
     if (open) {
       setServerError(null);
+      setShowDetail(false);
       reset({
         entryType: defaultEntryType,
         transactionType: "VARIABLE",
@@ -201,7 +205,17 @@ export const CreateTransactionModal = ({
   const handleClose = () => {
     reset();
     setInlineCreate(null);
+    setShowDetail(false);
     onClose();
+  };
+
+  // If a submit fails validation on a field that lives inside the collapsed
+  // detail section, open it so the user can see what needs fixing.
+  const LEVEL_1_FIELDS = ["entryType", "totalAmount", "categoryId"];
+  const revealDetailOnError = (formErrors: FieldErrors<CreateTransactionFormData>) => {
+    if (Object.keys(formErrors).some((k) => !LEVEL_1_FIELDS.includes(k))) {
+      setShowDetail(true);
+    }
   };
 
   const submit = async (data: CreateTransactionFormData) => {
@@ -284,7 +298,7 @@ export const CreateTransactionModal = ({
         </div>
 
         {/* Scrollable body */}
-        <form onSubmit={handleSubmit(submit)} noValidate className="flex flex-col flex-1 min-h-0">
+        <form onSubmit={handleSubmit(submit, revealDetailOnError)} noValidate className="flex flex-col flex-1 min-h-0">
           <div className="overflow-y-auto flex-1 p-lg space-y-md">
 
             {/* Server error banner */}
@@ -298,7 +312,7 @@ export const CreateTransactionModal = ({
               </div>
             )}
 
-            {/* Entry type */}
+            {/* Entry type — Level 1 */}
             <div className="grid grid-cols-2 gap-sm">
               {(["INCOME", "EXPENSE"] as const).map((type) => {
                 const isType = watchedEntryType === type;
@@ -329,6 +343,98 @@ export const CreateTransactionModal = ({
               })}
             </div>
 
+            {/* Amount — Level 1 */}
+            <div className="space-y-xs">
+              <label htmlFor="tx-amount" className="block text-sm font-medium text-stone-700">
+                {t("transaction.create.field.amount")}
+                <span className="text-expense-400 ml-xs" aria-hidden="true">*</span>
+              </label>
+              <input
+                id="tx-amount"
+                type="number"
+                step="any"
+                min="0"
+                autoFocus
+                placeholder="0"
+                className={inputClass(!!errors.totalAmount)}
+                {...register("totalAmount", { valueAsNumber: true })}
+              />
+              {errors.totalAmount && (
+                <p className="text-xs text-expense-400" role="alert">
+                  {t(errors.totalAmount.message ?? "")}
+                </p>
+              )}
+            </div>
+
+            {/* Category — Level 1 */}
+            <div className="space-y-xs">
+              <label htmlFor="tx-category" className="block text-sm font-medium text-stone-700">
+                {t("transaction.create.field.category")}
+                <span className="text-expense-400 ml-xs" aria-hidden="true">*</span>
+              </label>
+              <select
+                id="tx-category"
+                className={cn(inputClass(!!errors.categoryId), "cursor-pointer")}
+                defaultValue=""
+                disabled={categories.length === 0}
+                {...register("categoryId")}
+              >
+                <option value="" disabled>
+                  {categories.length === 0
+                    ? t("transaction.create.quickCreate.emptyCategory")
+                    : t("transaction.create.field.selectCategory")}
+                </option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+              {errors.categoryId && (
+                <p className="text-xs text-expense-400" role="alert">
+                  {t(errors.categoryId.message ?? "")}
+                </p>
+              )}
+              {onCreateCategory && (
+                inlineCreate === "category" ? (
+                  <QuickCreate
+                    onConfirm={async (name) => {
+                      const created = await onCreateCategory(name);
+                      setValue("categoryId", created.id, { shouldValidate: true });
+                      setInlineCreate(null);
+                    }}
+                    onCancel={() => setInlineCreate(null)}
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setInlineCreate("category")}
+                    className="flex items-center gap-xs text-xs font-medium text-primary-600 hover:text-primary-700 transition-colors mt-xs"
+                  >
+                    <Plus className="w-3 h-3" />
+                    {t("transaction.create.quickCreate.trigger")}
+                  </button>
+                )
+              )}
+            </div>
+
+            {/* Progressive disclosure toggle */}
+            <button
+              type="button"
+              onClick={() => setShowDetail((v) => !v)}
+              aria-expanded={showDetail}
+              className="flex w-full items-center justify-between rounded-lg border border-stone-200 px-sm py-xs text-sm font-medium text-primary-600 hover:bg-primary-50 transition-colors"
+            >
+              <span className="flex items-center gap-xs">
+                {showDetail ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                {t(showDetail ? "transaction.moreFields.hide" : "transaction.moreFields.show")}
+              </span>
+              <span className="text-xs font-normal text-stone-400">
+                {t("transaction.moreFields.optional")}
+              </span>
+            </button>
+
+            {/* Level 2 — optional detail, kept mounted so RHF state persists */}
+            <div className={cn("space-y-md", !showDetail && "hidden")}>
+
             {/* Transaction type — one-off vs recurring bundle */}
             <div className="grid grid-cols-2 gap-sm">
               {(["VARIABLE", "FIXED"] as const).map((type) => {
@@ -350,8 +456,8 @@ export const CreateTransactionModal = ({
               })}
             </div>
 
-            {/* Currency + Amount + Installments */}
-            <div className={cn("grid gap-sm", isFixed ? "grid-cols-2" : "grid-cols-3")}>
+            {/* Currency + Installments */}
+            <div className={cn("grid gap-sm", isFixed ? "grid-cols-1" : "grid-cols-2")}>
               <div className="space-y-xs">
                 <label htmlFor="tx-currency" className="block text-sm font-medium text-stone-700">
                   {t("transaction.create.field.currency")}
@@ -366,28 +472,6 @@ export const CreateTransactionModal = ({
                     <option key={opt.value} value={opt.value}>{t(opt.key)}</option>
                   ))}
                 </select>
-              </div>
-
-              <div className="space-y-xs">
-                <label htmlFor="tx-amount" className="block text-sm font-medium text-stone-700">
-                  {t("transaction.create.field.amount")}
-                  <span className="text-expense-400 ml-xs" aria-hidden="true">*</span>
-                </label>
-                <input
-                  id="tx-amount"
-                  type="number"
-                  step="any"
-                  min="0"
-                  autoFocus
-                  placeholder="0"
-                  className={inputClass(!!errors.totalAmount)}
-                  {...register("totalAmount", { valueAsNumber: true })}
-                />
-                {errors.totalAmount && (
-                  <p className="text-xs text-expense-400" role="alert">
-                    {t(errors.totalAmount.message ?? "")}
-                  </p>
-                )}
               </div>
 
               {!isFixed && (
@@ -530,106 +614,55 @@ export const CreateTransactionModal = ({
               </div>
             )}
 
-            {/* Category + Payment method */}
-            <div className="grid grid-cols-2 gap-sm">
-              <div className="space-y-xs">
-                <label htmlFor="tx-category" className="block text-sm font-medium text-stone-700">
-                  {t("transaction.create.field.category")}
-                  <span className="text-expense-400 ml-xs" aria-hidden="true">*</span>
-                </label>
-                <select
-                  id="tx-category"
-                  className={cn(inputClass(!!errors.categoryId), "cursor-pointer")}
-                  defaultValue=""
-                  disabled={categories.length === 0}
-                  {...register("categoryId")}
-                >
-                  <option value="" disabled>
-                    {categories.length === 0
-                      ? t("transaction.create.quickCreate.emptyCategory")
-                      : t("transaction.create.field.selectCategory")}
-                  </option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
-                {errors.categoryId && (
-                  <p className="text-xs text-expense-400" role="alert">
-                    {t(errors.categoryId.message ?? "")}
-                  </p>
-                )}
-                {onCreateCategory && (
-                  inlineCreate === "category" ? (
-                    <QuickCreate
-                      onConfirm={async (name) => {
-                        const created = await onCreateCategory(name);
-                        setValue("categoryId", created.id, { shouldValidate: true });
-                        setInlineCreate(null);
-                      }}
-                      onCancel={() => setInlineCreate(null)}
-                    />
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setInlineCreate("category")}
-                      className="flex items-center gap-xs text-xs font-medium text-primary-600 hover:text-primary-700 transition-colors mt-xs"
-                    >
-                      <Plus className="w-3 h-3" />
-                      {t("transaction.create.quickCreate.trigger")}
-                    </button>
-                  )
-                )}
-              </div>
-
-              <div className="space-y-xs">
-                <label htmlFor="tx-method" className="block text-sm font-medium text-stone-700">
-                  {t("transaction.create.field.paymentMethod")}
-                  <span className="text-expense-400 ml-xs" aria-hidden="true">*</span>
-                </label>
-                <select
-                  id="tx-method"
-                  className={cn(inputClass(!!errors.paymentMethodId), "cursor-pointer")}
-                  defaultValue=""
-                  disabled={paymentMethods.filter((pm) => pm.isActive).length === 0}
-                  {...register("paymentMethodId")}
-                >
-                  <option value="" disabled>
-                    {paymentMethods.filter((pm) => pm.isActive).length === 0
-                      ? t("transaction.create.quickCreate.emptyPaymentMethod")
-                      : t("transaction.create.field.selectMethod")}
-                  </option>
-                  {paymentMethods.filter((pm) => pm.isActive).map((pm) => (
-                    <option key={pm.id} value={pm.id}>{pm.name}</option>
-                  ))}
-                </select>
-                {errors.paymentMethodId && (
-                  <p className="text-xs text-expense-400" role="alert">
-                    {t(errors.paymentMethodId.message ?? "")}
-                  </p>
-                )}
-                {onCreatePaymentMethod && (
-                  inlineCreate === "paymentMethod" ? (
-                    <QuickCreate
-                      showTypeSelect
-                      onConfirm={async (name, pmType) => {
-                        const created = await onCreatePaymentMethod(name, pmType ?? "CASH");
-                        setValue("paymentMethodId", created.id, { shouldValidate: true });
-                        setInlineCreate(null);
-                      }}
-                      onCancel={() => setInlineCreate(null)}
-                    />
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setInlineCreate("paymentMethod")}
-                      className="flex items-center gap-xs text-xs font-medium text-primary-600 hover:text-primary-700 transition-colors mt-xs"
-                    >
-                      <Plus className="w-3 h-3" />
-                      {t("transaction.create.quickCreate.trigger")}
-                    </button>
-                  )
-                )}
-              </div>
+            {/* Payment method */}
+            <div className="space-y-xs">
+              <label htmlFor="tx-method" className="block text-sm font-medium text-stone-700">
+                {t("transaction.create.field.paymentMethod")}
+                <span className="text-expense-400 ml-xs" aria-hidden="true">*</span>
+              </label>
+              <select
+                id="tx-method"
+                className={cn(inputClass(!!errors.paymentMethodId), "cursor-pointer")}
+                defaultValue=""
+                disabled={paymentMethods.filter((pm) => pm.isActive).length === 0}
+                {...register("paymentMethodId")}
+              >
+                <option value="" disabled>
+                  {paymentMethods.filter((pm) => pm.isActive).length === 0
+                    ? t("transaction.create.quickCreate.emptyPaymentMethod")
+                    : t("transaction.create.field.selectMethod")}
+                </option>
+                {paymentMethods.filter((pm) => pm.isActive).map((pm) => (
+                  <option key={pm.id} value={pm.id}>{pm.name}</option>
+                ))}
+              </select>
+              {errors.paymentMethodId && (
+                <p className="text-xs text-expense-400" role="alert">
+                  {t(errors.paymentMethodId.message ?? "")}
+                </p>
+              )}
+              {onCreatePaymentMethod && (
+                inlineCreate === "paymentMethod" ? (
+                  <QuickCreate
+                    showTypeSelect
+                    onConfirm={async (name, pmType) => {
+                      const created = await onCreatePaymentMethod(name, pmType ?? "CASH");
+                      setValue("paymentMethodId", created.id, { shouldValidate: true });
+                      setInlineCreate(null);
+                    }}
+                    onCancel={() => setInlineCreate(null)}
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setInlineCreate("paymentMethod")}
+                    className="flex items-center gap-xs text-xs font-medium text-primary-600 hover:text-primary-700 transition-colors mt-xs"
+                  >
+                    <Plus className="w-3 h-3" />
+                    {t("transaction.create.quickCreate.trigger")}
+                  </button>
+                )
+              )}
             </div>
 
             {/* Group */}
@@ -804,6 +837,9 @@ export const CreateTransactionModal = ({
                 </div>
               ))}
             </div>
+
+            </div>
+            {/* end Level 2 */}
           </div>
 
           {/* Footer */}

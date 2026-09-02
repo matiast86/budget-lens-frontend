@@ -864,7 +864,8 @@ budget-lens-frontend/
 │   ├── components/
 │   │   ├── atoms/
 │   │   │   ├── Badge.tsx              # updated to teal/stone palette
-│   │   │   └── Button.tsx             # updated: default → teal, softer expense/income
+│   │   │   ├── Button.tsx             # updated: default → teal, softer expense/income
+│   │   │   └── CategoryIcon.tsx       # lucide icon for known category names; monogram fallback
 │   │   ├── molecules/
 │   │   │   ├── CategoriesTable.tsx    # CRUD-enabled: onAdd/onEdit/onDelete props; inline delete confirm
 │   │   │   ├── CollaboratorsTable.tsx
@@ -1014,15 +1015,29 @@ budget-lens-frontend/
 14. ~~**CRUD for categories, groups, payment methods**~~ — `CategoryModal`, `GroupModal`, `PaymentMethodModal` organisms; tables updated with `onAdd/onEdit/onDelete` props + inline delete confirm; full mutations in `LedgerDetailPage`; `QuickCreate` inline sub-component in `CreateTransactionModal` (always visible below each select, auto-selects newly created item via `setValue`)
 15. ~~**Weekly breakdown (W1-W4) in transaction table**~~ — new "Weeks" column with `BreakdownMiniBar` sparkline (4 proportional bars); click to toggle `TransactionBreakdownPanel` inline below the row; panel has 4 number inputs + live sum badge + segmented progress bar + "Distribute evenly" + Save/Cancel; `updateTransactionBreakdown` added to `transaction-service.ts`; i18n keys `transaction.breakdown.*` + `transaction.table.col.weeks` added to EN + ES
 
+### ✅ Average-User Friendliness — done
+- **Progressive-disclosure add sheet** — `CreateTransactionModal` / `EditTransactionModal`
+  collapsed to Level 1 (amount + category + type); one "Agregar detalle" toggle reveals the
+  rest, kept mounted; `handleSubmit(submit, revealDetailOnError)` opens it if a hidden field
+  fails validation. i18n: `transaction.moreFields.*` in `ledger.json`.
+- **Pace-based budget signal** — `BudgetProgressItem` compares `spentShare` vs
+  `elapsedShare`, renders `● ■ ▲` + verdict + `budget.over_by` sentence. `BudgetItem` gained
+  optional `dayOfMonth?` / `daysInMonth?` (default to today). i18n: `budget.signal.{good,
+  close,over}`, `budget.pace`, `budget.over_by` in `common.json`.
+- **Landing hero** — mockup now shows the Level 1 view (one "left this month" figure +
+  pace pill), plain-language `landing.hero.*` copy + `landing.hero.trustLine`.
+- **Category icons** — `components/atoms/CategoryIcon.tsx`: known name → `lucide-react`
+  icon, else monogram in a hashed tint. Used by `TransactionListRow`.
+- **Redundant encoding** — expense amounts in `TransactionListRow` / `TransactionTable`
+  rows render `text-stone-900` (ink) with a `−`; only income keeps `.amount-positive`.
+  `.amount-negative` stays for deltas/summaries (`TransactionsPage` totals, `CashflowTable`).
+
 ### 🔜 Remaining (priority order)
-1. **Progressive-disclosure add sheet** — collapse `CreateTransactionModal` /
-   `EditTransactionModal` to Level 1 (amount + category + type) with a single "Agregar
-   detalle" toggle revealing the rest; silent defaults for Level 2. See *Average-User
-   Friendliness §1*.
-2. **Pace-based budget signal** — rework `BudgetProgressItem` to compare spent-share vs
-   month-elapsed-share, render `● ■ ▲` + verdict + over-by sentence. See *§2 / §4*.
-3. **Budgets page** — category spend vs budget, using the pace-based signal
-4. **Onboarding trim** — sign-up to email + password only; first-budget to name + currency
-   with silent seeding; empty-dashboard "last purchase" prompt. See *§5*.
-5. **Analytics page** — inflation-adjusted with `baseCpiIndex` and `realMonthlyAmount`
-6. **Language switcher** — `i18n.changeLanguage()` in header or profile settings
+1. **Budgets page** — category spend vs budget, using the pace-based signal
+2. **Onboarding trim** — sign-up to email + password only; first-budget to name + currency
+   with silent seeding; empty-dashboard "last purchase" prompt. See *§5*. **Backend-coupled:**
+   `User.name` / `birthDate` / `gender` are non-null in `schema.prisma` — needs a migration
+   to make them optional, `SignupDto` + auth service changes, and a profile screen to
+   collect them later.
+3. **Analytics page** — inflation-adjusted with `baseCpiIndex` and `realMonthlyAmount`
+4. **Language switcher** — `i18n.changeLanguage()` in header or profile settings

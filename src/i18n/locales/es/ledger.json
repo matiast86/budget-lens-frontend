@@ -162,6 +162,11 @@
         "emptyPaymentMethod": "Sin medios de pago"
       }
     },
+    "moreFields": {
+      "show": "Agregar detalle",
+      "hide": "Ocultar detalle",
+      "optional": "opcional"
+    },
     "entryType": {
       "income": "Ingreso",
       "expense": "Gasto"

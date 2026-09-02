@@ -162,6 +162,11 @@
         "emptyPaymentMethod": "No payment methods yet"
       }
     },
+    "moreFields": {
+      "show": "Add detail",
+      "hide": "Hide detail",
+      "optional": "optional"
+    },
     "entryType": {
       "income": "Income",
       "expense": "Expense"

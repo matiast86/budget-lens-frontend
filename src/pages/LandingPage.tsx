@@ -49,16 +49,11 @@ const TRUST_CONFIG: {
   { key: "teams",    icon: Users,       color: "text-primary-600", bg: "bg-primary-50" },
 ];
 
-const MOCK_LEDGERS = [
-  { name: "Personal 2025", currency: "ARS", income: "$1,240", expense: "$890" },
-  { name: "Household",     currency: "ARS", income: "$3,600", expense: "$2,100" },
-  { name: "Side Project",  currency: "USD", income: "$500",   expense: "$200" },
-];
-
-const MOCK_TRANSACTIONS = [
-  { label: "Supermarket", amount: "-$142.00", type: "expense" },
-  { label: "Freelance",   amount: "+$850.00", type: "income" },
-  { label: "Utilities",   amount: "-$68.50",  type: "expense" },
+// The mockup shows the product's Level 1 view — one big "what's left" number
+// with a plain-language pace verdict — not a feature grid.
+const MOCK_TRANSACTIONS: { key: string; amount: string; type: "income" | "expense" }[] = [
+  { key: "txSuper",  amount: "$47.320",    type: "expense" },
+  { key: "txIncome", amount: "$1.850.000", type: "income" },
 ];
 
 export const LandingPage = () => {
@@ -144,7 +139,7 @@ export const LandingPage = () => {
           </p>
 
           {/* CTA buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-sm mb-3xl">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-sm mb-md">
             <Button size="lg" onClick={() => navigate("/register")}>
               {t("landing.hero.cta1")}
               <ArrowRight className="w-4 h-4 ml-xs" />
@@ -153,6 +148,9 @@ export const LandingPage = () => {
               {t("landing.hero.cta2")}
             </Button>
           </div>
+
+          {/* Trust line — plain language, no jargon */}
+          <p className="text-sm text-stone-400 mb-3xl">{t("landing.hero.trustLine")}</p>
 
           {/* App mockup */}
           <div className="relative">
@@ -199,74 +197,52 @@ export const LandingPage = () => {
                   ))}
                 </div>
 
-                {/* Main area */}
+                {/* Main area — the product's Level 1 view */}
                 <div className="flex-1 bg-cream p-md overflow-hidden">
-                  <div className="flex items-center justify-between mb-sm">
-                    <p className="text-xs font-semibold text-stone-800">
-                      {t("landing.mockup.myLedgers")}
+                  {/* Hero number + plain-language pace verdict */}
+                  <div className="bg-white rounded-lg border border-stone-200 p-md mb-sm">
+                    <p className="text-[10px] font-medium text-stone-500">
+                      {t("landing.mockup.leftThisMonth")}
                     </p>
-                    <span className="text-[10px] px-sm py-0.5 rounded-full bg-primary-100 text-primary-600 font-medium">
-                      {t("landing.mockup.active")}
-                    </span>
+                    <p className="text-2xl font-bold text-stone-900 tracking-tight leading-none mt-0.5">
+                      $565.500
+                    </p>
+                    <p className="text-[9px] text-stone-400 mt-xs">
+                      {t("landing.mockup.leftDetail")}
+                    </p>
+                    <div className="inline-flex items-center gap-xs mt-sm px-sm py-0.5 rounded-full bg-income-50 border border-income-100">
+                      <span className="text-income-600 text-[9px]" aria-hidden="true">●</span>
+                      <span className="text-[9px] font-semibold text-income-700">
+                        {t("landing.mockup.onTrack")}
+                      </span>
+                      <span className="text-[9px] text-income-600/80">
+                        {t("landing.mockup.onTrackDetail")}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Ledger cards row */}
-                  <div className="grid grid-cols-3 gap-sm mb-md">
-                    {MOCK_LEDGERS.map((l) => (
-                      <div
-                        key={l.name}
-                        className="bg-white rounded-lg border border-stone-200 p-sm"
-                      >
-                        <div className="flex items-center justify-between mb-xs">
-                          <p className="text-[10px] font-semibold text-stone-800 truncate leading-tight">
-                            {l.name}
-                          </p>
-                          <span className="text-[9px] px-1 py-0.5 rounded bg-primary-100 text-primary-600 font-bold shrink-0 ml-xs">
-                            {l.currency}
-                          </span>
-                        </div>
-                        <div className="space-y-0.5">
-                          <div className="flex justify-between">
-                            <span className="text-[9px] text-stone-400">
-                              {t("landing.mockup.income")}
-                            </span>
-                            <span className="text-[9px] font-semibold text-income-600">
-                              {l.income}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-[9px] text-stone-400">
-                              {t("landing.mockup.expenses")}
-                            </span>
-                            <span className="text-[9px] font-semibold text-expense-600">
-                              {l.expense}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Recent transactions strip */}
+                  {/* Recent transactions — expenses in plain ink, income green, +/− sign */}
                   <div className="bg-white rounded-lg border border-stone-200 p-sm">
                     <p className="text-[10px] font-semibold text-stone-700 mb-xs">
                       {t("landing.mockup.recentTransactions")}
                     </p>
                     <div className="space-y-xs">
                       {MOCK_TRANSACTIONS.map((tx) => (
-                        <div key={tx.label} className="flex items-center justify-between">
+                        <div key={tx.key} className="flex items-center justify-between">
                           <div className="flex items-center gap-xs">
                             <span className="w-4 h-4 rounded-full bg-stone-100 flex items-center justify-center">
                               <span className="w-1.5 h-1.5 rounded-full bg-stone-400" />
                             </span>
-                            <span className="text-[9px] text-stone-600">{tx.label}</span>
+                            <span className="text-[9px] text-stone-600">
+                              {t(`landing.mockup.${tx.key}`)}
+                            </span>
                           </div>
                           <span
                             className={`text-[9px] font-semibold ${
-                              tx.type === "income" ? "text-income-600" : "text-expense-600"
+                              tx.type === "income" ? "text-income-600" : "text-stone-900"
                             }`}
                           >
-                            {tx.amount}
+                            {tx.type === "income" ? "+" : "−"}{tx.amount}
                           </span>
                         </div>
                       ))}

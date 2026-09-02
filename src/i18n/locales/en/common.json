@@ -51,10 +51,12 @@
     "overview": "Budget Overview",
     "edit": "Edit",
     "signal": {
-      "good": "Looking good!",
-      "heads_up": "Heads up",
-      "close": "Getting close"
-    }
+      "good": "On track",
+      "close": "Cutting it close",
+      "over": "Over budget"
+    },
+    "pace": "{{spentPct}}% spent · day {{day}}/{{days}}",
+    "over_by": "Over by {{amount}}"
   },
   "dashboard": {
     "streak": "{{count}} months under budget! Keep it up 🎉",
@@ -173,12 +175,13 @@
       "getStarted": "Get started"
     },
     "hero": {
-      "pill": "Track · Analyze · Collaborate",
-      "headline1": "Your finances,",
-      "headline2": "in perfect focus.",
-      "subheadline": "Budget Lens brings clarity to your money. Create ledgers, track every transaction, set category budgets, and see the real impact of inflation — all in one place.",
-      "cta1": "Get started free",
-      "cta2": "View demo"
+      "pill": "Made for prices that keep moving",
+      "headline1": "Knowing where your money goes",
+      "headline2": "shouldn't take all afternoon.",
+      "subheadline": "Log an expense in five seconds. See whether you'll make it to month-end in twenty. Installments, dollars and shared expenses are handled — without you having to think about them.",
+      "cta1": "Start free",
+      "cta2": "See a demo",
+      "trustLine": "No card. No mandatory categories. No spreadsheet."
     },
     "mockup": {
       "url": "app.budgetlens.io/dashboard",
@@ -186,7 +189,13 @@
       "active": "3 active",
       "income": "Income",
       "expenses": "Expenses",
-      "recentTransactions": "Recent transactions"
+      "recentTransactions": "Recent transactions",
+      "leftThisMonth": "Left this month",
+      "leftDetail": "of $1,850,000 · 7 days left",
+      "onTrack": "On track",
+      "onTrackDetail": "day 24 of 31",
+      "txSuper": "Supermarket",
+      "txIncome": "Salary"
     },
     "stats": {
       "ledgerTypes": { "value": "10+", "label": "Ledger types" },

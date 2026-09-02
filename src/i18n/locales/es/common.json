@@ -51,10 +51,12 @@
     "overview": "Resumen de Presupuesto",
     "edit": "Editar",
     "signal": {
-      "good": "¡Muy bien!",
-      "heads_up": "Atención",
-      "close": "Casi al límite"
-    }
+      "good": "Vas bien",
+      "close": "Vas justo",
+      "over": "Te pasaste"
+    },
+    "pace": "{{spentPct}}% gastado · día {{day}}/{{days}}",
+    "over_by": "Te pasaste por {{amount}}"
   },
   "dashboard": {
     "streak": "¡{{count}} meses bajo presupuesto! Seguí así 🎉",
@@ -173,12 +175,13 @@
       "getStarted": "Comenzar"
     },
     "hero": {
-      "pill": "Seguí · Analizá · Colaborá",
-      "headline1": "Tus finanzas,",
-      "headline2": "en foco perfecto.",
-      "subheadline": "Budget Lens le da claridad a tu dinero. Creá libros mayores, registrá cada transacción, establecé presupuestos por categoría y conocé el impacto real de la inflación — todo en un solo lugar.",
-      "cta1": "Comenzar gratis",
-      "cta2": "Ver demo"
+      "pill": "Hecho para precios que se mueven",
+      "headline1": "Saber en qué se te va la plata",
+      "headline2": "no debería llevar una tarde.",
+      "subheadline": "Anotá un gasto en cinco segundos. Mirá si llegás a fin de mes en veinte. Cuotas, dólares y gastos compartidos incluidos, sin que tengas que pensarlos.",
+      "cta1": "Empezar gratis",
+      "cta2": "Ver una demo",
+      "trustLine": "Sin tarjeta. Sin categorías obligatorias. Sin planilla."
     },
     "mockup": {
       "url": "app.budgetlens.io/panel",
@@ -186,7 +189,13 @@
       "active": "3 activos",
       "income": "Ingresos",
       "expenses": "Gastos",
-      "recentTransactions": "Transacciones recientes"
+      "recentTransactions": "Transacciones recientes",
+      "leftThisMonth": "Te queda este mes",
+      "leftDetail": "de $1.850.000 · quedan 7 días",
+      "onTrack": "Vas bien",
+      "onTrackDetail": "día 24 de 31",
+      "txSuper": "Supermercado",
+      "txIncome": "Sueldo"
     },
     "stats": {
       "ledgerTypes": { "value": "10+", "label": "Tipos de libros mayores" },
