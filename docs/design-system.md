@@ -4,59 +4,78 @@ Budget Lens uses a custom Tailwind CSS design system built on top of the default
 
 ---
 
+> **This file follows the redesign brief in `CLAUDE.md` (§ Design Redesign Brief / Design
+> System).** If anything here disagrees with `CLAUDE.md`, `CLAUDE.md` wins. The old
+> blue / Inter / slate / tabular design is retired.
+
 ## Design Philosophy
 
-- **Clean and airy** — generous whitespace; let the numbers speak
-- **Data-focused** — clear visual hierarchy optimized for financial data
-- **Trustworthy** — blue primary, calm rose for expenses (not aggressive red)
-- **Tabular** — digit alignment for all financial amounts
+- **Warm and airy** — cream background, soft shadows, generous whitespace
+- **Built for the average user, not the finance nerd** — lead with a plain-language verdict,
+  keep one primary action per screen, never show a raw figure without a label and a
+  comparison
+- **Numbers are never naked** — every amount carries a label, a comparison, or a verdict
+- **Progressive disclosure** — the fast path (amount + category) is never buried under the
+  complete path (cuotas, payment method, currency, split, date)
+- **Trustworthy** — deep teal primary, calm rose for expenses (never aggressive red)
+- **Encouragement over gamification** — users feel steady and informed, not scored
+- **Redundant encoding** — colour is never the only signal; pair it with a glyph or a word
 
 ---
 
 ## Color Tokens
 
-All semantic colors have a full **50–950 scale**. All grays use Tailwind's built-in `slate-*` palette — there is no custom `neutral` key.
+Grays use the warm **`stone-*`** palette (never `slate-*` / `neutral-*` / `blue-*`). Full
+token table and the `tailwind.config.js` block live in `CLAUDE.md § Design System → Color
+Tokens`.
 
-| Token | Default | Purpose |
-|---|---|---|
-| `primary` | `#3B82F6` | Brand, primary CTAs, active nav |
-| `accent` | `#6366F1` | Secondary CTAs, chart variety |
-| `income` | `#10B981` | Positive values, income, growth |
-| `expense` | `#F43F5E` | Negative values, expenses (rose, not red) |
-| `warning` | `#F59E0B` | Budget limits, thresholds |
-| `slate-*` | built-in | All grays: text, borders, backgrounds |
+| Token | Hex | Tailwind key | Purpose |
+|---|---|---|---|
+| `primary` | `#0D9488` | `teal-600` | CTAs, active nav, progress fills, links |
+| `primary-dark` | `#115E59` | `teal-800` | Hero backgrounds, header gradient |
+| `primary-light` | `#F0FDFA` | `teal-50` | Selected backgrounds, highlights |
+| `cream` | `#FAFAF7` | custom | App background — **not** pure white |
+| `income` | `#10B981` | `emerald-500` | Positive amounts, income |
+| `expense` | `#FB7185` | `rose-400` | Income/over-budget deltas — **not** every expense row |
+| `warning` | `#FBBF24` | `amber-400` | Budget thresholds, over-limit |
 
 ### Usage patterns
 
 ```
-Page background:   bg-slate-50
-Card surface:      bg-white
-Primary text:      text-slate-900
-Secondary text:    text-slate-500
-Borders:           border-slate-200
-Income amount:     text-income-600
-Expense amount:    text-expense-600
-Over-budget bar:   bg-expense-500
-Active nav item:   bg-primary-50  text-primary-700
+Page background:     bg-cream
+Card surface:        bg-white
+Primary text:        text-stone-900
+Secondary text:      text-stone-500
+Borders:             border-stone-200
+Income amount:       text-income-600  (+ "+" / "↑" glyph)
+Expense list row:    text-stone-900   (+ "−" / "↓" glyph — plain ink, not tinted)
+Over-budget bar:     bg-expense       (+ "▲" glyph + "Te pasaste por $…" sentence)
+Active nav item:     text-primary
 ```
+
+Colour is a signal, not decoration: saturated colour is spent on **income** and
+**over-budget** only. A list that is 90% expenses stays mostly ink-coloured so the colour
+that appears means something.
 
 ---
 
 ## Typography
 
-Font: **Inter** (variable font, weights 100–900 in a single file, loaded via `index.html`).
+Font: **Poppins** (weights 400/500/600/700, loaded via `index.html`).
 
 | Class | Size | Use case |
 |---|---|---|
 | `text-xs` | 12px | Labels, captions |
-| `text-sm` | 14px | Body, table rows |
-| `text-base` | 16px | Default body |
+| `text-sm` | 14px | Body, labels |
 | `text-lg` | 18px | Card titles, section headers |
-| `text-xl` | 20px | Page subtitles |
 | `text-2xl` | 24px | Page titles |
-| `text-3xl` | 30px | Stat card amounts |
-| `text-4xl` | 36px | Dashboard hero numbers |
+| `text-3xl` | 30px | App name / hero |
+| `text-4xl` | 36px | Dashboard hero amount |
 | `text-5xl` | 48px | Large display numbers |
+
+**Financial amounts are large and bold, never shrunk.** A monthly spend in
+`text-3xl font-bold` reads as clear; the same number in `text-sm tabular-nums` reads as a
+spreadsheet and creates anxiety.
 
 ---
 
@@ -105,23 +124,26 @@ Semantic shadow names instead of Tailwind's default `shadow-sm / shadow-md` scal
 
 Defined in `@layer components` and `@layer utilities` in `src/index.css`.
 
+Full `@layer components` block is in `CLAUDE.md § Design System → CSS Utility Classes`.
+
 ### Components
 
 | Class | Definition | Use case |
 |---|---|---|
-| `.card` | `bg-white rounded-lg border border-slate-200/60 shadow-card p-md` | Standard card surface |
-| `.section-title` | `text-lg font-semibold text-slate-900` | Card and section headings |
-| `.label-muted` | `text-sm font-medium text-slate-500` | Secondary labels |
+| `.card` | `bg-white rounded-xl shadow-card border border-stone-100 p-md` | Standard card surface |
+| `.card-hero` | teal gradient `from-primary-800 to-primary-600`, `rounded-2xl`, white text | Dashboard hero |
+| `.icon-pill` | `w-10 h-10 rounded-full flex items-center justify-center` | Category icon / monogram disc |
+| `.section-title` | `text-lg font-semibold text-stone-900` | Card and section headings |
+| `.label-muted` | `text-sm font-medium text-stone-500` | Secondary labels |
+| `.budget-signal` | `text-xs font-medium flex items-center gap-xs` | Glyph + verdict row |
 
 ### Utilities
 
 | Class | Definition | Use case |
 |---|---|---|
-| `.tabular-nums` | `font-variant-numeric: tabular-nums` | Digit alignment in columns |
-| `.slashed-zero` | Tabular nums + slashed zero | 0 vs O distinction in IDs |
-| `.financial-amount` | `tabular-nums + font-semibold + tracking-tight` | All monetary values |
+| `.financial-amount` | `font-bold tracking-tight` | All monetary values — large and bold, not tabular |
 | `.amount-positive` | `text-income-600` | Income / positive delta |
-| `.amount-negative` | `text-expense-600` | Expense / negative delta |
+| `.amount-negative` | `text-expense-600` | Negative **delta / summary** figures — not plain expense rows |
 | `.scrollbar-hide` | Hides scrollbar, keeps scroll behavior | Horizontal scroll containers |
 
 ---
@@ -138,7 +160,11 @@ Defined in `@layer components` and `@layer utilities` in `src/index.css`.
 
 ## Accessibility
 
-- `focus-visible` rings use `outline-primary-500` — keyboard only, not triggered on mouse click.
+- `focus-visible` rings use `outline-primary` — keyboard only, not triggered on mouse click.
 - Semantic HTML elements: `<nav>`, `<main>`, `<header>`, `<aside>`.
 - `::selection` color matches brand palette.
-- Contrast ratios: `slate-900` on `white` = 21:1 · `income-600` on `white` ≥ 4.5:1.
+- **Colour is never the sole conveyor of meaning** — income/expense always reinforced by a
+  `+` / `−` sign or a word; budget state reinforced by a `● ■ ▲` glyph and a verdict; form
+  errors by a `▲` glyph and a sentence.
+- Contrast ratios: `stone-900` on `cream` ≈ 18:1 · `income-600` on `white` ≥ 4.5:1 ·
+  verify `stone-500` label text meets AA at its size.

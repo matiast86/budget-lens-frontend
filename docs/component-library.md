@@ -1,5 +1,12 @@
 # Component Library
 
+> **Design conventions live in `CLAUDE.md`.** Every component follows the redesign brief
+> (teal / Poppins / cream / stone) and the **Average-User Friendliness — Structural
+> Patterns** section: progressive disclosure (fast path = amount + category), plain-language
+> pace-based verdicts before percentages, redundant encoding (colour + glyph + word), and
+> an icon-pill with a monogram fallback for categories. Colour names below that still read
+> "blue" / "indigo" / "slate" are stale — the live variants use `teal` / `stone`.
+
 Budget Lens follows Atomic Design. Components are organized into three levels — atoms, molecules, and organisms — each with a strict dependency rule.
 
 ```
@@ -30,13 +37,13 @@ Small inline label. Variants cover all domain states.
 
 | Variant | Color | Use case |
 |---|---|---|
-| `default` | slate | Generic tag |
-| `primary` | blue | Currency, active state |
-| `income` | green | Income entries |
+| `default` | stone | Generic tag |
+| `primary` | teal | Currency, active state |
+| `income` | emerald | Income entries |
 | `expense` | rose | Expense entries |
 | `warning` | amber | Over-budget, thresholds |
-| `current` | blue | Current period ledger |
-| `closed` | slate | Closed ledger |
+| `current` | teal | Current period ledger |
+| `closed` | stone | Closed ledger |
 | `future` | purple | Future ledger |
 
 **Usage**
@@ -68,11 +75,11 @@ Primary interactive element. All variants include `hover:`, `active:`, `focus-vi
 
 | Variant | Style | Use case |
 |---|---|---|
-| `default` | Solid blue | Primary CTA |
-| `secondary` | Solid indigo | Accent action |
+| `default` | Solid teal | Primary CTA |
+| `secondary` | Solid teal-dark | Accent action |
 | `outline` | Bordered | Secondary action |
 | `ghost` | Transparent | Subtle / nav actions |
-| `income` | Solid green | Record income |
+| `income` | Solid emerald | Record income |
 | `expense` | Solid rose | Record expense |
 | `link` | Underlined text | Inline navigation |
 
@@ -181,7 +188,12 @@ Table of payment methods with color dot indicators.
 
 ### BudgetProgressItem — `src/components/molecules/BudgetProgressItem.tsx`
 
-Single category budget row with a progress bar. Bar turns `bg-expense-500` when over budget.
+Single category budget row: progress bar + a **pace-based verdict**. The verdict compares
+spent-share (`spent / budget`) against month-elapsed-share (`dayOfMonth / daysInMonth`) —
+not the raw ratio — and renders a glyph + word (`●` "Vas bien" / `■` "Vas justo" / `▲`
+"Te pasaste"). Over budget also renders the sentence `t("budget.over_by", { amount })`, not
+just a red bar. Bar colour (`bg-income` / `bg-warning` / `bg-expense`) follows the verdict.
+See `CLAUDE.md § Budget progress — pace-based signal`.
 
 **Data shape** (`BudgetItem` from `src/types/ui-only.ts`)
 
@@ -191,6 +203,9 @@ Single category budget row with a progress bar. Bar turns `bg-expense-500` when 
   spent: number;
   budget: number;
   color: string;
+  // pace inputs — from the dashboard's selected month
+  dayOfMonth: number;
+  daysInMonth: number;
 }
 ```
 

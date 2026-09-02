@@ -14,7 +14,8 @@ The previous design (blue primary, slate grays, Inter, tabular data-first) felt 
 - **Friendly, not corporate** — Poppins (rounded) instead of Inter
 - **Approachable numbers** — large, bold amounts with plain-language context, not raw tables
 - **Mobile-native** — bottom tab bar, not sidebar; list rows, not horizontal tables; hero card, not four stat cards
-- **Playful progress** — emoji signals, progress arcs, streaks; numbers always have context around them
+- **Built for the non-numbers user** — real users said the app felt made for spreadsheet people. The app does the interpretation: a plain-language verdict ("Vas bien") comes first, the percentage second; complexity (cuotas, currency, splits) stays hidden until asked for. See **Average-User Friendliness — Structural Patterns** below.
+- **Encouragement, not gamification** — a calm "you're on track" beats points and streaks; keep positive feedback in plain language and never let a score become the headline
 
 ---
 
@@ -22,11 +23,13 @@ The previous design (blue primary, slate grays, Inter, tabular data-first) felt 
 
 **Budget Lens** ("Lens" = clarity, focus, insight) follows these principles:
 - Warm and airy — cream background, soft shadows, generous whitespace
-- Numbers are never naked — always accompanied by context (label, trend, emoji signal)
+- Numbers are never naked — always accompanied by context (label, comparison, plain-language verdict)
 - Trustworthy (deep teal primary) and calm (soft rose for expenses, never aggressive red)
 - Card-based layout with soft elevation
 - **Mobile-first** — every view is designed for small screens first, enhanced for larger viewports with `md:` and `lg:` prefixes
-- Progress and gamification — users feel momentum, not anxiety
+- **The average user is the target, not the finance nerd** — every screen must be usable by someone who does not think in percentages: lead with a sentence, keep one primary action per screen, never show a raw figure without a label and a comparison
+- **Progressive disclosure** — the fast path (log an expense: amount + category) is never buried under the complete path (cuotas, payment method, currency, split, date)
+- Encouragement over gamification — users feel steady and informed, not scored; positive feedback stays in plain language
 
 ---
 
@@ -513,19 +516,31 @@ Tables require horizontal scrolling on mobile, which feels broken. Use a **list 
 </div>
 ```
 
-### Budget progress — emoji signals replace bare progress bars
+### Budget progress — pace-based signal replaces a bare progress bar
+
+The verdict is driven by **pace** — how much of the budget is spent versus how much of the
+month has elapsed — not by the raw `spent / budget` ratio. "80% spent" is fine on day 27 and
+alarming on day 10; the signal must say which.
 
 **`BudgetProgressItem` update:**
 ```tsx
-// Determine signal based on ratio
-const ratio = spent / budget;
-const signal = ratio < 0.6 ? { emoji: "🟢", label: t("budget.signal.good") }
-             : ratio < 0.85 ? { emoji: "🟡", label: t("budget.signal.heads_up") }
-             : { emoji: "🔴", label: t("budget.signal.close") };
+const spentShare   = spent / budget;
+const elapsedShare = dayOfMonth / daysInMonth;
+const overBy       = spent - budget;
 
-// Progress bar color follows signal
-const barColor = ratio < 0.6 ? "bg-income" : ratio < 0.85 ? "bg-warning" : "bg-expense";
+const signal =
+  spentShare > 1 || spentShare > elapsedShare + 0.15
+    ? { glyph: "▲", label: t("budget.signal.over"),  bar: "bg-expense" }
+  : spentShare > elapsedShare + 0.05
+    ? { glyph: "■", label: t("budget.signal.close"), bar: "bg-warning" }
+    : { glyph: "●", label: t("budget.signal.good"),  bar: "bg-income"  };
 ```
+
+- The **glyph** (`● ■ ▲`) carries the signal without colour — see *Redundant encoding*.
+- When over budget, always render the sentence, not just the red bar:
+  `t("budget.over_by", { amount: formatCurrency(overBy, currency, i18n.language) })`
+  → "Te pasaste por $14.000" / "Over by $14,000".
+- The percentage and day count are secondary text under the verdict, never the headline.
 
 ### Ledger cards — horizontal carousel on mobile
 
@@ -540,9 +555,9 @@ const barColor = ratio < 0.6 ? "bg-income" : ratio < 0.85 ? "bg-warning" : "bg-e
 
 `LedgerCard` itself should have `min-w-[280px]` on mobile so cards don't collapse in the carousel.
 
-### Icon treatment — icon pills, not raw icons
+### Icon treatment — icon pill, with a monogram fallback
 
-Every category, transaction type, and payment method should use an **icon pill**: a `rounded-full` container with a soft pastel background color matched to the category, and a `lucide-react` icon inside. This gives the emoji-style colorful feel with consistent cross-platform rendering.
+Every category, transaction type, and payment method uses an **icon pill**: a `rounded-full` container with a soft pastel background color matched to the category, and a `lucide-react` icon inside. This gives the emoji-style colorful feel with consistent cross-platform rendering.
 
 **Category → color mapping (define in a util or constant):**
 ```typescript
@@ -558,11 +573,107 @@ export const CATEGORY_COLORS: Record<string, { bg: string; icon: string }> = {
 };
 ```
 
+**Fallback for user-created categories.** A category that maps to no known icon renders a
+**monogram** — the first 1–2 letters of its name, uppercased, in the same tinted disc —
+rather than the generic `default` icon. Prefer a real icon whenever the name maps to one: a
+recognisable cart / house / bus scans faster than a letter, and monograms collide easily
+("Súper", "Salidas", "Sueldo" all start with S).
+
+---
+
+## Average-User Friendliness — Structural Patterns
+
+Real users told us the app felt built for "numbers people" — too many fields, too many
+percentages, too much left for the user to interpret. These patterns are the fix. They are
+**structural, not cosmetic**: they change what is on screen and when, not the palette or the
+font. Apply them to every new screen. The visual identity (teal, Poppins, cream, stone) is
+unchanged.
+
+### 1. Progressive disclosure — the add / edit transaction sheet
+
+The fast path and the complete path are the same form; the complete path is collapsed.
+
+| Level | Fields | Purpose |
+|---|---|---|
+| **Level 1 — always visible** | amount, category, income/expense toggle | Enough to save |
+| **Level 2 — behind one "Agregar detalle" / "Add detail" toggle** | note, payment method, date, cuotas / installments, split / breakdown, currency | Optional, one tap away |
+
+- Saving is allowed from Level 1 alone — **never require a Level 2 field**.
+- The expander is a single control, not a multi-step wizard.
+- `CreateTransactionModal` / `EditTransactionModal`: keep Level 2 fields **mounted** (so RHF
+  state and the `zodResolver(...) as any` cast are unchanged) but hidden inside a
+  collapsible region toggled by one button.
+- Level 2 gets silent defaults: date = today, payment method = last used, currency = ledger
+  currency, installments = 1.
+
+### 2. Health signal — a sentence first, a number second
+
+The headline a user reads is a plain-language verdict, not a percentage. Logic lives in
+*Budget progress — pace-based signal* above (pace = `spentShare` vs `elapsedShare`).
+
+- Verdicts: **"Vas bien" / "On track"**, **"Vas justo" / "Cutting it close"**,
+  **"Te pasaste" / "Over"**.
+- Percentage and day count are secondary text under the verdict, never the headline.
+- Reinforced with a shape (`● ■ ▲`), not colour alone.
+
+### 3. Money is framed as an answerable question
+
+The hero number always answers "how am I doing?", never just "here is a figure".
+
+- Label above ("Te queda este mes" / "Left this month"), the amount, then a denominator and
+  a timeframe below ("de $1.850.000 · quedan 7 días").
+- No naked numbers anywhere — every amount in JSX goes through `formatCurrency` **and**
+  carries a label or comparison.
+
+### 4. Over-budget always carries a sentence
+
+A red bar on its own is not an explanation. Render `t("budget.over_by", { amount })` next to
+the bar → "Te pasaste por $14.000" / "Over by $14,000".
+
+### 5. Onboarding removes decisions
+
+- **Sign up: two fields.** Email + password only. Name, birth date and gender are not asked
+  at sign-up — profile collects them later, and no screen blocks on them.
+- **First budget: two fields.** Name + currency. Categories, payment methods, CPI base index
+  and cash-flow settings are seeded silently and edited later in budget settings.
+- **Empty dashboard teaches one action.** A greyed `$0` hero shows the shape of the real
+  screen; one card asks a question anyone can answer ("¿Qué fue lo último que pagaste?" /
+  "What did you last pay for?") with a single button.
+- **Navigation is present from screen one.** The five tabs never change — no progressive nav
+  reveal — so the map of the app is learned once.
+
+### 6. Redundant encoding — colour is never the only signal
+
+Every state pairs colour with a glyph or a word. Accessibility requirement (≈8% of men have
+colour-vision deficiency) and it makes the UI readable at a glance.
+
+| State | Colour | Glyph | Word |
+|---|---|---|---|
+| Income | `income-600` | `+` / `↑` | "Ingreso" |
+| Expense | plain `text-stone-900`, **not tinted** | `−` / `↓` | category name |
+| On track | `income` | `●` | "Vas bien" |
+| Close | `warning` | `■` | "Vas justo" |
+| Over | `expense` | `▲` | "Te pasaste" |
+| Form error | `expense` border | `▲` | error sentence |
+
+**Do not tint every row.** Most rows are expenses; if 90% of the list is coloured, colour
+stops meaning anything. Saturated colour is spent on income and over-budget only; the amount
+sign (`+` / `−`) is the always-on non-colour cue. This refines the earlier
+`.amount-negative` habit — keep the class for deltas and summaries, but a plain expense row
+in a list stays ink-coloured.
+
+### 7. Category icons — real icon with a monogram fallback
+
+See *Icon treatment* above: `lucide-react` icon for known categories, first 1–2 letters of
+the name for user-created ones, generic default icon avoided.
+
 ---
 
 ## Gamification Patterns
 
-These are new UI patterns introduced in the redesign. They reduce financial anxiety by making progress visible and rewarding.
+These UI patterns reduce financial anxiety by making progress visible. Keep them **quiet**:
+per *Encouragement over gamification*, a plain-language "vas bien" is the goal — a streak
+banner is a nice-to-have, never the headline, and points/leaderboards are out of scope.
 
 ### Budget emoji signals
 
@@ -597,20 +708,34 @@ Add to `en/common.json`:
 ```json
 {
   "dashboard": {
-    "streak": "{{count}} months under budget! Keep it up 🎉",
-    "balance_label": "Current balance"
+    "streak": "{{count}} months under budget! Keep it up",
+    "left_this_month": "Left this month",
+    "left_detail": "of {{total}} · {{days}} days left",
+    "empty": {
+      "spent_label": "Spent in {{month}}",
+      "prompt_title": "Start with your last purchase",
+      "prompt_body": "What did you last pay for? Log it and you're set.",
+      "prompt_cta": "Log my first expense"
+    }
   },
   "budget": {
     "signal": {
-      "good": "Looking good!",
-      "heads_up": "Heads up",
-      "close": "Getting close"
-    }
+      "good": "On track",
+      "close": "Cutting it close",
+      "over": "Over"
+    },
+    "over_by": "Over by {{amount}}"
+  },
+  "transaction": {
+    "add_detail": "Add detail",
+    "add_detail_hint": "optional"
   }
 }
 ```
 
-Add equivalent keys to `es/common.json`.
+Add equivalent keys to `es/common.json` — e.g. `budget.signal` → "Vas bien" / "Vas justo" /
+"Te pasaste", `budget.over_by` → "Te pasaste por {{amount}}", `transaction.add_detail` →
+"Agregar detalle", `dashboard.left_this_month` → "Te queda este mes".
 
 All other i18n rules remain unchanged (never hardcode strings, never hardcode locale, use `i18n.language` for formatters).
 
@@ -717,7 +842,7 @@ TransactionFilters // { status?, entryType?, categoryId?, groupId?, paymentMetho
 
 // @deprecated — replace with TransactionResponseDto once API is wired
 Transaction       // { name, category, amount, type: "income"|"expense" }
-BudgetItem        // { category, spent, budget, color }
+BudgetItem        // { category, spent, budget, color, dayOfMonth, daysInMonth } — pace inputs feed the ● ■ ▲ signal
 ```
 
 ---
@@ -890,6 +1015,14 @@ budget-lens-frontend/
 15. ~~**Weekly breakdown (W1-W4) in transaction table**~~ — new "Weeks" column with `BreakdownMiniBar` sparkline (4 proportional bars); click to toggle `TransactionBreakdownPanel` inline below the row; panel has 4 number inputs + live sum badge + segmented progress bar + "Distribute evenly" + Save/Cancel; `updateTransactionBreakdown` added to `transaction-service.ts`; i18n keys `transaction.breakdown.*` + `transaction.table.col.weeks` added to EN + ES
 
 ### 🔜 Remaining (priority order)
-1. **Budgets page** — category spend vs budget
-2. **Analytics page** — inflation-adjusted with `baseCpiIndex` and `realMonthlyAmount`
-3. **Language switcher** — `i18n.changeLanguage()` in header or profile settings
+1. **Progressive-disclosure add sheet** — collapse `CreateTransactionModal` /
+   `EditTransactionModal` to Level 1 (amount + category + type) with a single "Agregar
+   detalle" toggle revealing the rest; silent defaults for Level 2. See *Average-User
+   Friendliness §1*.
+2. **Pace-based budget signal** — rework `BudgetProgressItem` to compare spent-share vs
+   month-elapsed-share, render `● ■ ▲` + verdict + over-by sentence. See *§2 / §4*.
+3. **Budgets page** — category spend vs budget, using the pace-based signal
+4. **Onboarding trim** — sign-up to email + password only; first-budget to name + currency
+   with silent seeding; empty-dashboard "last purchase" prompt. See *§5*.
+5. **Analytics page** — inflation-adjusted with `baseCpiIndex` and `realMonthlyAmount`
+6. **Language switcher** — `i18n.changeLanguage()` in header or profile settings
