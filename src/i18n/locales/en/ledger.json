@@ -208,6 +208,28 @@
       "overallocated": "{{amount}} over budget",
       "saveError": "Could not save breakdown. Please try again."
     },
+    "view": {
+      "table": "Table",
+      "weekly": "Weekly"
+    },
+    "weekly": {
+      "month": "Month",
+      "drawdownTitle": "Left to spend, week by week",
+      "flowSummary": "{{out}} out · {{in}} in",
+      "start": "Start",
+      "weekLabel": "Week {{week}}",
+      "emptyWeek": "Nothing this week",
+      "editHint": "Adjust weekly split",
+      "empty": {
+        "title": "No movements this month",
+        "body": "Pick another month, or add a movement to see how it lands across the weeks."
+      },
+      "unallocatedTitle_one": "{{count}} movement without a full weekly split",
+      "unallocatedTitle_other": "{{count}} movements without a full weekly split",
+      "unallocatedHint": "Their weeks don't add up to the monthly amount yet — assign them so the drawdown is accurate.",
+      "allocatedOf": "{{allocated}} of {{expected}} placed",
+      "assignWeeks": "Split"
+    },
     "edit": {
       "title": "Edit Transaction",
       "field": {

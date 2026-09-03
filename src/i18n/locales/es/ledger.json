@@ -208,6 +208,28 @@
       "overallocated": "{{amount}} excedido",
       "saveError": "No se pudo guardar el desglose. Intente nuevamente."
     },
+    "view": {
+      "table": "Tabla",
+      "weekly": "Semanal"
+    },
+    "weekly": {
+      "month": "Mes",
+      "drawdownTitle": "Lo que queda por gastar, semana a semana",
+      "flowSummary": "{{out}} sale · {{in}} entra",
+      "start": "Inicio",
+      "weekLabel": "Semana {{week}}",
+      "emptyWeek": "Nada esta semana",
+      "editHint": "Ajustar reparto semanal",
+      "empty": {
+        "title": "No hay movimientos este mes",
+        "body": "Elegí otro mes, o agregá un movimiento para ver cómo cae en las semanas."
+      },
+      "unallocatedTitle_one": "{{count}} movimiento sin reparto semanal completo",
+      "unallocatedTitle_other": "{{count}} movimientos sin reparto semanal completo",
+      "unallocatedHint": "Sus semanas todavía no suman el importe mensual — repartilas para que el cálculo sea exacto.",
+      "allocatedOf": "{{allocated}} de {{expected}} repartido",
+      "assignWeeks": "Repartir"
+    },
     "edit": {
       "title": "Editar movimiento",
       "field": {

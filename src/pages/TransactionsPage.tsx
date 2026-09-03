@@ -4,6 +4,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Wallet } from "lucide-react";
 import { TransactionFilters } from "../components/molecules/TransactionFilters";
 import { TransactionTable } from "../components/organisms/TransactionTable";
+import { WeeklyView } from "../components/organisms/WeeklyView";
+import { TransactionViewToggle } from "../components/molecules/TransactionViewToggle";
 import { CreateTransactionModal } from "../components/organisms/CreateTransactionModal";
 import { EditTransactionModal } from "../components/organisms/EditTransactionModal";
 import { Button } from "../components/atoms/Button";
@@ -28,6 +30,7 @@ import type {
   CreateTransactionFormData,
   EditTransactionFormData,
 } from "../schemas/transaction.schema";
+import type { TransactionView } from "../components/molecules/TransactionViewToggle";
 
 // ---------------------------------------------------------------------------
 // Page
@@ -41,6 +44,7 @@ export const TransactionsPage = () => {
 
   const [pickedLedgerId, setPickedLedgerId] = useState<string | null>(null);
   const [filters, setFilters] = useState<TxFilters>({});
+  const [view, setView] = useState<TransactionView>("table");
   const [txModal, setTxModal] = useState<{ open: boolean; entryType: EntryType }>({
     open: false,
     entryType: "EXPENSE",
@@ -218,6 +222,12 @@ export const TransactionsPage = () => {
       <div className="p-lg space-y-lg">
         {selectedLedgerId && ledger ? (
           <>
+            <TransactionViewToggle view={view} onChange={setView} />
+
+            {view === "weekly" ? (
+              <WeeklyView ledgerId={ledger.id} currency={ledger.currency} />
+            ) : (
+            <>
             {/* Summary cards */}
             {currency && (
               <div className="grid grid-cols-3 gap-md">
@@ -272,6 +282,8 @@ export const TransactionsPage = () => {
                 onEdit={setEditTarget}
                 onDelete={(tx) => deleteTransactionMutation.mutate(tx)}
               />
+            )}
+            </>
             )}
           </>
         ) : (

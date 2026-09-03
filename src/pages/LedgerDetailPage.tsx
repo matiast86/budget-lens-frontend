@@ -10,7 +10,9 @@ import { PaymentMethodsTable } from "../components/molecules/PaymentMethodsTable
 import { TransactionFilters } from "../components/molecules/TransactionFilters";
 import { LedgerDetailHeader } from "../components/organisms/LedgerDetailHeader";
 import { TransactionTable } from "../components/organisms/TransactionTable";
+import { WeeklyView } from "../components/organisms/WeeklyView";
 import { DebtsView } from "../components/organisms/DebtsView";
+import { TransactionViewToggle } from "../components/molecules/TransactionViewToggle";
 import { CreateTransactionModal } from "../components/organisms/CreateTransactionModal";
 import { EditTransactionModal } from "../components/organisms/EditTransactionModal";
 import { CategoryModal } from "../components/organisms/CategoryModal";
@@ -59,6 +61,7 @@ import type {
   EditTransactionFormData,
 } from "../schemas/transaction.schema";
 import type { CreatePaymentMethodData } from "../services/payment-method-service";
+import type { TransactionView } from "../components/molecules/TransactionViewToggle";
 
 // ---------------------------------------------------------------------------
 // Tab config
@@ -93,6 +96,7 @@ export const LedgerDetailPage = () => {
     entryType: "EXPENSE",
   });
   const [filters, setFilters] = useState<TxFilters>({});
+  const [txView, setTxView] = useState<TransactionView>("table");
   const [editTarget, setEditTarget] = useState<TransactionResponseDto | null>(null);
 
   // Category modal state
@@ -352,31 +356,39 @@ export const LedgerDetailPage = () => {
       {/* Tab content */}
       <div className="p-lg">
         {activeTab === "transactions" && (
-          <>
-            <TransactionFilters
-              filters={filters}
-              onChange={setFilters}
-              categories={ledger.categories}
-              groups={ledger.groups}
-              paymentMethods={ledger.paymentMethods}
-              totalCount={transactions.length}
-            />
-            {txLoading ? (
-              <div className="flex justify-center py-xl">
-                <div className="w-8 h-8 rounded-full border-4 border-primary-200 border-t-primary-600 animate-spin" />
-              </div>
+          <div className="space-y-md">
+            <TransactionViewToggle view={txView} onChange={setTxView} />
+
+            {txView === "weekly" ? (
+              <WeeklyView ledgerId={ledger.id} currency={ledger.currency} />
             ) : (
-              <TransactionTable
-                transactions={transactions}
-                onAddIncome={() => openTxModal("INCOME")}
-                onAddExpense={() => openTxModal("EXPENSE")}
-                onTogglePaid={(tx) => togglePaidMutation.mutate(tx)}
-                onToggleCashflow={(tx) => toggleCashflowMutation.mutate(tx)}
-                onEdit={setEditTarget}
-                onDelete={(tx) => deleteTransactionMutation.mutate(tx)}
-              />
+              <>
+                <TransactionFilters
+                  filters={filters}
+                  onChange={setFilters}
+                  categories={ledger.categories}
+                  groups={ledger.groups}
+                  paymentMethods={ledger.paymentMethods}
+                  totalCount={transactions.length}
+                />
+                {txLoading ? (
+                  <div className="flex justify-center py-xl">
+                    <div className="w-8 h-8 rounded-full border-4 border-primary-200 border-t-primary-600 animate-spin" />
+                  </div>
+                ) : (
+                  <TransactionTable
+                    transactions={transactions}
+                    onAddIncome={() => openTxModal("INCOME")}
+                    onAddExpense={() => openTxModal("EXPENSE")}
+                    onTogglePaid={(tx) => togglePaidMutation.mutate(tx)}
+                    onToggleCashflow={(tx) => toggleCashflowMutation.mutate(tx)}
+                    onEdit={setEditTarget}
+                    onDelete={(tx) => deleteTransactionMutation.mutate(tx)}
+                  />
+                )}
+              </>
             )}
-          </>
+          </div>
         )}
 
         {activeTab === "categories" && (
