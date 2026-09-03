@@ -11,6 +11,7 @@
     "dashboard": "Home",
     "transactions": "Transactions",
     "cashflow": "Cashflow",
+    "debts": "Debts",
     "budgets": "Budgets",
     "analytics": "Analytics",
     "settings": "Settings",
@@ -38,6 +39,13 @@
     "noLedger": {
       "title": "No expense trackers yet",
       "body": "Create an expense tracker first to see cashflow."
+    }
+  },
+  "debts": {
+    "title": "Debts",
+    "noLedger": {
+      "title": "No expense trackers yet",
+      "body": "Create an expense tracker first to track who owes what."
     }
   },
   "header": {

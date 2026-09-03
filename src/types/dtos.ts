@@ -43,6 +43,8 @@ export interface DebtOwnerResponseDto {
   id: number;
   name: string;
   ledgerId: number;
+  /** Present on GET /debt-owners/ledgers/:id — the owner's debt assignments. */
+  transactions?: TransactionDebtOwnerResponseDto[];
 }
 
 export interface DebtResponseDto {
@@ -189,4 +191,39 @@ export interface CashflowReportDto {
   income: CashflowEntryTypeDto;
   expense: CashflowEntryTypeDto;
   grandTotal: CashflowPeriodAmountDto[];
+}
+
+// ---------------------------------------------------------------------------
+// Debt report DTOs — mirrors backend reports module (GET /reports/.../debts)
+// ---------------------------------------------------------------------------
+
+export interface DebtPeriodAmountDto {
+  period: string;
+  /** Net signed amount: positive = owed to me, negative = owed by me. */
+  amount: number;
+}
+
+export interface DebtDetailDto {
+  description: string;
+  amounts: DebtPeriodAmountDto[];
+}
+
+export interface DebtOwnerReportDto {
+  id: number;
+  name: string;
+  total: DebtPeriodAmountDto[];
+  debts: DebtDetailDto[];
+}
+
+export interface DebtReportMetaDto {
+  periods: string[];
+  from: string;
+  to: string;
+  currency: Currency;
+}
+
+export interface DebtReportDto {
+  meta: DebtReportMetaDto;
+  owners: DebtOwnerReportDto[];
+  grandTotal: DebtPeriodAmountDto[];
 }

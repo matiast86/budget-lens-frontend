@@ -1,6 +1,20 @@
 import { apiFetch } from "./api-client";
 import type { DebtOwnerResponseDto } from "../types";
 
+/**
+ * List every debt owner for a ledger, each with its nested debt assignments
+ * (`transactions`). Backed by GET /debt-owners/ledgers/:ledgerId.
+ */
+export const getDebtOwners = (
+  ledgerId: string | number,
+  token: string,
+): Promise<DebtOwnerResponseDto[]> =>
+  apiFetch<DebtOwnerResponseDto[]>(
+    `/debt-owners/ledgers/${ledgerId}?take=200`,
+    {},
+    token,
+  );
+
 export const getDebtOwnerByName = (
   ledgerId: string,
   name: string,

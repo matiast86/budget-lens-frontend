@@ -10,6 +10,7 @@ import { PaymentMethodsTable } from "../components/molecules/PaymentMethodsTable
 import { TransactionFilters } from "../components/molecules/TransactionFilters";
 import { LedgerDetailHeader } from "../components/organisms/LedgerDetailHeader";
 import { TransactionTable } from "../components/organisms/TransactionTable";
+import { DebtsView } from "../components/organisms/DebtsView";
 import { CreateTransactionModal } from "../components/organisms/CreateTransactionModal";
 import { EditTransactionModal } from "../components/organisms/EditTransactionModal";
 import { CategoryModal } from "../components/organisms/CategoryModal";
@@ -20,10 +21,12 @@ import { getLedger } from "../services/ledger-service";
 import {
   createTransaction,
   getTransactions,
+  getTransaction,
   updateTransactionFlags,
   updateTransaction,
   deleteTransaction,
 } from "../services/transaction-service";
+import { getDebtOwners } from "../services/debt-owner-service";
 import {
   createCategory,
   updateCategory,
@@ -71,6 +74,7 @@ const TAB_CONFIG: {
   { id: "paymentMethods", labelKey: "detail.tab.paymentMethods", count: (l) => l.paymentMethods.length },
   { id: "groups", labelKey: "detail.tab.groups", count: (l) => l.groups.length },
   { id: "collaborators", labelKey: "detail.tab.collaborators", count: (l) => l.collaborations.length },
+  { id: "debts", labelKey: "detail.tab.debts", count: () => 0 },
 ];
 
 // ---------------------------------------------------------------------------
@@ -131,6 +135,20 @@ export const LedgerDetailPage = () => {
     enabled: !!id && !!token,
   });
 
+  // Debt owners — shares its cache key with DebtsView, so this only powers the
+  // tab count and triggers no extra request.
+  const { data: debtOwners = [] } = useQuery({
+    queryKey: ["debtOwners", Number(id)],
+    queryFn: () => getDebtOwners(id!, token!),
+    enabled: !!id && !!token,
+  });
+
+  // Open the transaction a debt belongs to — debt edits happen through it.
+  const openDebtTransaction = async (transactionId: number) => {
+    const tx = await getTransaction(transactionId, token!);
+    setEditTarget(tx);
+  };
+
   const invalidateLedger = () =>
     queryClient.invalidateQueries({ queryKey: ["ledger", id] });
 
@@ -168,6 +186,8 @@ export const LedgerDetailPage = () => {
       updateTransaction(editTarget!.id, data, token!),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["transactions", id] });
+      void queryClient.invalidateQueries({ queryKey: ["debtOwners", Number(id)] });
+      void queryClient.invalidateQueries({ queryKey: ["debtReport", Number(id)] });
       setEditTarget(null);
     },
   });
@@ -296,7 +316,11 @@ export const LedgerDetailPage = () => {
           {TAB_CONFIG.map((tab) => {
             const isActive = activeTab === tab.id;
             const count =
-              tab.id === "transactions" ? transactions.length : tab.count(ledger);
+              tab.id === "transactions"
+                ? transactions.length
+                : tab.id === "debts"
+                  ? debtOwners.length
+                  : tab.count(ledger);
             return (
               <button
                 key={tab.id}
@@ -384,6 +408,14 @@ export const LedgerDetailPage = () => {
 
         {activeTab === "collaborators" && (
           <CollaboratorsTable collaborations={ledger.collaborations} />
+        )}
+
+        {activeTab === "debts" && (
+          <DebtsView
+            ledgerId={ledger.id}
+            currency={ledger.currency}
+            onOpenTransaction={openDebtTransaction}
+          />
         )}
       </div>
 

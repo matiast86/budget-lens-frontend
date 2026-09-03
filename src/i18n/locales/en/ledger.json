@@ -70,7 +70,8 @@
       "categories": "Categories",
       "paymentMethods": "Payment Methods",
       "groups": "Tags",
-      "collaborators": "Shared with"
+      "collaborators": "Shared with",
+      "debts": "Debts"
     },
     "meta": {
       "baseCpi": "Base inflation",
@@ -386,6 +387,39 @@
         "title": "Not shared yet",
         "body": "Invite someone by email to share this tracker."
       }
+    }
+  },
+  "debt": {
+    "view": {
+      "list": "By person",
+      "report": "By month"
+    },
+    "period": {
+      "from": "From",
+      "to": "To"
+    },
+    "loadError": "Couldn't load debts. Please try again later.",
+    "list": {
+      "empty": {
+        "title": "No debts yet",
+        "body": "When you add a movement and note who chipped in, it shows up here."
+      },
+      "settled": "Settled up",
+      "owesYou": "Owes you",
+      "youOwe": "You owe",
+      "openTransaction": "Open movement",
+      "debtCount_one": "{{count}} movement",
+      "debtCount_other": "{{count}} movements"
+    },
+    "direction": {
+      "OWED_TO_ME": "Owed to you",
+      "OWED_BY_ME": "You owe"
+    },
+    "report": {
+      "noDescription": "No description",
+      "empty": "No debts in this period.",
+      "legend": "Person / month",
+      "grandTotal": "Net total"
     }
   }
 }

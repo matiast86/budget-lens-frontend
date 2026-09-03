@@ -102,6 +102,20 @@ export const getTransactions = async (
 };
 
 // ---------------------------------------------------------------------------
+// Read (single)
+// ---------------------------------------------------------------------------
+
+export const getTransaction = async (
+  txId: number,
+  token: string,
+): Promise<TransactionResponseDto> =>
+  apiFetch<TransactionResponseDto>(
+    `/transactions/${txId}`,
+    { method: "GET" },
+    token,
+  );
+
+// ---------------------------------------------------------------------------
 // Update flags (isPaid / impactsCashflow)
 // ---------------------------------------------------------------------------
 

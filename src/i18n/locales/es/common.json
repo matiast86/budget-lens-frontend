@@ -11,6 +11,7 @@
     "dashboard": "Inicio",
     "transactions": "Movimientos",
     "cashflow": "Flujo de dinero",
+    "debts": "Deudas",
     "budgets": "Presupuestos",
     "analytics": "Análisis",
     "settings": "Configuración",
@@ -38,6 +39,13 @@
     "noLedger": {
       "title": "Todavía no tenés planillas",
       "body": "Creá una planilla de gastos primero para ver el flujo de dinero."
+    }
+  },
+  "debts": {
+    "title": "Deudas",
+    "noLedger": {
+      "title": "Todavía no tenés planillas",
+      "body": "Creá una planilla de gastos primero para llevar la cuenta de quién debe qué."
     }
   },
   "header": {

@@ -70,7 +70,8 @@
       "categories": "Categorías",
       "paymentMethods": "Medios de Pago",
       "groups": "Etiquetas",
-      "collaborators": "Compartido con"
+      "collaborators": "Compartido con",
+      "debts": "Deudas"
     },
     "meta": {
       "baseCpi": "Inflación base",
@@ -386,6 +387,39 @@
         "title": "Todavía no compartiste esta planilla",
         "body": "Invitá a alguien por email para compartir esta planilla."
       }
+    }
+  },
+  "debt": {
+    "view": {
+      "list": "Por persona",
+      "report": "Por mes"
+    },
+    "period": {
+      "from": "Desde",
+      "to": "Hasta"
+    },
+    "loadError": "No se pudieron cargar las deudas. Probá de nuevo más tarde.",
+    "list": {
+      "empty": {
+        "title": "Todavía no hay deudas",
+        "body": "Cuando cargues un movimiento y anotes quién puso plata, aparece acá."
+      },
+      "settled": "Al día",
+      "owesYou": "Te debe",
+      "youOwe": "Le debés",
+      "openTransaction": "Abrir movimiento",
+      "debtCount_one": "{{count}} movimiento",
+      "debtCount_other": "{{count}} movimientos"
+    },
+    "direction": {
+      "OWED_TO_ME": "Te lo deben",
+      "OWED_BY_ME": "Lo debés"
+    },
+    "report": {
+      "noDescription": "Sin descripción",
+      "empty": "No hay deudas en este período.",
+      "legend": "Persona / mes",
+      "grandTotal": "Total neto"
     }
   }
 }
