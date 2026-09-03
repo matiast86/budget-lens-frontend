@@ -4,76 +4,83 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Brand -- Teal (trust, warmth, clarity)
+        // Brand -- Indigo. Deliberately NOT a money colour, so green/clay stay
+        // signals and never read as brand chrome.
         primary: {
-          50: "#F0FDFA",
-          100: "#CCFBF1",
-          200: "#99F6E4",
-          500: "#14B8A6",
-          600: "#0D9488",
-          700: "#0F766E",
-          800: "#115E59",
-          900: "#134E4A",
-          DEFAULT: "#0D9488",
-          dark: "#115E59",
-          light: "#F0FDFA",
+          50: "#EEEDFA",
+          100: "#DEDCF3",
+          200: "#C7C5EC",
+          300: "#A9A6E0",
+          400: "#8B87E8",
+          500: "#5A56C4",
+          600: "#4B47A8",
+          700: "#3E3B94",
+          800: "#332F8C",
+          900: "#2B2942",
+          DEFAULT: "#4B47A8",
+          dark: "#332F8C",
+          light: "#EEEDFA",
         },
-        // App background -- warm cream
-        cream: "#FAFAF7",
-        // Financial: Income (emerald -- growth, positive)
+        // App background -- warm paper (not pure white, not cold grey)
+        cream: "#FAF7F1",
+        // Financial: Income -- green, spent ONLY on income
         income: {
-          50: "#ECFDF5",
-          100: "#D1FAE5",
-          200: "#A7F3D0",
-          300: "#6EE7B7",
-          400: "#34D399",
-          500: "#10B981",
-          600: "#059669",
-          700: "#047857",
-          800: "#065F46",
-          900: "#064E3B",
-          950: "#022C22",
-          DEFAULT: "#10B981",
+          50: "#E4F1EB",
+          100: "#CFE6DC",
+          200: "#B6DCCC",
+          300: "#8FCBB0",
+          400: "#4FBF95",
+          500: "#1F8A66",
+          600: "#1B7A5A",
+          700: "#14543F",
+          800: "#0F4030",
+          900: "#0A2C21",
+          950: "#061C15",
+          DEFAULT: "#1B7A5A",
         },
-        // Financial: Expense (rose -- calming, not aggressive red)
+        // Financial: Over-budget -- clay. Not for every expense; only the
+        // over-limit state.
         expense: {
-          50: "#FFF1F2",
-          100: "#FFE4E6",
-          200: "#FECDD3",
-          300: "#FDA4AF",
-          400: "#FB7185",
-          500: "#F43F5E",
-          600: "#E11D48",
-          700: "#BE123C",
-          800: "#9F1239",
-          900: "#881337",
-          950: "#4C0519",
-          DEFAULT: "#FB7185",
+          50: "#F7E9E3",
+          100: "#EBD6CD",
+          200: "#EFCBBF",
+          300: "#DDA491",
+          400: "#C15A3D",
+          500: "#B85236",
+          600: "#A8492F",
+          700: "#7C3521",
+          800: "#5E2818",
+          900: "#4A1F13",
+          950: "#2E130C",
+          DEFAULT: "#A8492F",
         },
-        // Financial: Warning (amber -- budget limits, thresholds)
+        // Financial: Caution -- amber, "cutting it close"
         warning: {
-          50: "#FFFBEB",
-          100: "#FEF3C7",
-          200: "#FDE68A",
-          300: "#FCD34D",
-          400: "#FBBF24",
-          500: "#F59E0B",
-          600: "#D97706",
-          700: "#B45309",
-          800: "#92400E",
-          900: "#78350F",
-          950: "#451A03",
-          DEFAULT: "#FBBF24",
+          50: "#FBF1DD",
+          100: "#EDDCB8",
+          200: "#EFD9AF",
+          300: "#DFBE7A",
+          400: "#C98F2A",
+          500: "#B07715",
+          600: "#96650F",
+          700: "#7A5210",
+          800: "#5E3F0C",
+          900: "#432C09",
+          950: "#2A1B05",
+          DEFAULT: "#B07715",
         },
         // Grays: warm stone (not cold slate)
       },
 
       backgroundColor: {
-        app: "#FAFAF7",
+        app: "#FAF7F1",
       },
 
       fontFamily: {
-        sans: ["Poppins", "system-ui", "sans-serif"],
+        // UI text -- quiet, wide apertures, survives Spanish's extra length
+        sans: ["Instrument Sans", "system-ui", "sans-serif"],
+        // Money figures + big titles -- holds a wide Argentine number at size
+        display: ["Bricolage Grotesque", "Instrument Sans", "system-ui", "sans-serif"],
       },
 
       fontSize: {
@@ -98,13 +105,14 @@ export default {
         "3xl": "4rem",
       },
 
+      // Mixed radii carry hierarchy: control 12 · card 20 · hero 28 · pill full
       borderRadius: {
         sm: "0.25rem",
         DEFAULT: "0.5rem",
-        md: "0.5rem",
-        lg: "0.75rem",
-        xl: "1rem",
-        "2xl": "1.5rem",
+        md: "0.75rem",
+        lg: "0.875rem",
+        xl: "1.25rem",
+        "2xl": "1.75rem",
       },
 
       boxShadow: {

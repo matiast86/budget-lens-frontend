@@ -115,9 +115,9 @@ export const LandingPage = () => {
       {/* ── HERO ───────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
         {/* Gradient backdrop */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-emerald-50 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-income-50 pointer-events-none" />
         <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-primary-100/40 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -left-40 w-96 h-96 rounded-full bg-emerald-100/30 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -left-40 w-96 h-96 rounded-full bg-income-100/30 blur-3xl pointer-events-none" />
 
         <div className="relative max-w-6xl mx-auto px-lg pt-3xl pb-xl text-center">
           {/* Pill tag */}
@@ -204,7 +204,7 @@ export const LandingPage = () => {
                     <p className="text-[10px] font-medium text-stone-500">
                       {t("landing.mockup.leftThisMonth")}
                     </p>
-                    <p className="text-2xl font-bold text-stone-900 tracking-tight leading-none mt-0.5">
+                    <p className="financial-amount text-2xl text-stone-900 leading-none mt-0.5">
                       $565.500
                     </p>
                     <p className="text-[9px] text-stone-400 mt-xs">

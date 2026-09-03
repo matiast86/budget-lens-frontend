@@ -10,9 +10,18 @@ The previous design (blue primary, slate grays, Inter, tabular data-first) felt 
 
 ### The New Design Personality
 
-- **Warm, not cold** — teal + cream instead of blue + slate
-- **Friendly, not corporate** — Poppins (rounded) instead of Inter
-- **Approachable numbers** — large, bold amounts with plain-language context, not raw tables
+> **v3 identity (current):** indigo brand + warm paper + Bricolage Grotesque / Instrument
+> Sans. Set in `tailwind.config.js` (`primary`, `cream`, `income`, `expense`, `warning`,
+> `fontFamily.sans`/`display`) and `src/index.css`. The teal/Poppins bullets below are the
+> superseded v2 direction — kept for context; the hexes live in **Design System** further
+> down. Dark theme from the canvas is **not built yet**.
+
+- **Calm, not loud** — indigo brand (deliberately *not* a money colour) on warm paper `#FAF7F1`
+- **Colour is a signal** — green only for income, clay only for over-budget; most rows are plain ink
+- **Bricolage Grotesque for money + big titles** — condensed `wdth` axis holds a wide Argentine number ($1.284.500) at size; Instrument Sans carries UI text
+- ~~Warm, not cold — teal + cream instead of blue + slate~~ *(v2)*
+- ~~Friendly, not corporate — Poppins (rounded) instead of Inter~~ *(v2)*
+- **Approachable numbers** — large amounts with plain-language context, not raw tables
 - **Mobile-native** — bottom tab bar, not sidebar; list rows, not horizontal tables; hero card, not four stat cards
 - **Built for the non-numbers user** — real users said the app felt made for spreadsheet people. The app does the interpretation: a plain-language verdict ("Vas bien") comes first, the percentage second; complexity (cuotas, currency, splits) stays hidden until asked for. See **Average-User Friendliness — Structural Patterns** below.
 - **Encouragement, not gamification** — a calm "you're on track" beats points and streaks; keep positive feedback in plain language and never let a score become the headline
@@ -227,94 +236,57 @@ Runtime behaviour is unaffected — zod still validates and coerces correctly. A
 
 The old `blue` primary and `slate` gray scale are **completely replaced**. Do not use `blue-*`, `slate-*`, or `neutral-*` anywhere in the codebase.
 
-### Color Tokens
+### Color Tokens — v3 indigo / paper
 
-| Token | Hex | Tailwind key | Purpose |
-|---|---|---|---|
-| `primary` | `#0D9488` | `teal-600` | CTAs, active nav, progress fills, links |
-| `primary-dark` | `#115E59` | `teal-800` | Hero backgrounds, header gradient |
-| `primary-light` | `#F0FDFA` | `teal-50` | Selected state backgrounds, highlights |
-| `background` | `#FAFAF7` | custom `cream` | App background — **not** pure white |
-| `surface` | `#FFFFFF` | `white` | Card surfaces |
-| `income` | `#10B981` | `emerald-500` | Positive amounts, income |
-| `expense` | `#FB7185` | `rose-400` | Negative amounts, expenses (soft, not aggressive) |
-| `warning` | `#FBBF24` | `amber-400` | Budget thresholds, over-limit |
-| `text-primary` | `#1C1917` | `stone-900` | Headlines, amounts, primary labels |
-| `text-secondary` | `#78716C` | `stone-500` | Captions, secondary labels |
-| `border` | `#E7E5E0` | `stone-200` | Card borders, dividers |
+Live values in `tailwind.config.js`. Semantic keys are unchanged (`primary`, `income`,
+`expense`, `warning`, `cream`, `bg-app`) so every `bg-primary-*` / `text-income-*` usage
+flipped automatically — only raw palette literals (`teal-*`, `emerald-*`) needed hand edits.
 
-**All grays now use `stone-*`** (warm undertone), not `slate-*` (cold undertone). This single change shifts the entire emotional temperature of the app.
+| Token | Hex | Purpose |
+|---|---|---|
+| `primary` (`-600`/DEFAULT) | `#4B47A8` | Brand: CTAs, active nav, links, focus ring. **Not** a money colour. |
+| `primary-800` / `primary` dark | `#332F8C` | Hero gradient end, link hover |
+| `primary-50` / `primary` light | `#EEEDFA` | Selected backgrounds, indigo-tint chips |
+| `cream` / `bg-app` | `#FAF7F1` | App background — warm paper |
+| `white` | `#FFFFFF` | Card surfaces |
+| `income` (`-600`/DEFAULT) | `#1B7A5A` | **Income only.** `income-50 #E4F1EB` tint, `income-700 #14543F` text |
+| `expense` (`-600`/DEFAULT) | `#A8492F` | **Over-budget only** (clay). `expense-50 #F7E9E3` tint, `expense-700 #7C3521` text |
+| `warning` (`-500`/DEFAULT) | `#B07715` | "Cutting it close". `warning-50 #FBF1DD` |
+| `stone-900` | `#1C1917` | Ink — headlines, amounts, **plain expense rows** |
+| `stone-500` | `#78716C` | Muted captions |
+| `stone-200` | `#E7E5E0` | Hairline borders |
 
-Configure these in `tailwind.config.js`:
+Grays stay `stone-*` (already warm, close to the canvas ink/muted/hairline). Do not use
+`blue-*`, `slate-*`, `neutral-*`, or (now) `teal-*`/`emerald-*`/`rose-*` as brand/finance colours.
 
-```js
-theme: {
-  extend: {
-    colors: {
-      primary: {
-        DEFAULT: '#0D9488',
-        dark: '#115E59',
-        light: '#F0FDFA',
-        50: '#F0FDFA',
-        100: '#CCFBF1',
-        200: '#99F6E4',
-        500: '#14B8A6',
-        600: '#0D9488',
-        700: '#0F766E',
-        800: '#115E59',
-        900: '#134E4A',
-      },
-      cream: '#FAFAF7',
-      income: {
-        DEFAULT: '#10B981',
-        50: '#ECFDF5',
-        100: '#D1FAE5',
-        600: '#059669',
-      },
-      expense: {
-        DEFAULT: '#FB7185',
-        50: '#FFF1F2',
-        100: '#FFE4E6',
-        600: '#E11D48',
-      },
-      warning: {
-        DEFAULT: '#FBBF24',
-        50: '#FFFBEB',
-        600: '#D97706',
-      },
-    },
-    backgroundColor: {
-      app: '#FAFAF7',
-    },
-  }
-}
-```
+### Typography — Bricolage Grotesque + Instrument Sans
 
-### Typography — Poppins replaces Inter
-
-**Font: Poppins** (import via Google Fonts in `index.html`)
+**Instrument Sans** carries all UI text (`font-sans`). **Bricolage Grotesque** (`font-display`)
+is for money figures and big titles — its `wdth` axis lets a wide Argentine number hold its
+size. Loaded in `index.html`:
 
 ```html
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 ```
 
 ```js
 // tailwind.config.js
 fontFamily: {
-  sans: ['Poppins', 'system-ui', 'sans-serif'],
+  sans:    ['Instrument Sans', 'system-ui', 'sans-serif'],
+  display: ['Bricolage Grotesque', 'Instrument Sans', 'system-ui', 'sans-serif'],
 }
 ```
 
-| Role | Weight | Size | Class |
-|---|---|---|---|
-| App name / hero | 700 Bold | 28–32px | `text-3xl font-bold` |
-| Page titles | 600 SemiBold | 22px | `text-2xl font-semibold` |
-| Card titles | 600 SemiBold | 16px | `text-lg font-semibold` |
-| Body / labels | 400 Regular | 14px | `text-sm` |
-| **Financial amounts** | **700 Bold** | **20–32px** | `text-2xl font-bold` |
-| Captions / hints | 400 Regular | 12px | `text-xs` |
+| Role | Face | Class |
+|---|---|---|
+| Money / financial amounts | Bricolage (`wdth` 85) | `.financial-amount` (already sets `font-display` + variation settings) |
+| Page / section big titles (`h1`,`h2`) | Bricolage | global in `index.css` |
+| Card titles, row titles, body, labels | Instrument Sans | `font-sans` (default) |
 
-**Critical rule for financial amounts:** amounts must be **large and bold**, never shrunk. A user's monthly spend shown in `text-3xl font-bold` feels clear and legible. The same number in `text-sm tabular-nums` feels like a spreadsheet and creates anxiety.
+**Critical rule for financial amounts:** always render money through `.financial-amount`
+(never a bare `text-2xl font-bold`) so it picks up the display face. Amounts stay large —
+a spend in `text-3xl` reads clearly; the same number in `text-sm tabular-nums` reads like a
+spreadsheet.
 
 ### Shadows
 
@@ -738,6 +710,28 @@ Add equivalent keys to `es/common.json` — e.g. `budget.signal` → "Vas bien" 
 "Agregar detalle", `dashboard.left_this_month` → "Te queda este mes".
 
 All other i18n rules remain unchanged (never hardcode strings, never hardcode locale, use `i18n.language` for formatters).
+
+### User-facing vocabulary — no accountant words
+
+The **type/DTO names stay** (`LedgerResponseDto`, `groupId`, `impactsCashflow`, element ids
+like `ledger-name`). Only the **i18n values** speak plain language. Keep new copy consistent
+with this table:
+
+| Concept (code) | ES value | EN value | Never say |
+|---|---|---|---|
+| Ledger | **planilla de gastos** / *planilla* | **expense tracker** / *tracker* | libro mayor, ledger, cuenta |
+| Transaction | **movimiento** | *transaction* (fine in EN) | transacción (ES) |
+| Group | **etiqueta** | **tag** | grupo, group |
+| Cashflow (report) | **flujo de dinero** | *cashflow* | flujo de caja |
+| `impactsCashflow` flag | **cuenta para el mes** | **counts toward the month** | impacta en flujo de caja |
+| `baseCpiIndex` / CPI | **inflación de referencia** / *inflación base* | **reference inflation** / *base inflation* | CPI, índice CPI |
+| Status CURRENT/CLOSED/FUTURE | **Este mes / Cerrado / Próximo** | **This month / Past / Upcoming** | Corriente |
+| Collaborator(s) | **compartido con** / *personas* | **shared with** / *people* | colaborador |
+| `installments` column | **cuota** | **instalment** | — (EN "quota" was wrong) |
+| Dashboard | **Inicio** | **Home** | Panel |
+
+ES is voseo Argentine ("anotá", "mirá", "creá"). The landing trust line says *"Sin fórmulas"*
+(not "Sin planilla" — the product now calls itself a planilla).
 
 ---
 

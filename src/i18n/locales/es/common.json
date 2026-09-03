@@ -8,9 +8,9 @@
     "es": "Español"
   },
   "nav": {
-    "dashboard": "Panel",
-    "transactions": "Transacciones",
-    "cashflow": "Cashflow",
+    "dashboard": "Inicio",
+    "transactions": "Movimientos",
+    "cashflow": "Flujo de dinero",
     "budgets": "Presupuestos",
     "analytics": "Análisis",
     "settings": "Configuración",
@@ -20,13 +20,13 @@
     "sidebar": "Navegación lateral"
   },
   "cashflow": {
-    "title": "Cashflow",
+    "title": "Flujo de dinero",
     "planned": "Planeado",
     "balance": "Saldo",
     "income": "Ingresos",
     "expense": "Gastos",
     "grandTotal": "Saldo Neto",
-    "noData": "Sin datos de cashflow para este período.",
+    "noData": "Sin datos de flujo de dinero para este período.",
     "legend": "Planeado / Saldo",
     "period": {
       "from": "Desde",
@@ -36,14 +36,14 @@
       "thisYear": "Este año"
     },
     "noLedger": {
-      "title": "Sin libros mayores",
-      "body": "Creá un libro mayor primero para ver el reporte de cashflow."
+      "title": "Todavía no tenés planillas",
+      "body": "Creá una planilla de gastos primero para ver el flujo de dinero."
     }
   },
   "header": {
-    "searchPlaceholder": "Buscar libros mayores...",
-    "newLedger": "+ Nuevo Libro Mayor",
-    "welcomeBack": "Bienvenido de nuevo, {{name}}. Aquí están tus libros mayores.",
+    "searchPlaceholder": "Buscar planillas...",
+    "newLedger": "+ Nueva planilla",
+    "welcomeBack": "Hola de nuevo, {{name}}. Estas son tus planillas de gastos.",
     "notifications": "Notificaciones",
     "profileMenu": "Menú de perfil"
   },
@@ -59,22 +59,22 @@
     "over_by": "Te pasaste por {{amount}}"
   },
   "dashboard": {
-    "streak": "¡{{count}} meses bajo presupuesto! Seguí así 🎉",
+    "streak": "¡{{count}} meses bajo presupuesto! Seguí así",
     "balance_label": "Saldo actual"
   },
   "recentTransactions": {
-    "title": "Transacciones Recientes",
-    "viewAll": "Ver Todas",
+    "title": "Movimientos recientes",
+    "viewAll": "Ver todos",
     "income": "Ingresos",
     "expenses": "Gastos"
   },
   "transactions": {
     "noLedgers": {
-      "title": "Sin libros mayores",
-      "body": "Creá un libro mayor primero para comenzar a registrar tus transacciones."
+      "title": "Todavía no tenés planillas",
+      "body": "Creá una planilla de gastos primero para empezar a anotar tus gastos."
     },
-    "pickLedger": "Seleccioná un libro mayor",
-    "pickLedgerBody": "Elegí un libro mayor para ver sus transacciones.",
+    "pickLedger": "Elegí una planilla",
+    "pickLedgerBody": "Elegí una planilla de gastos para ver sus movimientos.",
     "summary": {
       "balance": "Saldo"
     }
@@ -181,15 +181,15 @@
       "subheadline": "Anotá un gasto en cinco segundos. Mirá si llegás a fin de mes en veinte. Cuotas, dólares y gastos compartidos incluidos, sin que tengas que pensarlos.",
       "cta1": "Empezar gratis",
       "cta2": "Ver una demo",
-      "trustLine": "Sin tarjeta. Sin categorías obligatorias. Sin planilla."
+      "trustLine": "Sin tarjeta. Sin categorías obligatorias. Sin fórmulas."
     },
     "mockup": {
-      "url": "app.budgetlens.io/panel",
-      "myLedgers": "Mis Libros Mayores",
-      "active": "3 activos",
+      "url": "app.budgetlens.io/inicio",
+      "myLedgers": "Mis planillas de gastos",
+      "active": "3 activas",
       "income": "Ingresos",
       "expenses": "Gastos",
-      "recentTransactions": "Transacciones recientes",
+      "recentTransactions": "Movimientos recientes",
       "leftThisMonth": "Te queda este mes",
       "leftDetail": "de $1.850.000 · quedan 7 días",
       "onTrack": "Vas bien",
@@ -198,18 +198,18 @@
       "txIncome": "Sueldo"
     },
     "stats": {
-      "ledgerTypes": { "value": "10+", "label": "Tipos de libros mayores" },
-      "currencies": { "value": "ARS & USD", "label": "Monedas" },
-      "inflation": { "value": "CPI-aware", "label": "Seguimiento de inflación" },
+      "ledgerTypes": { "value": "Varias", "label": "Planillas a la vez" },
+      "currencies": { "value": "ARS y USD", "label": "Monedas" },
+      "inflation": { "value": "Ajusta inflación", "label": "Seguimiento de inflación" },
       "budget": { "value": "Tiempo real", "label": "Progreso del presupuesto" }
     },
     "features": {
       "sectionLabel": "Funciones",
       "heading": "Todo lo que necesitás para entender tu dinero",
-      "subheading": "Desde el seguimiento simple de gastos hasta análisis ajustados por inflación, Budget Lens te da el panorama completo sin complejidad.",
+      "subheading": "Desde anotar un gasto rápido hasta análisis ajustados por inflación, Budget Lens te da el panorama completo sin complicaciones.",
       "multiLedger": {
-        "title": "Gestión de Múltiples Libros Mayores",
-        "desc": "Creá libros mayores separados para finanzas personales, familiares o empresariales. Mantené cada contexto organizado y claramente separado."
+        "title": "Varias planillas, un solo lugar",
+        "desc": "Creá planillas de gastos separadas para lo tuyo, lo de casa o un proyecto. Cada contexto ordenado y aparte."
       },
       "categoryBudgets": {
         "title": "Presupuestos por Categoría",
@@ -217,15 +217,15 @@
       },
       "inflation": {
         "title": "Análisis Ajustados por Inflación",
-        "desc": "Mirá tu poder adquisitivo real a lo largo del tiempo. Budget Lens ajusta los montos con índices CPI para que conozcas el costo verdadero."
+        "desc": "Mirá tu poder adquisitivo real a lo largo del tiempo. Budget Lens ajusta los montos por inflación para que veas el costo verdadero."
       },
       "collaborative": {
-        "title": "Presupuesto Colaborativo",
-        "desc": "Invitá a familiares o compañeros de equipo a libros mayores compartidos. Todos alineados con visibilidad completa."
+        "title": "Compartilo con quien quieras",
+        "desc": "Invitá a tu familia o a quien comparta los gastos. Todos ven lo mismo."
       },
       "multiCurrency": {
         "title": "Soporte Multi-Moneda",
-        "desc": "Gestioná presupuestos en ARS y USD simultáneamente. Diseñado para economías de monedas mixtas y finanzas transfronterizas."
+        "desc": "Manejá ARS y USD al mismo tiempo. Pensado para economías de monedas mixtas y finanzas transfronterizas."
       },
       "paymentMethod": {
         "title": "Seguimiento de Medios de Pago",
@@ -236,16 +236,16 @@
       "sectionLabel": "Cómo funciona",
       "heading": "Listo en minutos",
       "create": {
-        "title": "Creá un Libro Mayor",
-        "desc": "Configurá un libro mayor para cualquier contexto — finanzas personales, hogar, un proyecto o tu equipo."
+        "title": "Creá tu planilla",
+        "desc": "Armá una planilla de gastos para lo que sea — lo tuyo, la casa, un viaje, un proyecto."
       },
       "add": {
-        "title": "Agregá Transacciones",
-        "desc": "Registrá ingresos y gastos con categorías, medios de pago y soporte de cuotas incorporado."
+        "title": "Cargá tus gastos",
+        "desc": "Anotá ingresos y gastos con categoría, medio de pago y cuotas. En segundos."
       },
       "gain": {
         "title": "Obtené Claridad",
-        "desc": "Mirá adónde va tu dinero con resúmenes claros, progreso del presupuesto y montos reales ajustados por inflación."
+        "desc": "Mirá adónde va tu dinero con resúmenes claros, progreso de presupuestos y montos ajustados por inflación."
       }
     },
     "trust": {

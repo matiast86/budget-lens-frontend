@@ -1,15 +1,15 @@
 {
   "create": {
-    "title": "Create Ledger",
-    "description": "Set up a new ledger to start tracking your finances.",
+    "title": "New expense tracker",
+    "description": "Set up a new tracker to start following your spending.",
     "field": {
-      "name": "Ledger Name",
-      "namePlaceholder": "e.g. Household, Personal, Team Budget",
+      "name": "Tracker name",
+      "namePlaceholder": "e.g. Home, Personal, Trip",
       "description": "Description",
-      "descriptionPlaceholder": "What is this ledger for? (optional)",
+      "descriptionPlaceholder": "What's this tracker for? (optional)",
       "currency": "Currency",
-      "baseCpiIndex": "Base CPI Index",
-      "baseCpiIndexHint": "The inflation index value at the start of this ledger. Used to calculate real amounts.",
+      "baseCpiIndex": "Reference inflation",
+      "baseCpiIndexHint": "The inflation index value when this tracker starts. Used to show amounts in today's money.",
       "baseCpiIndexPlaceholder": "e.g. 100"
     },
     "currency": {
@@ -17,29 +17,29 @@
       "USD": "US Dollar (USD)"
     },
     "error": {
-      "nameRequired": "Ledger name is required",
+      "nameRequired": "Give the tracker a name",
       "nameTooLong": "Name must be 100 characters or less",
       "descriptionTooLong": "Description must be 300 characters or less",
       "baseCpiPositive": "Must be a positive number"
     },
     "action": {
-      "submit": "Create Ledger",
+      "submit": "Create tracker",
       "cancel": "Cancel"
     }
   },
   "grid": {
-    "title": "My Ledgers",
-    "count_one": "{{count}} ledger in your account",
-    "count_other": "{{count}} ledgers in your account",
-    "newLedger": "New Ledger",
+    "title": "My expense trackers",
+    "count_one": "{{count}} tracker in your account",
+    "count_other": "{{count}} trackers in your account",
+    "newLedger": "New tracker",
     "empty": {
-      "title": "No ledgers yet",
-      "body": "Create your first ledger to start tracking your finances.",
-      "action": "Create Ledger"
+      "title": "No trackers yet",
+      "body": "Create your first expense tracker to get started.",
+      "action": "Create tracker"
     }
   },
   "card": {
-    "baseCpi": "Base CPI",
+    "baseCpi": "Base inflation",
     "noDescription": "No description provided.",
     "created": "Created {{date}}",
     "open": "Open",
@@ -56,27 +56,27 @@
   },
   "detail": {
     "notFound": {
-      "title": "Ledger not found",
-      "body": "No ledger with ID {{id}} exists in your account.",
-      "back": "Back to dashboard"
+      "title": "Tracker not found",
+      "body": "No tracker with ID {{id}} exists in your account.",
+      "back": "Back to home"
     },
     "unavailable": {
       "title": "Something went wrong",
-      "body": "Could not load this ledger. Please try again later.",
-      "back": "Back to dashboard"
+      "body": "Could not load this tracker. Please try again later.",
+      "back": "Back to home"
     },
     "tab": {
       "transactions": "Transactions",
       "categories": "Categories",
       "paymentMethods": "Payment Methods",
-      "groups": "Groups",
-      "collaborators": "Collaborators"
+      "groups": "Tags",
+      "collaborators": "Shared with"
     },
     "meta": {
-      "baseCpi": "Base CPI",
+      "baseCpi": "Base inflation",
       "created": "Created {{date}}",
-      "collaborator_one": "{{count}} collaborator",
-      "collaborator_other": "{{count}} collaborators",
+      "collaborator_one": "{{count}} person",
+      "collaborator_other": "{{count}} people",
       "categories_one": "{{count}} category",
       "categories_other": "{{count}} categories"
     },
@@ -112,20 +112,20 @@
         "bundleTo": "Repeat until",
         "increaseRate": "Increase %",
         "increaseEveryMonths": "Every (months)",
-        "bundlePreview": "Creates {{count}} monthly transactions",
+        "bundlePreview": "Creates {{count}} monthly entries",
         "category": "Category",
         "selectCategory": "Select category...",
         "paymentMethod": "Payment Method",
         "selectMethod": "Select method...",
-        "group": "Group",
-        "selectGroup": "Select group...",
+        "group": "Tag",
+        "selectGroup": "Pick a tag...",
         "status": "Status",
         "comment": "Note (optional)",
         "commentPlaceholder": "Brief description...",
         "isPaid": "Mark as paid",
-        "impactsCashflow": "Impacts cashflow",
-        "debtOwners": "Debt assignments",
-        "addDebtOwner": "Add debt owner",
+        "impactsCashflow": "Counts toward the month",
+        "debtOwners": "Anyone else chip in?",
+        "addDebtOwner": "Add person",
         "removeDebtOwner": "Remove",
         "ownerNamePlaceholder": "e.g. Ana, neighbor...",
         "debtAmount": "Amount",
@@ -140,10 +140,10 @@
         "amountPositive": "Amount must be greater than 0",
         "installmentsMin": "At least 1 installment required",
         "categoryRequired": "Please select a category",
-        "groupRequired": "Please select a group",
+        "groupRequired": "Pick a tag",
         "paymentMethodRequired": "Please select a payment method",
         "commentTooLong": "Note must be 500 characters or less",
-        "debtOwnerRequired": "Select a collaborator",
+        "debtOwnerRequired": "Enter the person's name",
         "debtAmountPositive": "Enter a valid amount",
         "bundleToRequired": "Choose an end month for the recurrence",
         "bundleToAfter": "End month must be after the payment month",
@@ -151,14 +151,14 @@
         "increaseEveryMonthsInvalid": "Enter a whole number of months (1 or more)"
       },
       "action": {
-        "submit": "Save Transaction"
+        "submit": "Save"
       },
-      "noGroup": "No group",
+      "noGroup": "No tag",
       "quickCreate": {
         "trigger": "Add new",
         "namePlaceholder": "Name...",
         "emptyCategory": "No categories yet",
-        "emptyGroup": "No groups yet",
+        "emptyGroup": "No tags yet",
         "emptyPaymentMethod": "No payment methods yet"
       }
     },
@@ -172,9 +172,9 @@
       "expense": "Expense"
     },
     "status": {
-      "current": "Current",
-      "closed": "Closed",
-      "future": "Future"
+      "current": "This month",
+      "closed": "Past",
+      "future": "Upcoming"
     },
     "filter": {
       "title": "Filters",
@@ -182,7 +182,7 @@
       "status": "Status",
       "entryType": "Type",
       "category": "Category",
-      "group": "Group",
+      "group": "Tag",
       "paymentMethod": "Payment method",
       "isPaid": "Paid only",
       "all": "All",
@@ -196,7 +196,7 @@
       "confirmDelete": "Sure?",
       "cancel": "Cancel",
       "togglePaid": "Toggle paid",
-      "toggleCashflow": "Toggle cashflow impact"
+      "toggleCashflow": "Toggle counts toward the month"
     },
     "breakdown": {
       "title": "Weekly Breakdown",
@@ -214,7 +214,7 @@
         "date": "Date",
         "paymentMonth": "Payment Month",
         "category": "Category",
-        "group": "Group",
+        "group": "Tag",
         "paymentMethod": "Payment Method",
         "comment": "Note (optional)",
         "commentPlaceholder": "Brief description..."
@@ -224,7 +224,7 @@
         "dateRequired": "Date is required",
         "paymentMonthRequired": "Payment month is required",
         "categoryRequired": "Please select a category",
-        "groupRequired": "Please select a group",
+        "groupRequired": "Pick a tag",
         "paymentMethodRequired": "Please select a payment method",
         "commentTooLong": "Note must be 500 characters or less"
       },
@@ -244,11 +244,11 @@
         "type": "Type",
         "status": "Status",
         "amount": "Amount",
-        "quota": "Quota",
+        "quota": "Instalment",
         "method": "Method",
         "paid": "Paid",
-        "cashflow": "CF",
-        "cashflowFull": "Impacts Cashflow",
+        "cashflow": "Mo.",
+        "cashflowFull": "Counts toward the month",
         "weeks": "Weeks",
         "weeksFull": "Weekly Breakdown",
         "actions": "Actions"
@@ -298,14 +298,14 @@
   },
   "group": {
     "modal": {
-      "createTitle": "New Group",
-      "editTitle": "Edit Group",
+      "createTitle": "New tag",
+      "editTitle": "Edit tag",
       "field": {
         "name": "Name",
         "namePlaceholder": "e.g. Fixed expenses"
       },
       "action": {
-        "create": "Create Group",
+        "create": "Create tag",
         "save": "Save Changes",
         "cancel": "Cancel"
       },
@@ -319,7 +319,7 @@
         "name": "Name",
         "actions": "Actions"
       },
-      "addNew": "New Group",
+      "addNew": "New tag",
       "action": {
         "edit": "Edit",
         "delete": "Delete",
@@ -383,8 +383,8 @@
         "status": "Status"
       },
       "empty": {
-        "title": "No collaborators yet",
-        "body": "Invite someone by email to share this ledger."
+        "title": "Not shared yet",
+        "body": "Invite someone by email to share this tracker."
       }
     }
   }

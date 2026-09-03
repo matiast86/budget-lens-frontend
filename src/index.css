@@ -29,6 +29,13 @@
     @apply font-semibold tracking-tight text-stone-900;
   }
 
+  /* Big titles get the display face; row-level headings stay in the UI face */
+  h1, h2 {
+    @apply font-display;
+    font-variation-settings: "wght" 700, "opsz" 40;
+    letter-spacing: -0.02em;
+  }
+
   ::-webkit-scrollbar {
     @apply w-2;
   }
@@ -75,9 +82,11 @@
     @apply text-sm font-medium text-stone-500;
   }
 
-  /* Financial amounts */
+  /* Financial amounts -- display face, condensed so a wide Argentine number
+     ($1.284.500) holds its size without shrinking */
   .financial-amount {
-    @apply font-bold tracking-tight;
+    @apply font-display font-bold tracking-tight;
+    font-variation-settings: "wght" 700, "wdth" 85, "opsz" 40;
   }
   .amount-positive {
     @apply text-income-600;
