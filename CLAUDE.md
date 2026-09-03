@@ -764,7 +764,7 @@ When implementing the redesign, follow this order to avoid cascading breakage:
 - The React Query / Zustand state separation rules
 - The service layer pattern (deferred until API is wired)
 - Accessibility requirements (ARIA labels, semantic HTML, focus rings)
-- The routing structure (`/`, `/dashboard`, `/ledgers/:id`)
+- The routing structure (`/`, `/dashboard`, `/transactions`, `/cashflow`, `/debts`, `/ledgers/:id`; auth pages `/login` `/register` outside `AppShell`)
 
 ---
 
@@ -820,17 +820,21 @@ CategoryResponseDto           { id, name, description?, ledgerId, templateId? }
 GroupResponseDto              { id, name, ledgerId, userId }
 PaymentMethodResponseDto      { id, name, type, brand?, color?, icon?, currency?, isActive, userId }
 CollaborationResponseDto      { id, name, isActive, userId, ledgerId }
-DebtOwnerResponseDto          { id, name, ledgerId }
+DebtOwnerResponseDto          { id, name, ledgerId, transactions?: TransactionDebtOwnerResponseDto[] }
+DebtReportDto                 { meta: { periods[], from, to, currency }, owners: DebtOwnerReportDto[], grandTotal: DebtPeriodAmountDto[] }
+DebtOwnerReportDto            { id, name, total: DebtPeriodAmountDto[], debts: DebtDetailDto[] }
+DebtPeriodAmountDto           { period, amount }   // signed: + = owed to me, − = owed by me
+DebtDetailDto                 { description, amounts: DebtPeriodAmountDto[] }
 ```
 
-> **Important:** `DebtOwnerResponseDto` is NOT related to `CollaborationResponseDto`. Debt owners are user-defined names (e.g. "Ana", "neighbor", "other") scoped to a ledger. They are managed via `POST /debt-owners/ledgers/:id` and have a unique constraint on `(ledgerId, name)`.
+> **Important:** `DebtOwnerResponseDto` is NOT related to `CollaborationResponseDto`. Debt owners are user-defined names (e.g. "Ana", "neighbor", "other") scoped to a ledger. They are managed via `POST /debt-owners/ledgers/:id` and have a unique constraint on `(ledgerId, name)`. `GET /debt-owners/ledgers/:id` returns them with `transactions` (the nested `TransactionDebtOwner` assignments, each carrying its `debt` `{ id, period "YYYY-MM", description? }`).
 
 ### `src/types/ui-only.ts`
 
 ```typescript
 NavItem           // { icon: React.ElementType, label, active }
 StatCardData      // { label, value, change, trend: "up"|"down" }
-LedgerDetailTab   // "transactions" | "categories" | "paymentMethods" | "groups" | "collaborators"
+LedgerDetailTab   // "transactions" | "categories" | "paymentMethods" | "groups" | "collaborators" | "debts"
 BottomTabItem     // { icon: React.ElementType, label: string, path: string }
 TransactionFilters // { status?, entryType?, categoryId?, groupId?, paymentMethodId?, paymentMonth?, isPaid?, skip?, take? }
 
@@ -870,9 +874,13 @@ budget-lens-frontend/
 │   │   │   ├── TransactionFilters.tsx # NEW — month picker, entryType/status pills, relation selects, isPaid
 │   │   │   ├── TransactionListRow.tsx # mobile-first list row pattern
 │   │   │   ├── TransactionRow.tsx     # @deprecated — kept until API wired
-│   │   │   ├── TransactionBreakdownPanel.tsx # inline W1-W4 editor row; self-contained useMutation; no modal
-│   │   │   │                                 # reads token from useAuthStore; invalidates ["transactions", ledgerId]
-│   │   │   │                                 # props: tx, colSpan, onClose
+│   │   │   ├── BreakdownEditor.tsx    # W1-W4 editor UI + save logic, no table markup (usable in a row OR a modal)
+│   │   │   │                          # reads token/queryClient; invalidates ["transactions", String(ledgerId)] (+ optional invalidateKeys)
+│   │   │   ├── TransactionBreakdownPanel.tsx # thin <tr><td colSpan> wrapper around BreakdownEditor — used by TransactionTable
+│   │   │   ├── TransactionViewToggle.tsx # "Table / Weekly" segmented pills; TransactionView = "table" | "weekly"
+│   │   │   ├── DebtOwnersList.tsx     # per-owner net OWED_TO_ME vs OWED_BY_ME (glyph+word+colour), expand → per-debt rows; onOpenTransaction(txId)
+│   │   │   ├── WeeklyDrawdownStrip.tsx # "Balance Mes" 5-step bar (start → after W1..W4); All/Counts-toward-month toggle; nets OWED_TO_ME off start; now/past/upcoming
+│   │   │   ├── UnallocatedBreakdownCard.tsx # Σ buckets ≠ monthlyAmount list; per-row "Put in W{n}" + header "Auto-split all by date"; "Split manually" → editor
 │   │   │   └── BudgetProgressItem.tsx # updated: emoji signal + colored bar
 │   │   └── organisms/
 │   │       ├── AppHeader.tsx          # updated: slim mobile / full desktop; onNewLedger prop
@@ -892,13 +900,20 @@ budget-lens-frontend/
 │   │       ├── LedgerDetailHeader.tsx
 │   │       ├── LedgerGrid.tsx         # updated: horizontal carousel on mobile
 │   │       ├── RecentTransactionList.tsx # list rows, not table
-│   │       ├── Sidebar.tsx            # updated: teal active state, stone neutrals; lg: only
+│   │       ├── Sidebar.tsx            # updated: teal active state, stone neutrals; lg: only; nav incl. /debts (HandCoins)
 │   │       ├── TransactionList.tsx    # @deprecated
-│   │       └── TransactionTable.tsx   # clickable isPaid/impactsCashflow toggles; edit+delete actions
-│   │                                  # Weeks column: BreakdownMiniBar sparkline (4 proportional bars, primary-400/stone-200)
-│   │                                  # click Weeks cell → toggles TransactionBreakdownPanel expansion row inline
-│   │                                  # TransactionTableRow returns React.Fragment (main <tr> + optional breakdown <tr>)
-│   │                                  # COL_COUNT = 11 (add 1 when adding columns — used for breakdown colSpan)
+│   │       ├── TransactionTable.tsx   # clickable isPaid/impactsCashflow toggles; edit+delete actions
+│   │       │                          # Weeks column: BreakdownMiniBar sparkline (4 proportional bars, primary-400/stone-200)
+│   │       │                          # click Weeks cell → toggles TransactionBreakdownPanel expansion row inline
+│   │       │                          # TransactionTableRow returns React.Fragment (main <tr> + optional breakdown <tr>)
+│   │       │                          # COL_COUNT = 11 (add 1 when adding columns — used for breakdown colSpan)
+│   │       ├── DebtsView.tsx          # "By person / By month" toggle; owns getDebtOwners + getDebtReport queries + period picker
+│   │       │                          # props: ledgerId, currency, onOpenTransaction; used by the /debts page AND the LedgerDetail "debts" tab
+│   │       ├── DebtReportTable.tsx    # owner × month matrix (GET /reports/.../debts); expand owner → per-description; grand-total row
+│   │       ├── WeeklyView.tsx         # own month picker + getTransactions({paymentMonth,take:500}); current-week reference pill
+│   │       │                          # renders WeeklyDrawdownStrip + UnallocatedBreakdownCard + WeeklyBoard; quick-fill / auto-split mutations
+│   │       │                          # breakdown edit opens BreakdownEditor in a modal; props: ledgerId, currency
+│   │       └── WeeklyBoard.tsx        # 4 week columns (1-up → 4-up lg); real day ranges per month; current column ringed + THIS WEEK badge
 │   ├── helpers/
 │   │   └── mocks/
 │   │       ├── ledger-mocks.ts
@@ -910,9 +925,14 @@ budget-lens-frontend/
 │   │   ├── LoginPage.tsx              # standalone auth page at /login
 │   │   ├── DashboardPage.tsx          # hero card + carousel + list rows
 │   │   ├── TransactionsPage.tsx       # /transactions: ledger selector pills + summary cards + filters + full table
-│   │   └── LedgerDetailPage.tsx       # two queries (ledger + transactions); full CRUD for transactions, categories, groups, PMs
+│   │   │                              # "Table / Weekly" toggle (TransactionViewToggle) → weekly mode renders <WeeklyView>
+│   │   ├── CashflowPage.tsx           # /cashflow: ledger pills + period presets + CashflowTable
+│   │   ├── DebtsPage.tsx              # /debts: ledger pills + <DebtsView>; owns EditTransactionModal for the open-a-debt's-transaction flow
+│   │   └── LedgerDetailPage.tsx       # two queries (ledger + transactions) + debtOwners count query; full CRUD for transactions, categories, groups, PMs
+│   │                                  # tabs incl. "debts" (<DebtsView>); transactions tab has the "Table / Weekly" toggle
 │   │                                  # modals: CreateTransaction, EditTransaction, CategoryModal, GroupModal, PaymentMethodModal
 │   │                                  # mutations invalidate ["ledger", id]; onCreateCategory/Group/PM passed to CreateTransactionModal for QuickCreate
+│   │                                  # openDebtTransaction: getTransaction(id) → setEditTarget (debt edits route through the transaction)
 │   ├── schemas/                       # Zod schemas (one file per domain)
 │   │   ├── auth.schema.ts             # registerSchema + RegisterFormData
 │   │   ├── ledger.schema.ts           # createLedgerSchema + CreateLedgerFormData
@@ -921,13 +941,14 @@ budget-lens-frontend/
 │   │   ├── api-client.ts              # apiFetch<T> — throws ApiError(status, message); 204→undefined as T
 │   │   ├── auth-service.ts            # signIn, signUp
 │   │   ├── ledger-service.ts          # getLedgers, getLedger, createLedger
-│   │   ├── transaction-service.ts     # createTransaction, getTransactions, updateTransactionFlags, updateTransaction, deleteTransaction
+│   │   ├── transaction-service.ts     # createTransaction, getTransactions, getTransaction, updateTransactionFlags, updateTransaction, deleteTransaction
 │   │   │                              # updateTransactionBreakdown(txId, {amountOne?,amountTwo?,amountThree?,amountFour?}, token) → PATCH /transactions/:id/breakdown
 │   │   ├── category-service.ts        # createCategory, updateCategory, deleteCategory
 │   │   ├── group-service.ts           # createGroup, updateGroup, deleteGroup
 │   │   ├── payment-method-service.ts  # createPaymentMethod, updatePaymentMethod, deletePaymentMethod, assignPaymentMethodToLedger (unused — backend auto-assigns)
 │   │   ├── user-service.ts            # getUser (public)
-│   │   └── debt-owner-service.ts      # findOrCreateDebtOwner, createDebtOwner, getDebtOwnerByName
+│   │   ├── reports-service.ts         # getCashflow(ledgerId, from, to, token), getDebtReport(ledgerId, from, to, token)
+│   │   └── debt-owner-service.ts      # getDebtOwners(ledgerId, token), findOrCreateDebtOwner, createDebtOwner, getDebtOwnerByName
 │   ├── types/
 │   │   ├── index.ts
 │   │   ├── prisma-enums.ts
@@ -935,10 +956,13 @@ budget-lens-frontend/
 │   │   └── ui-only.ts                 # BottomTabItem, TransactionFilters, LedgerDetailTab, NavItem, etc.
 │   ├── utils/
 │   │   ├── cn.ts
-│   │   ├── category-colors.ts         # NEW — icon pill color map per category
+│   │   ├── category-colors.ts         # icon pill color map per category
 │   │   ├── format-currency.ts
 │   │   ├── format-date.ts
-│   │   └── format-percent.ts
+│   │   ├── format-percent.ts
+│   │   ├── format-period.ts           # formatMonthShort("YYYY-MM", locale) → "Feb 26"
+│   │   └── weekly-breakdown.ts        # buildWeeklyBreakdown, sumWeeks({impactsCashflowOnly}), weekOfMonth/weekOfDate (mirrors backend cutoffs 7/14/21),
+│   │                                  # weekDayRange (W4 = 22–end-of-month), currentWeekForMonth, singleWeekPayload
 │   ├── App.tsx
 │   └── main.tsx
 ├── .env.example
@@ -1008,6 +1032,8 @@ budget-lens-frontend/
 13. ~~**Transactions page (`/transactions`)**~~ — dedicated full-page view at the sidebar route; ledger selector pills (auto-selects first); Income / Expenses / Balance summary cards computed from filtered results; reuses `TransactionFilters` + `TransactionTable` + both modals; i18n keys added to `common` namespace
 14. ~~**CRUD for categories, groups, payment methods**~~ — `CategoryModal`, `GroupModal`, `PaymentMethodModal` organisms; tables updated with `onAdd/onEdit/onDelete` props + inline delete confirm; full mutations in `LedgerDetailPage`; `QuickCreate` inline sub-component in `CreateTransactionModal` (always visible below each select, auto-selects newly created item via `setValue`)
 15. ~~**Weekly breakdown (W1-W4) in transaction table**~~ — new "Weeks" column with `BreakdownMiniBar` sparkline (4 proportional bars); click to toggle `TransactionBreakdownPanel` inline below the row; panel has 4 number inputs + live sum badge + segmented progress bar + "Distribute evenly" + Save/Cancel; `updateTransactionBreakdown` added to `transaction-service.ts`; i18n keys `transaction.breakdown.*` + `transaction.table.col.weeks` added to EN + ES
+16. ~~**Debt owners view**~~ — two placements sharing one component. **Tab** in `LedgerDetailPage` ("debts", live owner count) + **dedicated `/debts` page** (`DebtsPage`, ledger-selector pills, `HandCoins` sidebar item). `DebtsView` organism owns a `By person / By month` toggle: `DebtOwnersList` molecule (per-owner net `OWED_TO_ME` vs `OWED_BY_ME`, glyph+word+colour, expand to per-debt rows) and `DebtReportTable` organism (owner × month matrix from `GET /reports/ledgers/:id/debts`, expandable to per-description, grand-total row, period picker). Clicking a debt calls `onOpenTransaction(txId)` → parent fetches `getTransaction` + opens `EditTransactionModal` (debt-split editing itself is **not** wired — routes through the transaction). New: `getDebtOwners` (debt-owner-service), `getDebtReport` (reports-service), `getTransaction` (transaction-service); `DebtReportDto` family + `DebtOwnerResponseDto.transactions?` in `dtos.ts`; `"debts"` in `LedgerDetailTab`; `formatMonthShort` util; `debt.*` in `ledger.json`, `nav.debts` + `debts.*` in `common.json` (EN+ES).
+17. ~~**Weekly (W1–W4) view**~~ — `Table / Weekly` toggle (`TransactionViewToggle` molecule) on `TransactionsPage` **and** the Ledger Detail transactions tab. `WeeklyView` organism: own month picker + `getTransactions({paymentMonth, take:500})` query; a **current-week reference** (header pill "Today {date} · week {n} of 4"; only for the current month, else a muted "no current-week marker" note). Renders `WeeklyDrawdownStrip` (molecule — "Balance Mes" as 5 steps: start → remainder after W1..W4; `All / Counts-toward-month` scope toggle default *counts*; nets `OWED_TO_ME` off the start; Passed/Now/Upcoming legend), `UnallocatedBreakdownCard` (molecule — transactions where Σ buckets ≠ `monthlyAmount`; per-row "Put in W{n}" quick-fill + header "Auto-split all by date" via `singleWeekPayload`; "Split manually" opens the editor), `WeeklyBoard` (organism — 4 columns 1-up→4-up `lg`, real day ranges per month, current column ringed + THIS WEEK badge). Editor logic extracted to `BreakdownEditor` molecule (no `<tr>`); `TransactionBreakdownPanel` is now a thin row wrapper around it. Week math in `utils/weekly-breakdown.ts` mirrors backend `getWeekofMonth` (cutoffs 7/14/21; W4 = 22–end). i18n `transaction.view.*` + `transaction.weekly.*` in `ledger.json` (EN+ES).
 
 ### ✅ Average-User Friendliness — done
 - **Progressive-disclosure add sheet** — `CreateTransactionModal` / `EditTransactionModal`

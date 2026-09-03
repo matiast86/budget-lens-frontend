@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { formatCurrency } from "../../utils/format-currency";
+import { weekDayRange } from "../../utils/weekly-breakdown";
 import { cn } from "../../utils/cn";
 import type { WeekBucket } from "../../utils/weekly-breakdown";
 import type { TransactionResponseDto, Currency } from "../../types";
@@ -7,50 +8,74 @@ import type { TransactionResponseDto, Currency } from "../../types";
 interface WeeklyBoardProps {
   buckets: [WeekBucket, WeekBucket, WeekBucket, WeekBucket];
   currency: Currency;
+  /** The board's payment month, "YYYY-MM" — drives the real W4 end day. */
+  month: string;
   onChipClick: (tx: TransactionResponseDto) => void;
   currentWeek?: 1 | 2 | 3 | 4;
 }
 
-const WEEK_DAYS: Record<number, string> = {
-  1: "1–7",
-  2: "8–14",
-  3: "15–21",
-  4: "22+",
-};
-
 export const WeeklyBoard = ({
   buckets,
   currency,
+  month,
   onChipClick,
   currentWeek,
 }: WeeklyBoardProps) => {
   const { t, i18n } = useTranslation("ledger");
   const locale = i18n.language;
+  const [yearStr, monthStr] = month.split("-");
+  const year = Number(yearStr);
+  const monthIndex = Number(monthStr) - 1;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
       {buckets.map((bucket) => {
         const isNow = bucket.week === currentWeek;
         const net = bucket.income - bucket.expense;
+        const range = weekDayRange(bucket.week, year, monthIndex);
         return (
           <section
             key={bucket.week}
             className={cn(
               "card p-0 overflow-hidden flex flex-col",
-              isNow && "ring-2 ring-primary-300",
+              isNow && "ring-2 ring-primary-400",
             )}
             aria-label={t("transaction.weekly.weekLabel", { week: bucket.week })}
+            aria-current={isNow ? "date" : undefined}
           >
             {/* Column header */}
-            <div className="px-md py-sm border-b border-stone-100 bg-stone-50/60">
-              <div className="flex items-baseline justify-between gap-xs">
-                <p className="text-sm font-semibold text-stone-900">
+            <div
+              className={cn(
+                "px-md py-sm border-b",
+                isNow
+                  ? "bg-primary-50 border-primary-100"
+                  : "bg-stone-50/60 border-stone-100",
+              )}
+            >
+              <div className="flex items-center justify-between gap-xs">
+                <p
+                  className={cn(
+                    "text-sm font-semibold",
+                    isNow ? "text-primary-800" : "text-stone-900",
+                  )}
+                >
                   {t("transaction.weekly.weekLabel", { week: bucket.week })}
                 </p>
-                <span className="text-[11px] text-stone-400 tabular-nums">
-                  {WEEK_DAYS[bucket.week]}
-                </span>
+                {isNow ? (
+                  <span className="flex items-center gap-xs rounded-full bg-primary-600 px-xs py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                    {t("transaction.weekly.thisWeek")}
+                  </span>
+                ) : (
+                  <span className="text-[11px] text-stone-400 tabular-nums">
+                    {range.start}–{range.end}
+                  </span>
+                )}
               </div>
+              {isNow && (
+                <span className="block text-[11px] text-primary-600 tabular-nums mt-0.5">
+                  {range.start}–{range.end}
+                </span>
+              )}
               <p
                 className={cn(
                   "text-sm financial-amount mt-0.5 tabular-nums",

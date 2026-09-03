@@ -1,14 +1,23 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { WeeklyBoard } from "./WeeklyBoard";
 import { WeeklyDrawdownStrip } from "../molecules/WeeklyDrawdownStrip";
 import { UnallocatedBreakdownCard } from "../molecules/UnallocatedBreakdownCard";
+import { WeeklyMethodAssignCard } from "../molecules/WeeklyMethodAssignCard";
 import { BreakdownEditor } from "../molecules/BreakdownEditor";
 import { useAuthStore } from "../../stores/auth-store";
-import { getTransactions } from "../../services/transaction-service";
-import { buildWeeklyBreakdown, weekOfMonth } from "../../utils/weekly-breakdown";
+import {
+  getTransactions,
+  updateTransactionBreakdown,
+} from "../../services/transaction-service";
+import {
+  buildWeeklyBreakdown,
+  currentWeekForMonth,
+  weekOfDate,
+  singleWeekPayload,
+} from "../../utils/weekly-breakdown";
 import type { TransactionResponseDto, Currency } from "../../types";
 
 interface WeeklyViewProps {
@@ -22,31 +31,99 @@ const currentMonth = (): string => {
 };
 
 export const WeeklyView = ({ ledgerId, currency }: WeeklyViewProps) => {
-  const { t } = useTranslation("ledger");
+  const { t, i18n } = useTranslation("ledger");
   const token = useAuthStore((s) => s.token);
+  const queryClient = useQueryClient();
 
   const [month, setMonth] = useState(currentMonth);
   const [editTx, setEditTx] = useState<TransactionResponseDto | null>(null);
 
+  const txQueryKey = [
+    "transactions",
+    String(ledgerId),
+    { paymentMonth: month, take: 500 },
+  ] as const;
+
   const { data: transactions = [], isLoading } = useQuery({
-    queryKey: ["transactions", String(ledgerId), { paymentMonth: month, take: 500 }],
+    queryKey: txQueryKey,
     queryFn: () =>
       getTransactions(String(ledgerId), { paymentMonth: month, take: 500 }, token!),
     enabled: !!token && !!ledgerId && !!month,
   });
 
-  const { buckets, unallocated, weekIncome, weekExpense } =
-    buildWeeklyBreakdown(transactions);
+  const { buckets, unallocated } = buildWeeklyBreakdown(transactions);
+  const currentWeek = currentWeekForMonth(month) ?? undefined;
 
-  const isCurrentMonth = month === currentMonth();
-  const currentWeek = isCurrentMonth
-    ? weekOfMonth(new Date().getDate())
-    : undefined;
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: ["transactions", String(ledgerId)] });
+
+  // Quick-fill: whole monthly amount into the week of the transaction date.
+  const quickFillMutation = useMutation({
+    mutationFn: (tx: TransactionResponseDto) =>
+      updateTransactionBreakdown(
+        tx.id,
+        singleWeekPayload(weekOfDate(tx.transactionDate), tx.monthlyAmount),
+        token!,
+      ),
+    onSuccess: invalidate,
+  });
+
+  const autoSplitMutation = useMutation({
+    mutationFn: async (entries: TransactionResponseDto[]) => {
+      for (const tx of entries) {
+        await updateTransactionBreakdown(
+          tx.id,
+          singleWeekPayload(weekOfDate(tx.transactionDate), tx.monthlyAmount),
+          token!,
+        );
+      }
+    },
+    onSuccess: invalidate,
+  });
+
+  // Bulk: every movement on one payment method into the same week.
+  const methodAssignMutation = useMutation({
+    mutationFn: async ({
+      paymentMethodId,
+      week,
+    }: {
+      paymentMethodId: number;
+      week: 1 | 2 | 3 | 4;
+    }) => {
+      const targets = transactions.filter(
+        (tx) => tx.paymentMethod?.id === paymentMethodId,
+      );
+      for (const tx of targets) {
+        await updateTransactionBreakdown(
+          tx.id,
+          singleWeekPayload(week, tx.monthlyAmount),
+          token!,
+        );
+      }
+    },
+    onSuccess: invalidate,
+  });
+
+  const busy =
+    quickFillMutation.isPending ||
+    autoSplitMutation.isPending ||
+    methodAssignMutation.isPending;
+
+  const locale = i18n.language;
+  const todayLabel = new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "long",
+  }).format(new Date());
+  const [y, m] = month.split("-").map(Number);
+  const monthLabel = new Intl.DateTimeFormat(locale, {
+    month: "long",
+    year: "numeric",
+  }).format(new Date(y, m - 1, 1));
 
   return (
     <div className="space-y-md">
-      {/* Month picker */}
-      <div className="flex items-center gap-sm">
+      {/* Month picker + current-week reference */}
+      <div className="flex flex-wrap items-center gap-sm">
         <label htmlFor="weekly-month" className="text-xs font-medium text-stone-500">
           {t("transaction.weekly.month")}
         </label>
@@ -57,6 +134,16 @@ export const WeeklyView = ({ ledgerId, currency }: WeeklyViewProps) => {
           onChange={(e) => setMonth(e.target.value)}
           className="rounded-md border border-stone-200 px-sm py-xs text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-primary-500"
         />
+        {currentWeek ? (
+          <span className="flex items-center gap-xs rounded-full bg-primary-50 border border-primary-200 px-sm py-xs text-xs font-medium text-primary-700">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary-500" aria-hidden />
+            {t("transaction.weekly.todayRef", { date: todayLabel, week: currentWeek })}
+          </span>
+        ) : (
+          <span className="text-xs text-stone-400">
+            {t("transaction.weekly.notCurrentMonth", { month: monthLabel })}
+          </span>
+        )}
       </div>
 
       {isLoading ? (
@@ -76,19 +163,32 @@ export const WeeklyView = ({ ledgerId, currency }: WeeklyViewProps) => {
       ) : (
         <>
           <WeeklyDrawdownStrip
-            weekIncome={weekIncome}
-            weekExpense={weekExpense}
+            transactions={transactions}
             currency={currency}
             currentWeek={currentWeek}
           />
           <UnallocatedBreakdownCard
             entries={unallocated}
             currency={currency}
-            onAssign={setEditTx}
+            busy={busy}
+            onQuickFill={(tx) => quickFillMutation.mutate(tx)}
+            onAutoSplitAll={() =>
+              autoSplitMutation.mutate(unallocated.map((e) => e.tx))
+            }
+            onSplitManually={setEditTx}
+          />
+          <WeeklyMethodAssignCard
+            transactions={transactions}
+            currency={currency}
+            busy={busy}
+            onAssign={(paymentMethodId, week) =>
+              methodAssignMutation.mutate({ paymentMethodId, week })
+            }
           />
           <WeeklyBoard
             buckets={buckets}
             currency={currency}
+            month={month}
             onChipClick={setEditTx}
             currentWeek={currentWeek}
           />

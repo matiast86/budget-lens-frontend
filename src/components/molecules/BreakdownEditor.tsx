@@ -69,6 +69,12 @@ export const BreakdownEditor = ({ tx, onClose, invalidateKeys }: BreakdownEditor
     setAmounts([base + remainder, base, base, base]);
   };
 
+  const allInWeek = (week: 1 | 2 | 3 | 4) => {
+    const next: [number, number, number, number] = [0, 0, 0, 0];
+    next[week - 1] = tx.monthlyAmount;
+    setAmounts(next);
+  };
+
   const setAmount = (index: number, value: number) => {
     const next = [...amounts] as [number, number, number, number];
     next[index] = value;
@@ -145,6 +151,23 @@ export const BreakdownEditor = ({ tx, onClose, invalidateKeys }: BreakdownEditor
             <X className="w-3 h-3" />
           </button>
         </div>
+      </div>
+
+      {/* Quick assign — whole monthly amount into a single week */}
+      <div className="flex items-center gap-xs flex-wrap">
+        <span className="text-xs text-stone-400">
+          {t("transaction.breakdown.allInWeekLabel")}
+        </span>
+        {([1, 2, 3, 4] as const).map((week) => (
+          <button
+            key={week}
+            type="button"
+            onClick={() => allInWeek(week)}
+            className="text-xs text-stone-500 hover:text-stone-700 px-sm py-xs border border-stone-200 rounded-md hover:bg-stone-100 transition-colors bg-white tabular-nums"
+          >
+            {t("transaction.breakdown.allInWeek", { week })}
+          </button>
+        ))}
       </div>
 
       {/* Progress bar */}
