@@ -156,10 +156,10 @@ const TransactionTableRow = ({
         {/* Status */}
         <td className="px-md py-sm">{statusBadge(tx.status, t)}</td>
 
-        {/* Amount */}
+        {/* Amount — only income is coloured; expenses stay ink, the +/− sign is the cue */}
         <td className="px-md py-sm text-right">
-          <p className={`text-sm financial-amount ${isIncome ? "amount-positive" : "amount-negative"}`}>
-            {isIncome ? "+" : "-"}{formatCurrency(tx.monthlyAmount, tx.currency as Currency, i18n.language)}
+          <p className={`text-sm financial-amount ${isIncome ? "amount-positive" : "text-stone-900"}`}>
+            {isIncome ? "+" : "−"}{formatCurrency(tx.monthlyAmount, tx.currency as Currency, i18n.language)}
           </p>
           {tx.realMonthlyAmount != null && (
             <p className="text-xs text-stone-400 tabular-nums">

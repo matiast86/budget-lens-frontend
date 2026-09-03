@@ -1,15 +1,15 @@
 {
   "create": {
-    "title": "Crear Libro Mayor",
-    "description": "Configurá un nuevo libro mayor para empezar a seguir tus finanzas.",
+    "title": "Nueva planilla de gastos",
+    "description": "Armá una planilla nueva para empezar a seguir tus gastos.",
     "field": {
-      "name": "Nombre del Libro Mayor",
-      "namePlaceholder": "ej. Hogar, Personal, Presupuesto del equipo",
+      "name": "Nombre de la planilla",
+      "namePlaceholder": "ej. Casa, Personal, Viaje",
       "description": "Descripción",
-      "descriptionPlaceholder": "¿Para qué es este libro mayor? (opcional)",
+      "descriptionPlaceholder": "¿Para qué es esta planilla? (opcional)",
       "currency": "Moneda",
-      "baseCpiIndex": "Índice CPI Base",
-      "baseCpiIndexHint": "El valor del índice de inflación al inicio de este libro mayor. Se usa para calcular montos reales.",
+      "baseCpiIndex": "Inflación de referencia",
+      "baseCpiIndexHint": "El valor del índice de inflación cuando arrancás esta planilla. Se usa para mostrar montos a valor de hoy.",
       "baseCpiIndexPlaceholder": "ej. 100"
     },
     "currency": {
@@ -17,31 +17,31 @@
       "USD": "Dólar Estadounidense (USD)"
     },
     "error": {
-      "nameRequired": "El nombre del libro mayor es obligatorio",
+      "nameRequired": "Poné un nombre a la planilla",
       "nameTooLong": "El nombre no puede superar los 100 caracteres",
       "descriptionTooLong": "La descripción no puede superar los 300 caracteres",
       "baseCpiPositive": "Debe ser un número positivo"
     },
     "action": {
-      "submit": "Crear Libro Mayor",
+      "submit": "Crear planilla",
       "cancel": "Cancelar"
     }
   },
   "grid": {
-    "title": "Mis Libros Mayores",
-    "count_one": "{{count}} libro mayor en tu cuenta",
-    "count_other": "{{count}} libros mayores en tu cuenta",
-    "newLedger": "Nuevo Libro Mayor",
+    "title": "Mis planillas de gastos",
+    "count_one": "{{count}} planilla en tu cuenta",
+    "count_other": "{{count}} planillas en tu cuenta",
+    "newLedger": "Nueva planilla",
     "empty": {
-      "title": "Aún no hay libros mayores",
-      "body": "Creá tu primer libro mayor para empezar a seguir tus finanzas.",
-      "action": "Crear Libro Mayor"
+      "title": "Todavía no tenés planillas",
+      "body": "Creá tu primera planilla de gastos para empezar.",
+      "action": "Crear planilla"
     }
   },
   "card": {
-    "baseCpi": "CPI Base",
+    "baseCpi": "Inflación base",
     "noDescription": "Sin descripción.",
-    "created": "Creado {{date}}",
+    "created": "Creada {{date}}",
     "open": "Abrir",
     "currency": {
       "ARS": "Peso Argentino",
@@ -56,32 +56,33 @@
   },
   "detail": {
     "notFound": {
-      "title": "Libro mayor no encontrado",
-      "body": "No existe ningún libro mayor con ID {{id}} en tu cuenta.",
-      "back": "Volver al panel"
+      "title": "No encontramos esa planilla",
+      "body": "No existe ninguna planilla con ID {{id}} en tu cuenta.",
+      "back": "Volver al inicio"
     },
     "unavailable": {
       "title": "Algo salió mal",
-      "body": "No se pudo cargar este libro mayor. Por favor intentá de nuevo más tarde.",
-      "back": "Volver al panel"
+      "body": "No se pudo cargar esta planilla. Probá de nuevo más tarde.",
+      "back": "Volver al inicio"
     },
     "tab": {
-      "transactions": "Transacciones",
+      "transactions": "Movimientos",
       "categories": "Categorías",
       "paymentMethods": "Medios de Pago",
-      "groups": "Grupos",
-      "collaborators": "Colaboradores"
+      "groups": "Etiquetas",
+      "collaborators": "Compartido con",
+      "debts": "Deudas"
     },
     "meta": {
-      "baseCpi": "CPI Base",
-      "created": "Creado {{date}}",
-      "collaborator_one": "{{count}} colaborador",
-      "collaborator_other": "{{count}} colaboradores",
+      "baseCpi": "Inflación base",
+      "created": "Creada {{date}}",
+      "collaborator_one": "{{count}} persona",
+      "collaborator_other": "{{count}} personas",
       "categories_one": "{{count}} categoría",
       "categories_other": "{{count}} categorías"
     },
     "summary": {
-      "transactions": "Transacciones",
+      "transactions": "Movimientos",
       "income": "Ingresos",
       "expenses": "Gastos",
       "paymentMethods": "Medios de pago"
@@ -112,20 +113,20 @@
         "bundleTo": "Repetir hasta",
         "increaseRate": "Aumento %",
         "increaseEveryMonths": "Cada (meses)",
-        "bundlePreview": "Crea {{count}} transacciones mensuales",
+        "bundlePreview": "Crea {{count}} movimientos mensuales",
         "category": "Categoría",
         "selectCategory": "Seleccioná una categoría...",
         "paymentMethod": "Medio de Pago",
         "selectMethod": "Seleccioná un medio...",
-        "group": "Grupo",
-        "selectGroup": "Seleccioná un grupo...",
+        "group": "Etiqueta",
+        "selectGroup": "Elegí una etiqueta...",
         "status": "Estado",
         "comment": "Nota (opcional)",
         "commentPlaceholder": "Breve descripción...",
         "isPaid": "Marcar como pagado",
-        "impactsCashflow": "Impacta en flujo de caja",
-        "debtOwners": "Asignaciones de deuda",
-        "addDebtOwner": "Agregar deudor",
+        "impactsCashflow": "Cuenta para el mes",
+        "debtOwners": "¿Alguien más puso plata?",
+        "addDebtOwner": "Agregar persona",
         "removeDebtOwner": "Quitar",
         "ownerNamePlaceholder": "ej. Ana, vecino...",
         "debtAmount": "Monto",
@@ -140,10 +141,10 @@
         "amountPositive": "El monto debe ser mayor a 0",
         "installmentsMin": "Se requiere al menos 1 cuota",
         "categoryRequired": "Por favor seleccioná una categoría",
-        "groupRequired": "Por favor seleccioná un grupo",
+        "groupRequired": "Elegí una etiqueta",
         "paymentMethodRequired": "Por favor seleccioná un medio de pago",
         "commentTooLong": "La nota no puede superar los 500 caracteres",
-        "debtOwnerRequired": "Seleccioná un colaborador",
+        "debtOwnerRequired": "Poné el nombre de la persona",
         "debtAmountPositive": "Ingresá un monto válido",
         "bundleToRequired": "Elegí un mes de fin para la recurrencia",
         "bundleToAfter": "El mes de fin debe ser posterior al mes de pago",
@@ -151,25 +152,30 @@
         "increaseEveryMonthsInvalid": "Ingresá una cantidad entera de meses (1 o más)"
       },
       "action": {
-        "submit": "Guardar Transacción"
+        "submit": "Guardar movimiento"
       },
-      "noGroup": "Sin grupo",
+      "noGroup": "Sin etiqueta",
       "quickCreate": {
         "trigger": "Agregar nuevo",
         "namePlaceholder": "Nombre...",
         "emptyCategory": "Sin categorías",
-        "emptyGroup": "Sin grupos",
+        "emptyGroup": "Sin etiquetas",
         "emptyPaymentMethod": "Sin medios de pago"
       }
+    },
+    "moreFields": {
+      "show": "Agregar detalle",
+      "hide": "Ocultar detalle",
+      "optional": "opcional"
     },
     "entryType": {
       "income": "Ingreso",
       "expense": "Gasto"
     },
     "status": {
-      "current": "Corriente",
+      "current": "Este mes",
       "closed": "Cerrado",
-      "future": "Futuro"
+      "future": "Próximo"
     },
     "filter": {
       "title": "Filtros",
@@ -177,21 +183,21 @@
       "status": "Estado",
       "entryType": "Tipo",
       "category": "Categoría",
-      "group": "Grupo",
+      "group": "Etiqueta",
       "paymentMethod": "Medio de pago",
       "isPaid": "Solo pagados",
       "all": "Todos",
       "clearAll": "Limpiar filtros",
-      "results_one": "{{count}} transacción",
-      "results_other": "{{count}} transacciones"
+      "results_one": "{{count}} movimiento",
+      "results_other": "{{count}} movimientos"
     },
     "action": {
-      "edit": "Editar transacción",
-      "delete": "Eliminar transacción",
+      "edit": "Editar movimiento",
+      "delete": "Eliminar movimiento",
       "confirmDelete": "¿Seguro?",
       "cancel": "Cancelar",
       "togglePaid": "Cambiar estado de pago",
-      "toggleCashflow": "Cambiar impacto en flujo de caja"
+      "toggleCashflow": "Cambiar si cuenta para el mes"
     },
     "breakdown": {
       "title": "Desglose Semanal",
@@ -203,13 +209,13 @@
       "saveError": "No se pudo guardar el desglose. Intente nuevamente."
     },
     "edit": {
-      "title": "Editar Transacción",
+      "title": "Editar movimiento",
       "field": {
         "amount": "Monto",
         "date": "Fecha",
         "paymentMonth": "Mes de Pago",
         "category": "Categoría",
-        "group": "Grupo",
+        "group": "Etiqueta",
         "paymentMethod": "Medio de Pago",
         "comment": "Nota (opcional)",
         "commentPlaceholder": "Breve descripción..."
@@ -219,7 +225,7 @@
         "dateRequired": "La fecha es obligatoria",
         "paymentMonthRequired": "El mes de pago es obligatorio",
         "categoryRequired": "Por favor seleccioná una categoría",
-        "groupRequired": "Por favor seleccioná un grupo",
+        "groupRequired": "Elegí una etiqueta",
         "paymentMethodRequired": "Por favor seleccioná un medio de pago",
         "commentTooLong": "La nota no puede superar los 500 caracteres"
       },
@@ -229,7 +235,7 @@
       }
     },
     "table": {
-      "title": "Transacciones",
+      "title": "Movimientos",
       "addIncome": "Ingreso",
       "addExpense": "Gasto",
       "real": "real",
@@ -242,14 +248,14 @@
         "quota": "Cuota",
         "method": "Medio",
         "paid": "Pagado",
-        "cashflow": "CF",
-        "cashflowFull": "Impacta en Flujo de Caja",
+        "cashflow": "Mes",
+        "cashflowFull": "Cuenta para el mes",
         "weeks": "Semanas",
         "weeksFull": "Desglose Semanal",
         "actions": "Acciones"
       },
       "empty": {
-        "title": "Aún no hay transacciones",
+        "title": "Todavía no hay movimientos",
         "body": "Agregá tu primer ingreso o gasto para comenzar.",
         "addIncome": "Agregar Ingreso",
         "addExpense": "Agregar Gasto"
@@ -293,14 +299,14 @@
   },
   "group": {
     "modal": {
-      "createTitle": "Nuevo Grupo",
-      "editTitle": "Editar Grupo",
+      "createTitle": "Nueva etiqueta",
+      "editTitle": "Editar etiqueta",
       "field": {
         "name": "Nombre",
         "namePlaceholder": "ej. Gastos fijos"
       },
       "action": {
-        "create": "Crear Grupo",
+        "create": "Crear etiqueta",
         "save": "Guardar Cambios",
         "cancel": "Cancelar"
       },
@@ -314,7 +320,7 @@
         "name": "Nombre",
         "actions": "Acciones"
       },
-      "addNew": "Nuevo Grupo",
+      "addNew": "Nueva etiqueta",
       "action": {
         "edit": "Editar",
         "delete": "Eliminar",
@@ -378,9 +384,42 @@
         "status": "Estado"
       },
       "empty": {
-        "title": "Aún no hay colaboradores",
-        "body": "Invitá a alguien por email para compartir este libro mayor."
+        "title": "Todavía no compartiste esta planilla",
+        "body": "Invitá a alguien por email para compartir esta planilla."
       }
+    }
+  },
+  "debt": {
+    "view": {
+      "list": "Por persona",
+      "report": "Por mes"
+    },
+    "period": {
+      "from": "Desde",
+      "to": "Hasta"
+    },
+    "loadError": "No se pudieron cargar las deudas. Probá de nuevo más tarde.",
+    "list": {
+      "empty": {
+        "title": "Todavía no hay deudas",
+        "body": "Cuando cargues un movimiento y anotes quién puso plata, aparece acá."
+      },
+      "settled": "Al día",
+      "owesYou": "Te debe",
+      "youOwe": "Le debés",
+      "openTransaction": "Abrir movimiento",
+      "debtCount_one": "{{count}} movimiento",
+      "debtCount_other": "{{count}} movimientos"
+    },
+    "direction": {
+      "OWED_TO_ME": "Te lo deben",
+      "OWED_BY_ME": "Lo debés"
+    },
+    "report": {
+      "noDescription": "Sin descripción",
+      "empty": "No hay deudas en este período.",
+      "legend": "Persona / mes",
+      "grandTotal": "Total neto"
     }
   }
 }

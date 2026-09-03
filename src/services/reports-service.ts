@@ -1,4 +1,4 @@
-import type { CashflowReportDto } from "../types";
+import type { CashflowReportDto, DebtReportDto } from "../types";
 import { apiFetch } from "./api-client";
 
 export const getCashflow = (
@@ -9,6 +9,18 @@ export const getCashflow = (
 ): Promise<CashflowReportDto> =>
   apiFetch<CashflowReportDto>(
     `/reports/ledgers/${ledgerId}/cashflow?from=${from}&to=${to}`,
+    {},
+    token,
+  );
+
+export const getDebtReport = (
+  ledgerId: number,
+  from: string,
+  to: string,
+  token: string,
+): Promise<DebtReportDto> =>
+  apiFetch<DebtReportDto>(
+    `/reports/ledgers/${ledgerId}/debts?from=${from}&to=${to}`,
     {},
     token,
   );

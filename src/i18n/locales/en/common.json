@@ -8,9 +8,10 @@
     "es": "Spanish"
   },
   "nav": {
-    "dashboard": "Dashboard",
+    "dashboard": "Home",
     "transactions": "Transactions",
     "cashflow": "Cashflow",
+    "debts": "Debts",
     "budgets": "Budgets",
     "analytics": "Analytics",
     "settings": "Settings",
@@ -36,14 +37,21 @@
       "thisYear": "This year"
     },
     "noLedger": {
-      "title": "No ledgers yet",
-      "body": "Create a ledger first to view the cashflow report."
+      "title": "No expense trackers yet",
+      "body": "Create an expense tracker first to see cashflow."
+    }
+  },
+  "debts": {
+    "title": "Debts",
+    "noLedger": {
+      "title": "No expense trackers yet",
+      "body": "Create an expense tracker first to track who owes what."
     }
   },
   "header": {
-    "searchPlaceholder": "Search ledgers...",
-    "newLedger": "+ New Ledger",
-    "welcomeBack": "Welcome back, {{name}}. Here are your ledgers.",
+    "searchPlaceholder": "Search trackers...",
+    "newLedger": "+ New tracker",
+    "welcomeBack": "Welcome back, {{name}}. Here are your expense trackers.",
     "notifications": "Notifications",
     "profileMenu": "Profile menu"
   },
@@ -51,13 +59,15 @@
     "overview": "Budget Overview",
     "edit": "Edit",
     "signal": {
-      "good": "Looking good!",
-      "heads_up": "Heads up",
-      "close": "Getting close"
-    }
+      "good": "On track",
+      "close": "Cutting it close",
+      "over": "Over budget"
+    },
+    "pace": "{{spentPct}}% spent · day {{day}}/{{days}}",
+    "over_by": "Over by {{amount}}"
   },
   "dashboard": {
-    "streak": "{{count}} months under budget! Keep it up 🎉",
+    "streak": "{{count}} months under budget! Keep it up",
     "balance_label": "Current balance"
   },
   "recentTransactions": {
@@ -68,11 +78,11 @@
   },
   "transactions": {
     "noLedgers": {
-      "title": "No ledgers yet",
-      "body": "Create a ledger first to start tracking your transactions."
+      "title": "No expense trackers yet",
+      "body": "Create an expense tracker first to start logging expenses."
     },
-    "pickLedger": "Select a ledger",
-    "pickLedgerBody": "Choose a ledger above to view its transactions.",
+    "pickLedger": "Pick a tracker",
+    "pickLedgerBody": "Choose a tracker above to see its transactions.",
     "summary": {
       "balance": "Balance"
     }
@@ -173,34 +183,41 @@
       "getStarted": "Get started"
     },
     "hero": {
-      "pill": "Track · Analyze · Collaborate",
-      "headline1": "Your finances,",
-      "headline2": "in perfect focus.",
-      "subheadline": "Budget Lens brings clarity to your money. Create ledgers, track every transaction, set category budgets, and see the real impact of inflation — all in one place.",
-      "cta1": "Get started free",
-      "cta2": "View demo"
+      "pill": "Made for prices that keep moving",
+      "headline1": "Knowing where your money goes",
+      "headline2": "shouldn't take all afternoon.",
+      "subheadline": "Log an expense in five seconds. See whether you'll make it to month-end in twenty. Installments, dollars and shared expenses are handled — without you having to think about them.",
+      "cta1": "Start free",
+      "cta2": "See a demo",
+      "trustLine": "No card. No mandatory categories. No formulas."
     },
     "mockup": {
-      "url": "app.budgetlens.io/dashboard",
-      "myLedgers": "My Ledgers",
+      "url": "app.budgetlens.io/home",
+      "myLedgers": "My trackers",
       "active": "3 active",
       "income": "Income",
       "expenses": "Expenses",
-      "recentTransactions": "Recent transactions"
+      "recentTransactions": "Recent transactions",
+      "leftThisMonth": "Left this month",
+      "leftDetail": "of $1,850,000 · 7 days left",
+      "onTrack": "On track",
+      "onTrackDetail": "day 24 of 31",
+      "txSuper": "Supermarket",
+      "txIncome": "Salary"
     },
     "stats": {
-      "ledgerTypes": { "value": "10+", "label": "Ledger types" },
+      "ledgerTypes": { "value": "Many", "label": "Trackers at once" },
       "currencies": { "value": "ARS & USD", "label": "Currencies" },
-      "inflation": { "value": "CPI-aware", "label": "Inflation tracking" },
+      "inflation": { "value": "Inflation-adjusted", "label": "Inflation tracking" },
       "budget": { "value": "Real-time", "label": "Budget progress" }
     },
     "features": {
       "sectionLabel": "Features",
       "heading": "Everything you need to understand your money",
-      "subheading": "From simple expense tracking to inflation-adjusted analytics, Budget Lens gives you the full picture without the complexity.",
+      "subheading": "From logging a quick expense to inflation-adjusted analytics, Budget Lens gives you the full picture without the complexity.",
       "multiLedger": {
-        "title": "Multi-Ledger Management",
-        "desc": "Create separate ledgers for personal, family, or business budgets. Keep every context organized and clearly separated."
+        "title": "Many trackers, one place",
+        "desc": "Keep a separate expense tracker for your own money, the household, or a project. Every context clean and apart."
       },
       "categoryBudgets": {
         "title": "Category Budgets",
@@ -208,15 +225,15 @@
       },
       "inflation": {
         "title": "Inflation-Adjusted Insights",
-        "desc": "See your real purchasing power over time. Budget Lens adjusts amounts with CPI indexes so you know the true cost."
+        "desc": "See your real purchasing power over time. Budget Lens adjusts amounts for inflation so you know the true cost."
       },
       "collaborative": {
-        "title": "Collaborative Budgeting",
-        "desc": "Invite family members or teammates to shared ledgers. Everyone stays aligned with full visibility."
+        "title": "Share it with anyone",
+        "desc": "Invite your family or whoever shares the expenses. Everyone sees the same thing."
       },
       "multiCurrency": {
         "title": "Multi-Currency Support",
-        "desc": "Manage budgets in ARS and USD simultaneously. Built for mixed-currency economies and cross-border finances."
+        "desc": "Manage ARS and USD at the same time. Built for mixed-currency economies and cross-border finances."
       },
       "paymentMethod": {
         "title": "Payment Method Tracking",
@@ -227,12 +244,12 @@
       "sectionLabel": "How it works",
       "heading": "Up and running in minutes",
       "create": {
-        "title": "Create a Ledger",
-        "desc": "Set up a budget ledger for any context — personal finances, household, a project, or your team."
+        "title": "Create your tracker",
+        "desc": "Set up an expense tracker for anything — your own money, the household, a trip, a project."
       },
       "add": {
-        "title": "Add Transactions",
-        "desc": "Log income and expenses with categories, payment methods, and installment support built in."
+        "title": "Log your expenses",
+        "desc": "Add income and expenses with category, payment method and installments. In seconds."
       },
       "gain": {
         "title": "Gain Clarity",

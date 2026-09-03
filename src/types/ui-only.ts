@@ -30,6 +30,11 @@ export interface BudgetItem {
   spent: number;
   budget: number;
   color: string;
+  /** Day of the month for the period being shown (1–31). Feeds the pace-based
+   *  ● ■ ▲ signal. Defaults to today when omitted. */
+  dayOfMonth?: number;
+  /** Total days in that month (28–31). Defaults to the current month. */
+  daysInMonth?: number;
 }
 
 export type LedgerDetailTab =
@@ -37,7 +42,8 @@ export type LedgerDetailTab =
   | "categories"
   | "paymentMethods"
   | "groups"
-  | "collaborators";
+  | "collaborators"
+  | "debts";
 
 export interface BottomTabItem {
   icon: React.ElementType;

@@ -11,6 +11,7 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { LedgerDetailPage } from "./pages/LedgerDetailPage";
 import { TransactionsPage } from "./pages/TransactionsPage";
 import { CashflowPage } from "./pages/CashflowPage";
+import { DebtsPage } from "./pages/DebtsPage";
 import { LandingPage } from "./pages/LandingPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { LoginPage } from "./pages/LoginPage";
@@ -83,6 +84,7 @@ const App = () => {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/transactions" element={<TransactionsPage />} />
           <Route path="/cashflow" element={<CashflowPage />} />
+          <Route path="/debts" element={<DebtsPage />} />
           <Route path="/ledgers/:id" element={<LedgerDetailPage />} />
         </Route>
       </Route>
