@@ -728,6 +728,7 @@ with this table:
 | Status CURRENT/CLOSED/FUTURE | **Este mes / Cerrado / Próximo** | **This month / Past / Upcoming** | Corriente |
 | Collaborator(s) | **compartido con** / *personas* | **shared with** / *people* | colaborador |
 | `installments` column | **cuota** | **instalment** | — (EN "quota" was wrong) |
+| "balance" category / balance tracking | **saldo** | **balance** | — |
 | Dashboard | **Inicio** | **Home** | Panel |
 
 ES is voseo Argentine ("anotá", "mirá", "creá"). The landing trust line says *"Sin fórmulas"*
@@ -912,7 +913,11 @@ budget-lens-frontend/
 │   │       ├── DebtReportTable.tsx    # owner × month matrix (GET /reports/.../debts); expand owner → per-description; grand-total row
 │   │       ├── WeeklyView.tsx         # own month picker + getTransactions({paymentMonth,take:500}); current-week reference pill
 │   │       │                          # renders WeeklyDrawdownStrip + UnallocatedBreakdownCard + WeeklyBoard; quick-fill / auto-split mutations
-│   │       │                          # breakdown edit opens BreakdownEditor in a modal; props: ledgerId, currency
+│   │       │                          # breakdown edit opens BreakdownEditor in a modal; props: ledgerId, currency, paymentMethods
+│   │       │                          # "Track balance" button opens CreateBalanceModal; createBalanceMutation → createBalance() → invalidates ["transactions", ledgerId]
+│   │       ├── CreateBalanceModal.tsx # plain-useState modal (like Group/PaymentMethod modals, not RHF): payment method select
+│   │       │                          # (filtered to CASH/BANK/WALLET — a "balance" bucket), start/end month inputs, silent ledger-currency default
+│   │       │                          # inline validation mirrors backend: end >= start, span <= 24 months; "creates N monthly rows" preview
 │   │       └── WeeklyBoard.tsx        # 4 week columns (1-up → 4-up lg); real day ranges per month; current column ringed + THIS WEEK badge
 │   ├── helpers/
 │   │   └── mocks/
@@ -943,6 +948,7 @@ budget-lens-frontend/
 │   │   ├── ledger-service.ts          # getLedgers, getLedger, createLedger
 │   │   ├── transaction-service.ts     # createTransaction, getTransactions, getTransaction, updateTransactionFlags, updateTransaction, deleteTransaction
 │   │   │                              # updateTransactionBreakdown(txId, {amountOne?,amountTwo?,amountThree?,amountFour?}, token) → PATCH /transactions/:id/breakdown
+│   │   │                              # createBalance(ledgerId, CreateBalanceData, token) → POST /transactions/ledgers/:id/balances, returns TransactionResponseDto[]
 │   │   ├── category-service.ts        # createCategory, updateCategory, deleteCategory
 │   │   ├── group-service.ts           # createGroup, updateGroup, deleteGroup
 │   │   ├── payment-method-service.ts  # createPaymentMethod, updatePaymentMethod, deletePaymentMethod, assignPaymentMethodToLedger (unused — backend auto-assigns)
@@ -1034,6 +1040,7 @@ budget-lens-frontend/
 15. ~~**Weekly breakdown (W1-W4) in transaction table**~~ — new "Weeks" column with `BreakdownMiniBar` sparkline (4 proportional bars); click to toggle `TransactionBreakdownPanel` inline below the row; panel has 4 number inputs + live sum badge + segmented progress bar + "Distribute evenly" + Save/Cancel; `updateTransactionBreakdown` added to `transaction-service.ts`; i18n keys `transaction.breakdown.*` + `transaction.table.col.weeks` added to EN + ES
 16. ~~**Debt owners view**~~ — two placements sharing one component. **Tab** in `LedgerDetailPage` ("debts", live owner count) + **dedicated `/debts` page** (`DebtsPage`, ledger-selector pills, `HandCoins` sidebar item). `DebtsView` organism owns a `By person / By month` toggle: `DebtOwnersList` molecule (per-owner net `OWED_TO_ME` vs `OWED_BY_ME`, glyph+word+colour, expand to per-debt rows) and `DebtReportTable` organism (owner × month matrix from `GET /reports/ledgers/:id/debts`, expandable to per-description, grand-total row, period picker). Clicking a debt calls `onOpenTransaction(txId)` → parent fetches `getTransaction` + opens `EditTransactionModal` (debt-split editing itself is **not** wired — routes through the transaction). New: `getDebtOwners` (debt-owner-service), `getDebtReport` (reports-service), `getTransaction` (transaction-service); `DebtReportDto` family + `DebtOwnerResponseDto.transactions?` in `dtos.ts`; `"debts"` in `LedgerDetailTab`; `formatMonthShort` util; `debt.*` in `ledger.json`, `nav.debts` + `debts.*` in `common.json` (EN+ES).
 17. ~~**Weekly (W1–W4) view**~~ — `Table / Weekly` toggle (`TransactionViewToggle` molecule) on `TransactionsPage` **and** the Ledger Detail transactions tab. `WeeklyView` organism: own month picker + `getTransactions({paymentMonth, take:500})` query; a **current-week reference** (header pill "Today {date} · week {n} of 4"; only for the current month, else a muted "no current-week marker" note). Renders `WeeklyDrawdownStrip` (molecule — "Balance Mes" as 5 steps: start → remainder after W1..W4; `All / Counts-toward-month` scope toggle default *counts*; nets `OWED_TO_ME` off the start; Passed/Now/Upcoming legend), `UnallocatedBreakdownCard` (molecule — transactions where Σ buckets ≠ `monthlyAmount`; per-row "Put in W{n}" quick-fill + header "Auto-split all by date" via `singleWeekPayload`; "Split manually" opens the editor), `WeeklyBoard` (organism — 4 columns 1-up→4-up `lg`, real day ranges per month, current column ringed + THIS WEEK badge). Editor logic extracted to `BreakdownEditor` molecule (no `<tr>`); `TransactionBreakdownPanel` is now a thin row wrapper around it. Week math in `utils/weekly-breakdown.ts` mirrors backend `getWeekofMonth` (cutoffs 7/14/21; W4 = 22–end). i18n `transaction.view.*` + `transaction.weekly.*` in `ledger.json` (EN+ES).
+18. ~~**Balance ("saldo") tracking**~~ — backend `createBalance` (`POST /transactions/ledgers/:id/balances`) wired via a "Track balance" button in `WeeklyView`'s header row → `CreateBalanceModal` (payment method select, filtered to `CASH`/`BANK`/`WALLET` — a credit card isn't a balance bucket; start/end month; ledger currency sent silently, no field). On submit, a `useMutation` in `WeeklyView` posts and invalidates `["transactions", ledgerId]` so the new zero-amount rows (and their empty W1–W4 breakdown) appear immediately in the board — from there the user fills each week's observed balance the same way as any other transaction, via the existing `BreakdownEditor` / quick-fill flow. Both `TransactionsPage` and `LedgerDetailPage` now pass `paymentMethods={ledger.paymentMethods}` to `WeeklyView`. `CreateBalanceData` type + `createBalance()` live in `transaction-service.ts`. i18n `balance.modal.*` + `transaction.weekly.trackBalance` in `ledger.json` (EN+ES) — UI copy stays "saldo" in ES per the vocabulary table, matching the backend's seeded `"balance"` category.
 
 ### ✅ Average-User Friendliness — done
 - **Progressive-disclosure add sheet** — `CreateTransactionModal` / `EditTransactionModal`

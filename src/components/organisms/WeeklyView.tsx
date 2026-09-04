@@ -3,14 +3,18 @@ import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { WeeklyBoard } from "./WeeklyBoard";
+import { CreateBalanceModal } from "./CreateBalanceModal";
 import { WeeklyDrawdownStrip } from "../molecules/WeeklyDrawdownStrip";
 import { UnallocatedBreakdownCard } from "../molecules/UnallocatedBreakdownCard";
 import { WeeklyMethodAssignCard } from "../molecules/WeeklyMethodAssignCard";
 import { BreakdownEditor } from "../molecules/BreakdownEditor";
+import { Button } from "../atoms/Button";
 import { useAuthStore } from "../../stores/auth-store";
 import {
   getTransactions,
   updateTransactionBreakdown,
+  createBalance,
+  type CreateBalanceData,
 } from "../../services/transaction-service";
 import {
   buildWeeklyBreakdown,
@@ -18,11 +22,12 @@ import {
   weekOfDate,
   singleWeekPayload,
 } from "../../utils/weekly-breakdown";
-import type { TransactionResponseDto, Currency } from "../../types";
+import type { TransactionResponseDto, Currency, PaymentMethodResponseDto } from "../../types";
 
 interface WeeklyViewProps {
   ledgerId: number;
   currency: Currency;
+  paymentMethods: PaymentMethodResponseDto[];
 }
 
 const currentMonth = (): string => {
@@ -30,13 +35,14 @@ const currentMonth = (): string => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 };
 
-export const WeeklyView = ({ ledgerId, currency }: WeeklyViewProps) => {
+export const WeeklyView = ({ ledgerId, currency, paymentMethods }: WeeklyViewProps) => {
   const { t, i18n } = useTranslation("ledger");
   const token = useAuthStore((s) => s.token);
   const queryClient = useQueryClient();
 
   const [month, setMonth] = useState(currentMonth);
   const [editTx, setEditTx] = useState<TransactionResponseDto | null>(null);
+  const [balanceModalOpen, setBalanceModalOpen] = useState(false);
 
   const txQueryKey = [
     "transactions",
@@ -104,6 +110,12 @@ export const WeeklyView = ({ ledgerId, currency }: WeeklyViewProps) => {
     onSuccess: invalidate,
   });
 
+  const createBalanceMutation = useMutation({
+    mutationFn: (data: CreateBalanceData) =>
+      createBalance(String(ledgerId), data, token!),
+    onSuccess: invalidate,
+  });
+
   const busy =
     quickFillMutation.isPending ||
     autoSplitMutation.isPending ||
@@ -144,6 +156,15 @@ export const WeeklyView = ({ ledgerId, currency }: WeeklyViewProps) => {
             {t("transaction.weekly.notCurrentMonth", { month: monthLabel })}
           </span>
         )}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="ml-auto"
+          onClick={() => setBalanceModalOpen(true)}
+        >
+          {t("transaction.weekly.trackBalance")}
+        </Button>
       </div>
 
       {isLoading ? (
@@ -231,6 +252,14 @@ export const WeeklyView = ({ ledgerId, currency }: WeeklyViewProps) => {
           </div>
         </div>
       )}
+
+      <CreateBalanceModal
+        open={balanceModalOpen}
+        onClose={() => setBalanceModalOpen(false)}
+        onSubmit={(data) => createBalanceMutation.mutateAsync(data)}
+        paymentMethods={paymentMethods}
+        currency={currency}
+      />
     </div>
   );
 };

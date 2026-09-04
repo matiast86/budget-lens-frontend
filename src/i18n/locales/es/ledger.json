@@ -248,7 +248,8 @@
       "methodOptionCount_one": "{{name}} · {{count}} movimiento",
       "methodOptionCount_other": "{{name}} · {{count}} movimientos",
       "methodAssignApply_one": "Asignar {{count}} a S{{week}}",
-      "methodAssignApply_other": "Asignar {{count}} a S{{week}}"
+      "methodAssignApply_other": "Asignar {{count}} a S{{week}}",
+      "trackBalance": "Registrar saldo"
     },
     "edit": {
       "title": "Editar movimiento",
@@ -369,6 +370,29 @@
         "confirmDelete": "¿Seguro?",
         "cancel": "Cancelar"
       }
+    }
+  },
+  "balance": {
+    "modal": {
+      "title": "Registrar un saldo",
+      "hint": "Crea un lugar mensual para este medio de pago donde vas a anotar su saldo semana a semana — acá no se registra un monto, solo el número que cargues cada semana.",
+      "field": {
+        "paymentMethod": "Medio de pago",
+        "startMonth": "Mes inicial",
+        "endMonth": "Mes final"
+      },
+      "action": {
+        "create": "Empezar a registrar",
+        "cancel": "Cancelar"
+      },
+      "error": {
+        "paymentMethodRequired": "Elegí un medio de pago",
+        "rangeInvalid": "El mes final no puede ser anterior al inicial",
+        "rangeTooLong": "El rango no puede superar los {{max}} meses"
+      },
+      "preview_one": "Crea {{count}} fila mensual",
+      "preview_other": "Crea {{count}} filas mensuales",
+      "noPaymentMethods": "Agregá un medio de pago de efectivo, banco o billetera virtual primero — el registro de saldo no aplica a tarjetas de crédito."
     }
   },
   "paymentMethod": {

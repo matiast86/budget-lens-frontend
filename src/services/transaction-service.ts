@@ -1,6 +1,6 @@
 import { apiFetch } from "./api-client";
 import { findOrCreateDebtOwner } from "./debt-owner-service";
-import type { TransactionResponseDto, TransactionFilters } from "../types";
+import type { TransactionResponseDto, TransactionFilters, Currency } from "../types";
 import type {
   CreateTransactionFormData,
   EditTransactionFormData,
@@ -68,6 +68,29 @@ export const createTransaction = async (
     token,
   );
 };
+
+// ---------------------------------------------------------------------------
+// Create balance-tracking rows ("saldo")
+// ---------------------------------------------------------------------------
+
+export interface CreateBalanceData {
+  paymentMethodId: number;
+  // "YYYY-MM", inclusive on both ends — mirrors the backend's createBundle.
+  paymentMonthValue: string;
+  bundleTo: string;
+  currency: Currency;
+}
+
+export const createBalance = (
+  ledgerId: string,
+  data: CreateBalanceData,
+  token: string,
+): Promise<TransactionResponseDto[]> =>
+  apiFetch<TransactionResponseDto[]>(
+    `/transactions/ledgers/${ledgerId}/balances`,
+    { method: "POST", body: JSON.stringify(data) },
+    token,
+  );
 
 // ---------------------------------------------------------------------------
 // Read (filtered list)

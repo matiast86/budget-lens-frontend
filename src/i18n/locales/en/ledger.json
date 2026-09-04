@@ -248,7 +248,8 @@
       "methodOptionCount_one": "{{name}} · {{count}} movement",
       "methodOptionCount_other": "{{name}} · {{count}} movements",
       "methodAssignApply_one": "Assign {{count}} to W{{week}}",
-      "methodAssignApply_other": "Assign {{count}} to W{{week}}"
+      "methodAssignApply_other": "Assign {{count}} to W{{week}}",
+      "trackBalance": "Track balance"
     },
     "edit": {
       "title": "Edit Transaction",
@@ -369,6 +370,29 @@
         "confirmDelete": "Sure?",
         "cancel": "Cancel"
       }
+    }
+  },
+  "balance": {
+    "modal": {
+      "title": "Track a balance",
+      "hint": "Adds a monthly placeholder for this payment method so you can log its balance each week — the amount itself isn't tracked here, only the weekly figure you enter.",
+      "field": {
+        "paymentMethod": "Payment method",
+        "startMonth": "Start month",
+        "endMonth": "End month"
+      },
+      "action": {
+        "create": "Start tracking",
+        "cancel": "Cancel"
+      },
+      "error": {
+        "paymentMethodRequired": "Pick a payment method",
+        "rangeInvalid": "End month must not be before the start month",
+        "rangeTooLong": "The range can't be longer than {{max}} months"
+      },
+      "preview_one": "Creates {{count}} monthly row",
+      "preview_other": "Creates {{count}} monthly rows",
+      "noPaymentMethods": "Add a cash, bank, or wallet payment method first — balance tracking doesn't apply to credit cards."
     }
   },
   "paymentMethod": {

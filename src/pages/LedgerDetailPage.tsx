@@ -360,7 +360,11 @@ export const LedgerDetailPage = () => {
             <TransactionViewToggle view={txView} onChange={setTxView} />
 
             {txView === "weekly" ? (
-              <WeeklyView ledgerId={ledger.id} currency={ledger.currency} />
+              <WeeklyView
+                ledgerId={ledger.id}
+                currency={ledger.currency}
+                paymentMethods={ledger.paymentMethods}
+              />
             ) : (
               <>
                 <TransactionFilters

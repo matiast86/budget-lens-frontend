@@ -225,7 +225,11 @@ export const TransactionsPage = () => {
             <TransactionViewToggle view={view} onChange={setView} />
 
             {view === "weekly" ? (
-              <WeeklyView ledgerId={ledger.id} currency={ledger.currency} />
+              <WeeklyView
+                ledgerId={ledger.id}
+                currency={ledger.currency}
+                paymentMethods={ledger.paymentMethods}
+              />
             ) : (
             <>
             {/* Summary cards */}
