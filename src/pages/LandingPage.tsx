@@ -144,7 +144,13 @@ export const LandingPage = () => {
               {t("landing.hero.cta1")}
               <ArrowRight className="w-4 h-4 ml-xs" />
             </Button>
-            <Button variant="outline" size="lg" onClick={() => navigate("/dashboard")}>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() =>
+                document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" })
+              }
+            >
               {t("landing.hero.cta2")}
             </Button>
           </div>

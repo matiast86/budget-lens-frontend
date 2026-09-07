@@ -183,13 +183,13 @@
       "getStarted": "Comenzar"
     },
     "hero": {
-      "pill": "Hecho para precios que se mueven",
-      "headline1": "Saber en qué se te va la plata",
-      "headline2": "no debería llevar una tarde.",
-      "subheadline": "Anotá un gasto en cinco segundos. Mirá si llegás a fin de mes en veinte. Cuotas, dólares y gastos compartidos incluidos, sin que tengas que pensarlos.",
-      "cta1": "Empezar gratis",
-      "cta2": "Ver una demo",
-      "trustLine": "Sin tarjeta. Sin categorías obligatorias. Sin fórmulas."
+      "pill": "Adaptado a una economía de constantes cambios",
+      "headline1": "Llegar a fin de mes",
+      "headline2": "no es suerte. Es método.",
+      "subheadline": "Cargás tus ingresos y tus gastos, los de este mes y los que vienen. En dos minutos sabés si el mes cierra, y si no, dónde tocar.",
+      "cta1": "Armar mi proyección",
+      "cta2": "Ver cómo funciona",
+      "trustLine": "Gratis. Sin tarjeta. Sin fórmulas."
     },
     "mockup": {
       "url": "app.budgetlens.io/inicio",

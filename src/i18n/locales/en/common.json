@@ -183,13 +183,13 @@
       "getStarted": "Get started"
     },
     "hero": {
-      "pill": "Made for prices that keep moving",
-      "headline1": "Knowing where your money goes",
-      "headline2": "shouldn't take all afternoon.",
-      "subheadline": "Log an expense in five seconds. See whether you'll make it to month-end in twenty. Installments, dollars and shared expenses are handled — without you having to think about them.",
-      "cta1": "Start free",
-      "cta2": "See a demo",
-      "trustLine": "No card. No mandatory categories. No formulas."
+      "pill": "Built for an economy that keeps shifting",
+      "headline1": "Making ends meet",
+      "headline2": "isn't luck. It's a system.",
+      "subheadline": "Just log what you make and what you spend, for this month and beyond. In two minutes, you'll see if you're covered, and if not, exactly where to adjust.",
+      "cta1": "Build my projection",
+      "cta2": "See how it works",
+      "trustLine": "Free. No card. No formulas."
     },
     "mockup": {
       "url": "app.budgetlens.io/home",
