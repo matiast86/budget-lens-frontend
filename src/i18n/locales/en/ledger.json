@@ -249,7 +249,8 @@
       "methodOptionCount_other": "{{name}} · {{count}} movements",
       "methodAssignApply_one": "Assign {{count}} to W{{week}}",
       "methodAssignApply_other": "Assign {{count}} to W{{week}}",
-      "trackBalance": "Track balance"
+      "trackBalance": "Track balance",
+      "projectExpenses": "Project ahead"
     },
     "edit": {
       "title": "Edit Transaction",
@@ -393,6 +394,37 @@
       "preview_one": "Creates {{count}} monthly row",
       "preview_other": "Creates {{count}} monthly rows",
       "noPaymentMethods": "Add a cash, bank, or wallet payment method first — balance tracking doesn't apply to credit cards."
+    }
+  },
+  "projection": {
+    "modal": {
+      "title": "Project expenses ahead",
+      "hint": "Takes your recurring expenses for a tag and copies them into the months ahead, starting right after the last month you've already planned.",
+      "field": {
+        "category": "Category",
+        "group": "Tag",
+        "through": "Plan through",
+        "increaseRate": "Increase (%)",
+        "everyMonths": "Every N months",
+        "seedIncreaseRate": "Starting bump (%)",
+        "comment": "Note (optional)",
+        "commentPlaceholder": "e.g. 2027 first-half plan"
+      },
+      "showIncrease": "Add an increase over time",
+      "hideIncrease": "Hide increase options",
+      "seedHint": "A one-off bump applied to the first projected month. Leave at 0 to start from the same amount as the last planned month.",
+      "frontierNote": "The starting month is picked automatically — the month right after your last planned one for this tag.",
+      "action": {
+        "create": "Project",
+        "cancel": "Cancel"
+      },
+      "error": {
+        "categoryGroupRequired": "Pick a category and a tag",
+        "horizonRequired": "Choose the month to plan through",
+        "rateRange": "Increase must be between 0 and {{max}}%",
+        "everyMonthsRange": "\"Every N months\" must be at least 1"
+      },
+      "nothingToProject": "Add a recurring expense and a payment method first — there's nothing to project ahead yet."
     }
   },
   "paymentMethod": {

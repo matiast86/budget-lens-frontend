@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { WeeklyBoard } from "./WeeklyBoard";
 import { CreateBalanceModal } from "./CreateBalanceModal";
+import { ProjectExpensesModal } from "./ProjectExpensesModal";
 import { WeeklyDrawdownStrip } from "../molecules/WeeklyDrawdownStrip";
 import { UnallocatedBreakdownCard } from "../molecules/UnallocatedBreakdownCard";
 import { WeeklyMethodAssignCard } from "../molecules/WeeklyMethodAssignCard";
@@ -14,7 +15,9 @@ import {
   getTransactions,
   updateTransactionBreakdown,
   createBalance,
+  projectFixedExpenses,
   type CreateBalanceData,
+  type ProjectFixedExpensesData,
 } from "../../services/transaction-service";
 import {
   buildWeeklyBreakdown,
@@ -22,12 +25,20 @@ import {
   weekOfDate,
   singleWeekPayload,
 } from "../../utils/weekly-breakdown";
-import type { TransactionResponseDto, Currency, PaymentMethodResponseDto } from "../../types";
+import type {
+  TransactionResponseDto,
+  Currency,
+  PaymentMethodResponseDto,
+  CategoryResponseDto,
+  GroupResponseDto,
+} from "../../types";
 
 interface WeeklyViewProps {
   ledgerId: number;
   currency: Currency;
   paymentMethods: PaymentMethodResponseDto[];
+  categories: CategoryResponseDto[];
+  groups: GroupResponseDto[];
 }
 
 const currentMonth = (): string => {
@@ -35,7 +46,13 @@ const currentMonth = (): string => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 };
 
-export const WeeklyView = ({ ledgerId, currency, paymentMethods }: WeeklyViewProps) => {
+export const WeeklyView = ({
+  ledgerId,
+  currency,
+  paymentMethods,
+  categories,
+  groups,
+}: WeeklyViewProps) => {
   const { t, i18n } = useTranslation("ledger");
   const token = useAuthStore((s) => s.token);
   const queryClient = useQueryClient();
@@ -43,6 +60,7 @@ export const WeeklyView = ({ ledgerId, currency, paymentMethods }: WeeklyViewPro
   const [month, setMonth] = useState(currentMonth);
   const [editTx, setEditTx] = useState<TransactionResponseDto | null>(null);
   const [balanceModalOpen, setBalanceModalOpen] = useState(false);
+  const [projectModalOpen, setProjectModalOpen] = useState(false);
 
   const txQueryKey = [
     "transactions",
@@ -116,6 +134,12 @@ export const WeeklyView = ({ ledgerId, currency, paymentMethods }: WeeklyViewPro
     onSuccess: invalidate,
   });
 
+  const projectMutation = useMutation({
+    mutationFn: (data: ProjectFixedExpensesData) =>
+      projectFixedExpenses(String(ledgerId), data, token!),
+    onSuccess: invalidate,
+  });
+
   const busy =
     quickFillMutation.isPending ||
     autoSplitMutation.isPending ||
@@ -156,15 +180,24 @@ export const WeeklyView = ({ ledgerId, currency, paymentMethods }: WeeklyViewPro
             {t("transaction.weekly.notCurrentMonth", { month: monthLabel })}
           </span>
         )}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="ml-auto"
-          onClick={() => setBalanceModalOpen(true)}
-        >
-          {t("transaction.weekly.trackBalance")}
-        </Button>
+        <div className="ml-auto flex items-center gap-sm">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setProjectModalOpen(true)}
+          >
+            {t("transaction.weekly.projectExpenses")}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setBalanceModalOpen(true)}
+          >
+            {t("transaction.weekly.trackBalance")}
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -257,6 +290,16 @@ export const WeeklyView = ({ ledgerId, currency, paymentMethods }: WeeklyViewPro
         open={balanceModalOpen}
         onClose={() => setBalanceModalOpen(false)}
         onSubmit={(data) => createBalanceMutation.mutateAsync(data)}
+        paymentMethods={paymentMethods}
+        currency={currency}
+      />
+
+      <ProjectExpensesModal
+        open={projectModalOpen}
+        onClose={() => setProjectModalOpen(false)}
+        onSubmit={(data) => projectMutation.mutateAsync(data)}
+        categories={categories}
+        groups={groups}
         paymentMethods={paymentMethods}
         currency={currency}
       />

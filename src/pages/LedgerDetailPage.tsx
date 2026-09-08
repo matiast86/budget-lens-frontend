@@ -364,6 +364,8 @@ export const LedgerDetailPage = () => {
                 ledgerId={ledger.id}
                 currency={ledger.currency}
                 paymentMethods={ledger.paymentMethods}
+                categories={ledger.categories}
+                groups={ledger.groups}
               />
             ) : (
               <>

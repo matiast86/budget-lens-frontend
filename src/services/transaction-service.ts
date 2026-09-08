@@ -93,6 +93,64 @@ export const createBalance = (
   );
 
 // ---------------------------------------------------------------------------
+// Project FIXED expenses forward past the planning frontier
+// ---------------------------------------------------------------------------
+
+export interface ProjectFixedExpensesData {
+  categoryId: number;
+  groupId: number;
+  // Fallback for source rows without a payment method — rarely used, since the
+  // backend copies each source transaction's own method when present.
+  paymentMethodId: number;
+  currency: Currency;
+  // "YYYY-MM", inclusive — the last month the projection should reach.
+  bundleTo: string;
+  // Fractions (0.1 = +10%), already converted from the UI's whole percent.
+  increaseRate?: number;
+  seedIncreaseRate?: number;
+  increaseEveryMonths?: number;
+  comment?: string;
+}
+
+export interface ProjectedSeries {
+  sourceId: number;
+  sourceMonth: string;
+  projected: TransactionResponseDto[];
+}
+
+export const projectFixedExpenses = (
+  ledgerId: string,
+  data: ProjectFixedExpensesData,
+  token: string,
+): Promise<ProjectedSeries[]> => {
+  const body = {
+    categoryId: data.categoryId,
+    groupId: data.groupId,
+    paymentMethodId: data.paymentMethodId,
+    currency: data.currency,
+    ...(data.comment ? { comment: data.comment } : {}),
+    fixedBundleDto: {
+      bundleTo: data.bundleTo,
+      ...(data.increaseRate !== undefined
+        ? { increaseRate: data.increaseRate }
+        : {}),
+      ...(data.seedIncreaseRate !== undefined
+        ? { seedIncreaseRate: data.seedIncreaseRate }
+        : {}),
+      ...(data.increaseEveryMonths !== undefined
+        ? { increaseEveryMonths: data.increaseEveryMonths }
+        : {}),
+    },
+  };
+
+  return apiFetch<ProjectedSeries[]>(
+    `/transactions/ledgers/${ledgerId}/projections`,
+    { method: "POST", body: JSON.stringify(body) },
+    token,
+  );
+};
+
+// ---------------------------------------------------------------------------
 // Read (filtered list)
 // ---------------------------------------------------------------------------
 

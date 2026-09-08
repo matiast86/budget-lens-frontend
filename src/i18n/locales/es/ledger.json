@@ -249,7 +249,8 @@
       "methodOptionCount_other": "{{name}} · {{count}} movimientos",
       "methodAssignApply_one": "Asignar {{count}} a S{{week}}",
       "methodAssignApply_other": "Asignar {{count}} a S{{week}}",
-      "trackBalance": "Registrar saldo"
+      "trackBalance": "Registrar saldo",
+      "projectExpenses": "Proyectar a futuro"
     },
     "edit": {
       "title": "Editar movimiento",
@@ -393,6 +394,37 @@
       "preview_one": "Crea {{count}} fila mensual",
       "preview_other": "Crea {{count}} filas mensuales",
       "noPaymentMethods": "Agregá un medio de pago de efectivo, banco o billetera virtual primero — el registro de saldo no aplica a tarjetas de crédito."
+    }
+  },
+  "projection": {
+    "modal": {
+      "title": "Proyectar gastos a futuro",
+      "hint": "Toma tus gastos recurrentes de una etiqueta y los copia a los meses siguientes, arrancando justo después del último mes que ya planificaste.",
+      "field": {
+        "category": "Concepto",
+        "group": "Etiqueta",
+        "through": "Planificar hasta",
+        "increaseRate": "Aumento (%)",
+        "everyMonths": "Cada N meses",
+        "seedIncreaseRate": "Ajuste inicial (%)",
+        "comment": "Nota (opcional)",
+        "commentPlaceholder": "ej. plan primer semestre 2027"
+      },
+      "showIncrease": "Agregar un aumento con el tiempo",
+      "hideIncrease": "Ocultar opciones de aumento",
+      "seedHint": "Un ajuste único que se aplica al primer mes proyectado. Dejalo en 0 para arrancar con el mismo importe que el último mes planificado.",
+      "frontierNote": "El mes de inicio se elige solo — el mes siguiente al último que planificaste para esta etiqueta.",
+      "action": {
+        "create": "Proyectar",
+        "cancel": "Cancelar"
+      },
+      "error": {
+        "categoryGroupRequired": "Elegí un concepto y una etiqueta",
+        "horizonRequired": "Elegí hasta qué mes planificar",
+        "rateRange": "El aumento tiene que estar entre 0 y {{max}}%",
+        "everyMonthsRange": "\"Cada N meses\" tiene que ser al menos 1"
+      },
+      "nothingToProject": "Agregá primero un gasto recurrente y un medio de pago — todavía no hay nada para proyectar."
     }
   },
   "paymentMethod": {
