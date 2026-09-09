@@ -58,13 +58,44 @@ export const createTransactionSchema = z
 
   debtAssignments: z
     .array(
-      z.object({
-        ownerName: z.string().min(1, "transaction.create.error.debtOwnerRequired"),
-        amount: z
-          .number({ error: "transaction.create.error.debtAmountPositive" })
-          .positive("transaction.create.error.debtAmountPositive"),
-        direction: z.enum(["OWED_TO_ME", "OWED_BY_ME"]),
-      }),
+      z
+        .object({
+          ownerName: z.string().min(1, "transaction.create.error.debtOwnerRequired"),
+          // UI-only discriminator. "amount" = an absolute figure; "percentage" =
+          // a share of the transaction total, sent to the API as a 0–1 fraction.
+          splitMode: z.enum(["amount", "percentage"]).default("amount"),
+          amount: optionalNumber(
+            z
+              .number({ error: "transaction.create.error.debtAmountPositive" })
+              .positive("transaction.create.error.debtAmountPositive")
+              .optional(),
+          ),
+          percentage: optionalNumber(
+            z
+              .number({ error: "transaction.create.error.debtPercentageInvalid" })
+              .positive("transaction.create.error.debtPercentageInvalid")
+              .max(100, "transaction.create.error.debtPercentageInvalid")
+              .optional(),
+          ),
+          direction: z.enum(["OWED_TO_ME", "OWED_BY_ME"]),
+        })
+        .superRefine((row, ctx) => {
+          if (row.splitMode === "percentage") {
+            if (row.percentage === undefined) {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ["percentage"],
+                message: "transaction.create.error.debtPercentageInvalid",
+              });
+            }
+          } else if (row.amount === undefined) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ["amount"],
+              message: "transaction.create.error.debtAmountPositive",
+            });
+          }
+        }),
     )
     .default([]),
 

@@ -892,6 +892,7 @@ budget-lens-frontend/
 │   │       ├── CreateTransactionModal.tsx # modal form: all transaction fields; colored header; no status field (backend auto-derives from paymentMonth)
 │   │       │                              # QuickCreate inline sub-component: appears below each select (category/group/PM)
 │   │       │                              # always visible; onCreateCategory/Group/PaymentMethod optional props
+│   │       │                              # debt rows: <select> of existing debtOwners (prop) + "+ add new" sentinel option → per-row free-text input (newOwnerRows Set keyed by field.id); each row also has a $/% splitMode toggle
 │   │       │                              # resolver cast: zodResolver(...) as any (zod input/output type mismatch with RHF)
 │   │       ├── EditTransactionModal.tsx   # pre-fills from TransactionResponseDto; currency/entryType locked
 │   │       │                              # resolver cast: same as above
@@ -1034,7 +1035,7 @@ budget-lens-frontend/
 5. ~~**`LedgerCard`**~~ — carousel-ready, teal/stone palette
 6. ~~**`TransactionListRow`**~~ — mobile list row with icon pill
 7. ~~**Create Ledger form**~~ — `CreateLedgerModal` + `ledger.schema.ts`, wired to AppHeader
-8. ~~**Create Transaction form**~~ — `CreateTransactionModal` + `transaction.schema.ts`, wired to LedgerDetailPage; debt assignments use free-text name input resolved via `findOrCreateDebtOwner`
+8. ~~**Create Transaction form**~~ — `CreateTransactionModal` + `transaction.schema.ts`, wired to LedgerDetailPage; debt assignments pick from a `<select>` of existing `debtOwners` (query passed as a prop from LedgerDetailPage + TransactionsPage) with a "+ add new" option that swaps that row to a free-text input; the chosen/typed name is still resolved server-side via `findOrCreateDebtOwner` (now GET-by-name first, create only on miss). Each row also has a `$`/`%` `splitMode` toggle (amount XOR percentage). Both create mutations invalidate `["debtOwners", ledgerId]`.
 9. ~~**Register page**~~ — `RegisterPage` + `auth.schema.ts` at `/register`; LandingPage CTAs wired to `/register` and `/login`
 10. ~~**Login page**~~ — `LoginPage` + `loginSchema` at `/login`; stores token via `setToken()`, navigates to `/dashboard`
 11. ~~**Auth guard + service layer**~~ — `RequireAuth`, `api-client`, all services wired; React Query in `main.tsx`

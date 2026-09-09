@@ -11,6 +11,7 @@ import { EditTransactionModal } from "../components/organisms/EditTransactionMod
 import { Button } from "../components/atoms/Button";
 import { useAuthStore } from "../stores/auth-store";
 import { getLedgers, getLedger } from "../services/ledger-service";
+import { getDebtOwners } from "../services/debt-owner-service";
 import {
   createTransaction,
   getTransactions,
@@ -78,6 +79,12 @@ export const TransactionsPage = () => {
     enabled: !!selectedLedgerId && !!token,
   });
 
+  const { data: debtOwners = [] } = useQuery({
+    queryKey: ["debtOwners", Number(selectedLedgerId)],
+    queryFn: () => getDebtOwners(selectedLedgerId!, token!),
+    enabled: !!selectedLedgerId && !!token,
+  });
+
   // -------------------------------------------------------------------------
   // Summary stats (derived from the current filtered result)
   // -------------------------------------------------------------------------
@@ -103,6 +110,8 @@ export const TransactionsPage = () => {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["transactions", selectedLedgerId] });
       void queryClient.invalidateQueries({ queryKey: ["ledger", selectedLedgerId] });
+      // A debt assignment may have created a new owner via findOrCreateDebtOwner.
+      void queryClient.invalidateQueries({ queryKey: ["debtOwners", Number(selectedLedgerId)] });
     },
   });
 
@@ -316,6 +325,7 @@ export const TransactionsPage = () => {
             categories={ledger.categories}
             paymentMethods={ledger.paymentMethods}
             groups={ledger.groups}
+            debtOwners={debtOwners}
           />
           <EditTransactionModal
             open={!!editTarget}

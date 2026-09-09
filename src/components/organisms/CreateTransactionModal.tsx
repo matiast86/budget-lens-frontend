@@ -16,10 +16,15 @@ import type {
   CategoryResponseDto,
   PaymentMethodResponseDto,
   GroupResponseDto,
+  DebtOwnerResponseDto,
   Currency,
   EntryType,
   PaymentType,
 } from "../../types";
+
+// Sentinel <option> value that swaps a debt row from "pick an existing owner"
+// to a free-text input for a brand-new name.
+const NEW_OWNER = "__new_owner__";
 
 interface CreateTransactionModalProps {
   open: boolean;
@@ -30,6 +35,7 @@ interface CreateTransactionModalProps {
   categories: CategoryResponseDto[];
   paymentMethods: PaymentMethodResponseDto[];
   groups: GroupResponseDto[];
+  debtOwners: DebtOwnerResponseDto[];
   onCreateCategory?: (name: string) => Promise<CategoryResponseDto>;
   onCreateGroup?: (name: string) => Promise<GroupResponseDto>;
   onCreatePaymentMethod?: (name: string, type: PaymentType) => Promise<PaymentMethodResponseDto>;
@@ -143,6 +149,7 @@ export const CreateTransactionModal = ({
   categories,
   paymentMethods,
   groups,
+  debtOwners,
   onCreateCategory,
   onCreateGroup,
   onCreatePaymentMethod,
@@ -151,6 +158,9 @@ export const CreateTransactionModal = ({
 
   const [serverError, setServerError] = useState<string | null>(null);
   const [inlineCreate, setInlineCreate] = useState<"category" | "group" | "paymentMethod" | null>(null);
+  // Debt rows (keyed by useFieldArray field id) currently typing a new owner
+  // name rather than picking an existing one.
+  const [newOwnerRows, setNewOwnerRows] = useState<Set<string>>(new Set());
   // Progressive disclosure: Level 1 (amount + category) is always visible;
   // everything else lives behind this toggle.
   const [showDetail, setShowDetail] = useState(false);
@@ -178,6 +188,7 @@ export const CreateTransactionModal = ({
     if (open) {
       setServerError(null);
       setShowDetail(false);
+      setNewOwnerRows(new Set());
       reset({
         entryType: defaultEntryType,
         transactionType: "VARIABLE",
@@ -206,6 +217,7 @@ export const CreateTransactionModal = ({
     reset();
     setInlineCreate(null);
     setShowDetail(false);
+    setNewOwnerRows(new Set());
     onClose();
   };
 
@@ -235,6 +247,7 @@ export const CreateTransactionModal = ({
   const watchedCurrency  = watch("currency") ?? defaultCurrency;
   const watchedPayMonth  = watch("paymentMonth");
   const watchedBundleTo  = watch("bundleTo");
+  const watchedDebts     = watch("debtAssignments") ?? [];
 
   const isIncome = watchedEntryType === "INCOME";
   const isFixed = watchedType === "FIXED";
@@ -765,7 +778,14 @@ export const CreateTransactionModal = ({
                 </p>
                 <button
                   type="button"
-                  onClick={() => appendDebt({ ownerName: "", amount: 0, direction: "OWED_TO_ME" })}
+                  onClick={() =>
+                    appendDebt({
+                      ownerName: "",
+                      splitMode: "amount",
+                      amount: undefined,
+                      direction: "OWED_TO_ME",
+                    })
+                  }
                   className="flex items-center gap-xs text-xs font-medium text-primary-600 hover:text-primary-700 transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -778,17 +798,47 @@ export const CreateTransactionModal = ({
                   key={field.id}
                   className="rounded-lg border border-stone-200 bg-stone-50 p-sm space-y-xs"
                 >
-                  {/* Owner name + remove */}
+                  {/* Owner picker (existing list + "add new") + remove */}
                   <div className="flex items-center gap-xs">
-                    <input
-                      type="text"
-                      placeholder={t("transaction.create.field.ownerNamePlaceholder")}
-                      className={cn(
-                        inputClass(!!errors.debtAssignments?.[index]?.ownerName),
-                        "flex-1",
-                      )}
-                      {...register(`debtAssignments.${index}.ownerName`)}
-                    />
+                    {debtOwners.length === 0 || newOwnerRows.has(field.id) ? (
+                      <input
+                        type="text"
+                        autoFocus={newOwnerRows.has(field.id)}
+                        placeholder={t("transaction.create.field.ownerNamePlaceholder")}
+                        className={cn(
+                          inputClass(!!errors.debtAssignments?.[index]?.ownerName),
+                          "flex-1",
+                        )}
+                        {...register(`debtAssignments.${index}.ownerName`)}
+                      />
+                    ) : (
+                      <select
+                        className={cn(
+                          inputClass(!!errors.debtAssignments?.[index]?.ownerName),
+                          "flex-1 cursor-pointer",
+                        )}
+                        {...register(`debtAssignments.${index}.ownerName`, {
+                          onChange: (e) => {
+                            if (e.target.value === NEW_OWNER) {
+                              setNewOwnerRows((s) => new Set(s).add(field.id));
+                              setValue(`debtAssignments.${index}.ownerName`, "");
+                            }
+                          },
+                        })}
+                      >
+                        <option value="" disabled>
+                          {t("transaction.create.field.selectOwner")}
+                        </option>
+                        {debtOwners.map((o) => (
+                          <option key={o.id} value={o.name}>
+                            {o.name}
+                          </option>
+                        ))}
+                        <option value={NEW_OWNER}>
+                          {t("transaction.create.field.newOwner")}
+                        </option>
+                      </select>
+                    )}
                     <button
                       type="button"
                       onClick={() => removeDebt(index)}
@@ -798,25 +848,82 @@ export const CreateTransactionModal = ({
                       <X className="w-4 h-4" />
                     </button>
                   </div>
+                  {debtOwners.length > 0 && newOwnerRows.has(field.id) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNewOwnerRows((s) => {
+                          const next = new Set(s);
+                          next.delete(field.id);
+                          return next;
+                        });
+                        setValue(`debtAssignments.${index}.ownerName`, "");
+                      }}
+                      className="text-xs font-medium text-primary-600 hover:text-primary-700 transition-colors"
+                    >
+                      {t("transaction.create.field.pickExistingOwner")}
+                    </button>
+                  )}
                   {errors.debtAssignments?.[index]?.ownerName && (
                     <p className="text-xs text-expense-400" role="alert">
                       {t(errors.debtAssignments[index].ownerName?.message ?? "")}
                     </p>
                   )}
 
-                  {/* Amount + direction */}
+                  {/* Split by $ / % + value + direction */}
                   <div className="flex items-center gap-xs">
-                    <input
-                      type="number"
-                      step="any"
-                      min="0"
-                      placeholder="0"
-                      className={cn(
-                        inputClass(!!errors.debtAssignments?.[index]?.amount),
-                        "w-28",
-                      )}
-                      {...register(`debtAssignments.${index}.amount`, { valueAsNumber: true })}
-                    />
+                    <select
+                      className={cn(inputClass(false), "w-16 cursor-pointer")}
+                      aria-label={t("transaction.create.field.splitMode.label")}
+                      {...register(`debtAssignments.${index}.splitMode`, {
+                        onChange: (e) => {
+                          // Wipe the now-inactive field so its own rules
+                          // (amount .positive(), percentage .max()) stop firing.
+                          if (e.target.value === "percentage") {
+                            setValue(`debtAssignments.${index}.amount`, undefined);
+                          } else {
+                            setValue(`debtAssignments.${index}.percentage`, undefined);
+                          }
+                        },
+                      })}
+                    >
+                      <option value="amount">
+                        {t("transaction.create.field.splitMode.amount")}
+                      </option>
+                      <option value="percentage">
+                        {t("transaction.create.field.splitMode.percentage")}
+                      </option>
+                    </select>
+                    {watchedDebts[index]?.splitMode === "percentage" ? (
+                      <input
+                        type="number"
+                        step="any"
+                        min="0"
+                        max="100"
+                        placeholder="%"
+                        className={cn(
+                          inputClass(!!errors.debtAssignments?.[index]?.percentage),
+                          "w-20",
+                        )}
+                        {...register(`debtAssignments.${index}.percentage`, {
+                          valueAsNumber: true,
+                        })}
+                      />
+                    ) : (
+                      <input
+                        type="number"
+                        step="any"
+                        min="0"
+                        placeholder="0"
+                        className={cn(
+                          inputClass(!!errors.debtAssignments?.[index]?.amount),
+                          "w-24",
+                        )}
+                        {...register(`debtAssignments.${index}.amount`, {
+                          valueAsNumber: true,
+                        })}
+                      />
+                    )}
                     <select
                       className={cn(inputClass(false), "flex-1 cursor-pointer")}
                       {...register(`debtAssignments.${index}.direction`)}
@@ -832,6 +939,11 @@ export const CreateTransactionModal = ({
                   {errors.debtAssignments?.[index]?.amount && (
                     <p className="text-xs text-expense-400" role="alert">
                       {t(errors.debtAssignments[index].amount?.message ?? "")}
+                    </p>
+                  )}
+                  {errors.debtAssignments?.[index]?.percentage && (
+                    <p className="text-xs text-expense-400" role="alert">
+                      {t(errors.debtAssignments[index].percentage?.message ?? "")}
                     </p>
                   )}
                 </div>

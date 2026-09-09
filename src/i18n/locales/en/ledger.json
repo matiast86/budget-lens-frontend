@@ -129,7 +129,15 @@
         "addDebtOwner": "Add person",
         "removeDebtOwner": "Remove",
         "ownerNamePlaceholder": "e.g. Ana, neighbor...",
+        "selectOwner": "Pick a person...",
+        "newOwner": "+ Add someone new",
+        "pickExistingOwner": "Pick from existing people",
         "debtAmount": "Amount",
+        "splitMode": {
+          "label": "Split by amount or percentage",
+          "amount": "$",
+          "percentage": "%"
+        },
         "direction": {
           "OWED_TO_ME": "Owes me",
           "OWED_BY_ME": "I owe"
@@ -146,6 +154,7 @@
         "commentTooLong": "Note must be 500 characters or less",
         "debtOwnerRequired": "Enter the person's name",
         "debtAmountPositive": "Enter a valid amount",
+        "debtPercentageInvalid": "Enter a percentage between 0 and 100",
         "bundleToRequired": "Choose an end month for the recurrence",
         "bundleToAfter": "End month must be after the payment month",
         "increaseRateInvalid": "Increase % must be 0 or greater",

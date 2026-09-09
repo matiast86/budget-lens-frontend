@@ -165,6 +165,8 @@ export const LedgerDetailPage = () => {
       createTransaction(id!, data, token!),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["transactions", id] });
+      // A debt assignment may have created a new owner via findOrCreateDebtOwner.
+      void queryClient.invalidateQueries({ queryKey: ["debtOwners", Number(id)] });
       void invalidateLedger();
     },
   });
@@ -447,6 +449,7 @@ export const LedgerDetailPage = () => {
         categories={ledger.categories}
         paymentMethods={ledger.paymentMethods}
         groups={ledger.groups}
+        debtOwners={debtOwners}
         onCreateCategory={(name) => createCategoryMutation.mutateAsync({ name })}
         onCreateGroup={(name) => createGroupMutation.mutateAsync({ name })}
         onCreatePaymentMethod={(name, type) =>

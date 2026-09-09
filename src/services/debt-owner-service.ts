@@ -38,17 +38,24 @@ export const createDebtOwner = (
   );
 
 /**
- * Try to create a debt owner by name. If it already exists (unique constraint),
- * fall back to fetching the existing one by name.
+ * Resolve a debt owner by name, creating it only if it doesn't exist yet.
+ *
+ * Look up by name FIRST: the common case is a person who already exists, and
+ * firing a create that's guaranteed to fail the `(ledgerId, name)` unique
+ * constraint logs a stack trace on the backend every single time. The create is
+ * still guarded so a concurrent request that wins the race falls back to a read.
  */
 export const findOrCreateDebtOwner = async (
   ledgerId: string,
   name: string,
   token: string,
 ): Promise<DebtOwnerResponseDto> => {
+  const trimmed = name.trim();
   try {
-    return await createDebtOwner(ledgerId, name.trim(), token);
+    return await getDebtOwnerByName(ledgerId, trimmed, token);
   } catch {
-    return await getDebtOwnerByName(ledgerId, name.trim(), token);
+    return await createDebtOwner(ledgerId, trimmed, token).catch(() =>
+      getDebtOwnerByName(ledgerId, trimmed, token),
+    );
   }
 };

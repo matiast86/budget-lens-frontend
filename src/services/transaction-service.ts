@@ -20,12 +20,19 @@ export const createTransaction = async (
       ? `/transactions/ledgers/${ledgerId}/expenses`
       : `/transactions/ledgers/${ledgerId}/incomes`;
 
-  // Resolve each debt owner name to an existing or newly-created ID
+  // Resolve each debt owner name to an existing or newly-created ID.
+  // A row carries EITHER an absolute `amount` OR a `percentage`; the UI collects
+  // whole percent, the API wants a 0–1 fraction (same convention as the
+  // FIXED-bundle `increaseRate` below).
   const resolvedDebtAssignments = await Promise.all(
-    data.debtAssignments.map(async ({ ownerName, amount, direction }) => {
-      const owner = await findOrCreateDebtOwner(ledgerId, ownerName, token);
-      return { debtOwnerId: owner.id, amount, direction };
-    }),
+    data.debtAssignments.map(
+      async ({ ownerName, splitMode, amount, percentage, direction }) => {
+        const owner = await findOrCreateDebtOwner(ledgerId, ownerName, token);
+        return splitMode === "percentage"
+          ? { debtOwnerId: owner.id, percentage: (percentage ?? 0) / 100, direction }
+          : { debtOwnerId: owner.id, amount, direction };
+      },
+    ),
   );
 
   const isBundle = data.transactionType === "FIXED";
